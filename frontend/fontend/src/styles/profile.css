@@ -1,0 +1,128 @@
+/* ========== BACKGROUND ========== */
+.profile-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+/* ========== CARD (GLASS EFFECT) ========== */
+.profile-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 30px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeUp 0.6s ease;
+  color: white;
+}
+
+/* ========== HEADER ========== */
+.profile-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ========== TEXT ========== */
+.profile-header h2 {
+  font-size: 26px;
+}
+
+.profile-header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.profile-header span {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* ========== SECTION ========== */
+.profile-section h3 {
+  margin: 20px 0 10px;
+}
+
+.profile-section label {
+  display: block;
+  font-size: 14px;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+/* ========== SKILLS TAGS ========== */
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skills span {
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 13px;
+}
+
+/* ========== INPUTS ========== */
+textarea,
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 80px;
+  resize: none;
+}
+
+.links {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* ========== BUTTONS ========== */
+.profile-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.secondary-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  cursor: pointer;
+}
+
+/* ========== ANIMATION ========== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

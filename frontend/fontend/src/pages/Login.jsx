@@ -1,10 +1,11 @@
 import { useState } from "react";
+import "../index.css";
 
 export default function Login() {
   const [role, setRole] = useState("user");
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -13,49 +14,54 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const payload =
-      role === "admin"
-        ? { role, password: formData.password }
-        : { role, email: formData.email, password: formData.password };
-
-    console.log("Login Payload:", payload);
-    alert("Check console for submitted data");
+    console.log({ role, ...formData });
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="page-container">
+      <div className="card">
+        <h2>Welcome Back</h2>
 
-      {/* Role Selection */}
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Login as</label>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        {/* User-only email */}
-        {role === "user" && (
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            onChange={handleChange}
-            required
-          />
-        )}
+          {role === "user" && (
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter email"
+                onChange={handleChange}
+                required
+              />
+            </div>
+          )}
 
-        {/* Common / Admin field */}
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter password"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <button type="submit">Login</button>
-      </form>
+          <button className="btn">Login</button>
+        </form>
+
+        <p className="footer-text">
+          AI Interview Practice System
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,33 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
+import MainLayout from "./layouts/Mainlayout";
+import Dashboard from "./pages/Dashboard";
+import QuestionBank from "./pages/QuestionBank";
+import Interview from "./pages/Interview";
+import Reports from "./pages/Reports";
+import AdminLayout from "./admin/AdminLayout";
+import ManageQuestions from "./admin/ManageQuestions";
+import Profile from "./pages/profile";
+import Blogs from "./pages/Blogs";
+import InterviewExperience from "./pages/InterviewExperience";
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+          <Route element={<MainLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/questions" element={<QuestionBank />} />
+        <Route path="/interview" element={<Interview />} />
+        <Route path="/reports" element={<Reports />} />
+         <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<ManageQuestions />} />
+      </Route>
+        <Route path="/profile" element={<Profile />} />
+         <Route path="/blogs" element={<Blogs />} />
+          <Route path="/experiences" element={<InterviewExperience />} />
+          </Route>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

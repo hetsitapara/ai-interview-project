@@ -1,0 +1,124 @@
+/* ========== PAGE ========== */
+.qb-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+/* ========== MAIN CARD ========== */
+.qb-card {
+  width: 100%;
+  max-width: 1200px;
+  padding: 30px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: fadeUp 0.6s ease;
+}
+
+/* ========== TITLE ========== */
+.qb-title {
+  color: white;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+/* ========== SEARCH ========== */
+.qb-search {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+/* ========== LAYOUT ========== */
+.qb-layout {
+  display: flex;
+  gap: 20px;
+}
+
+/* ========== FILTERS ========== */
+.qb-filters {
+  width: 260px;
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.qb-filters h4 {
+  color: white;
+  margin-bottom: 12px;
+}
+
+.filter-section {
+  margin-bottom: 14px;
+}
+
+.filter-section h5 {
+  color: white;
+  margin-bottom: 8px;
+}
+
+.filter-section label {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+/* ========== QUESTION LIST ========== */
+.qb-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ========== QUESTION CARD ========== */
+.question-card {
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-card p {
+  color: white;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+/* ========== TAGS ========== */
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: white;
+}
+
+.tag.easy {
+  background: rgba(34, 197, 94, 0.7);
+}
+
+.tag.medium {
+  background: rgba(234, 179, 8, 0.7);
+}
+
+.tag.hard {
+  background: rgba(239, 68, 68, 0.7);
+}
+
+/* ========== BOOKMARK ========== */
+.bookmark {
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+}

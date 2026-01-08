@@ -1,0 +1,63 @@
+/* ================= NAVBAR RESET ================= */
+.navbar {
+  position: fixed;          /* KEY FIX */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+
+  background: rgba(255, 255, 255, 0.15); /* NOT solid white */
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* ================= LOGO ================= */
+.navbar-logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+}
+
+/* ================= LINKS ================= */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 22px;
+}
+
+.nav-link {
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.nav-link.active {
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  color: white;
+}
+
+/* ================= PROFILE ================= */
+.navbar-profile {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

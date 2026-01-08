@@ -1,62 +1,34 @@
-import { useState } from "react";
+import "../index.css";
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: ""
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const payload = {
-      role: "user",
-      ...formData
-    };
-
-    console.log("Register Payload:", payload);
-    alert("User registered (check console)");
-  };
-
   return (
-    <div>
-      <h2>User Register</h2>
+    <div className="page-container">
+      <div className="card">
+        <h2>Create Account</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          onChange={handleChange}
-          required
-        />
+        <form>
+          <div className="form-group">
+            <label>Full Name</label>
+            <input type="text" placeholder="Your name" required />
+          </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="Email address" required />
+          </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Password" required />
+          </div>
 
-        <button type="submit">Register</button>
-      </form>
+          <button className="btn">Register</button>
+        </form>
+
+        <p className="footer-text">
+          Already have an account? <span className="link">Login</span>
+        </p>
+      </div>
     </div>
   );
 }
