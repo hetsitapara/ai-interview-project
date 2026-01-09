@@ -1,17 +1,2 @@
 /* base.css */
-
-:root {
-  --primary: #4f46e5;
-  --secondary: #9333ea;
-  --accent: #ec4899;
-  --white: #ffffff;
-  --glass: rgba(255, 255, 255, 0.2);
-  --text-light: #f1f5f9;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, sans-serif;
-}
+/* DEPRECATED: Variables and resets moved to index.css */

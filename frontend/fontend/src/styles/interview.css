@@ -1,20 +1,23 @@
 /* ========== INTERVIEW PAGE CONTAINER ========== */
 .interview-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+  background: var(--page-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 40px;
 }
 
-/* ========== INTERVIEW CARD (SAME GLASS STYLE) ========== */
+/* ========== INTERVIEW CARD ========== */
 .interview-card {
-  width: 780px;
-  padding: 30px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 800px;
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
   animation: fadeUp 0.6s ease;
 }
 
@@ -22,93 +25,141 @@
 .interview-header {
   display: flex;
   justify-content: space-between;
-  color: white;
+  color: var(--text-muted);
   font-size: 14px;
-  margin-bottom: 8px;
-  opacity: 0.9;
+  font-weight: 500;
+  margin-bottom: 12px;
 }
 
 /* ========== PROGRESS BAR ========== */
 .progress-track {
   height: 6px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
+  overflow: hidden;
 }
 
 .progress-fill {
   width: 20%;
   height: 100%;
-  background: white;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
   border-radius: 10px;
+  transition: width 0.3s ease;
 }
 
 /* ========== QUESTION BOX ========== */
 .question-box {
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .question-box p {
-  color: white;
-  font-size: 15px;
+  color: var(--text-light);
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 /* ========== ANSWER BOX ========== */
 .answer-box {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 
 .answer-box textarea {
   width: 100%;
-  height: 160px;
-  padding: 15px;
-  border-radius: 12px;
-  border: none;
+  height: 200px;
+  padding: 20px;
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   resize: none;
-  font-size: 14px;
+  font-size: 15px;
+  color: var(--text-light);
   outline: none;
+  transition: all 0.3s ease;
+  line-height: 1.6;
 }
 
 .answer-box textarea::placeholder {
-  color: #6b7280;
+  color: rgba(148, 163, 184, 0.5);
 }
 
-/* focus effect same as inputs */
 .answer-box textarea:focus {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+  border-color: var(--primary);
+  background: rgba(15, 23, 42, 0.5);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 /* microphone icon */
 .mic-icon {
   position: absolute;
-  right: 15px;
-  bottom: 15px;
-  font-size: 18px;
+  right: 20px;
+  bottom: 20px;
+  width: 50px;
+  height: 50px;
   cursor: pointer;
-  color: #4f46e5;
+  color: var(--primary);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  user-select: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.mic-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+
+.mic-icon.active {
+  color: #ef4444; /* Red for recording */
+  background: rgba(239, 68, 68, 0.2);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
 }
 
 /* ========== ACTION BUTTONS ========== */
 .action-buttons {
   display: flex;
-  gap: 15px;
+  gap: 16px;
+  justify-content: flex-end;
 }
 
-/* PRIMARY BUTTON (REUSE .btn) */
-.btn.primary {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
+.action-buttons button {
+  width: auto;
+  min-width: 120px;
 }
 
-/* SECONDARY BUTTON */
+/* SECONDARY BUTTON OVERRIDE */
 .btn.secondary {
-  background: rgba(255, 255, 255, 0.4);
-  color: #1f2937;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
 }
 
 .btn.secondary:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: none;
 }

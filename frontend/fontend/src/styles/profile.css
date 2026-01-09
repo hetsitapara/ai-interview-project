@@ -1,128 +1,173 @@
 /* ========== BACKGROUND ========== */
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+  background: var(--page-gradient);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: 40px;
 }
 
-/* ========== CARD (GLASS EFFECT) ========== */
+/* ========== PROFILE CARD ========== */
 .profile-card {
   width: 100%;
   max-width: 900px;
-  padding: 30px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
   animation: fadeUp 0.6s ease;
-  color: white;
+  color: var(--text-light);
 }
 
 /* ========== HEADER ========== */
 .profile-header {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  border: 2px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px; /* Placeholder for icon/text if needed */
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
 /* ========== TEXT ========== */
+.profile-info {
+  flex: 1;
+}
+
 .profile-header h2 {
-  font-size: 26px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-light);
 }
 
 .profile-header p {
-  font-size: 14px;
-  opacity: 0.9;
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
 
 .profile-header span {
   font-size: 13px;
-  opacity: 0.85;
+  padding: 4px 10px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
 /* ========== SECTION ========== */
+.profile-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
 .profile-section h3 {
-  margin: 20px 0 10px;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-light);
 }
 
 .profile-section label {
   display: block;
   font-size: 14px;
-  margin-top: 14px;
-  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
 /* ========== SKILLS TAGS ========== */
 .skills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
 .skills span {
-  padding: 6px 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.25);
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   font-size: 13px;
+  color: var(--text-light);
+  transition: all 0.2s;
+}
+
+.skills span:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 /* ========== INPUTS ========== */
 textarea,
-input {
+input[type="text"],
+input[type="email"] {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.3);
+  border: 1px solid var(--glass-border);
+  color: var(--text-light);
   outline: none;
   font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+textarea:focus,
+input:focus {
+  border-color: var(--primary);
+  background: rgba(15, 23, 42, 0.5);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 textarea {
-  min-height: 80px;
-  resize: none;
+  min-height: 100px;
+  resize: vertical;
 }
 
 .links {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 16px;
+  margin-top: 12px;
 }
 
 /* ========== BUTTONS ========== */
 .profile-actions {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 40px;
 }
 
 .secondary-btn {
-  padding: 12px 20px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255, 255, 255, 0.3);
-  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* ========== ANIMATION ========== */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }

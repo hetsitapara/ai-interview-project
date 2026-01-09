@@ -5,7 +5,7 @@ import "../styles/admin.css";
 export default function AdminLayout() {
   return (
     <div className="admin-page">
-  <div className="admin-sidebar">...</div>
+  <AdminSidebar />
   <div className="admin-content">
     <div className="admin-card">
       <Outlet />

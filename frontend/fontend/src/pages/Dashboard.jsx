@@ -39,7 +39,9 @@ export default function Dashboard() {
 
           <div className="score-box">
             <h3>Interview Readiness</h3>
-            <div className="score-circle">78%</div>
+            <div className="score-circle">
+              <div className="score-circle-inner">78%</div>
+            </div>
             <p>Ready for Mid-Level</p>
           </div>
         </div>

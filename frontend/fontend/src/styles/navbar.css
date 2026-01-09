@@ -1,63 +1,97 @@
 /* ================= NAVBAR RESET ================= */
 .navbar {
-  position: fixed;          /* KEY FIX */
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
+  height: 80px;
   z-index: 1000;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 40px;
+  padding: 0 48px;
 
-  background: rgba(255, 255, 255, 0.15); /* NOT solid white */
-  backdrop-filter: blur(12px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  /* Glassmorphism */
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 /* ================= LOGO ================= */
 .navbar-logo {
-  font-size: 22px;
-  font-weight: bold;
-  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-light);
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ================= LINKS ================= */
 .navbar-links {
   list-style: none;
   display: flex;
-  gap: 22px;
+  gap: 32px;
 }
 
 .nav-link {
   text-decoration: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  padding: 8px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-muted);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
+  color: var(--text-light);
+}
+
+/* Underline animation on hover */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
 }
 
 .nav-link.active {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  color: white;
+  color: var(--text-light);
 }
 
 /* ================= PROFILE ================= */
 .navbar-profile {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
+  background: linear-gradient(135deg, var(--glass-bg), rgba(255,255,255,0.1));
+  border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-light);
+}
+
+.navbar-profile:hover {
+  transform: scale(1.05);
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
 }

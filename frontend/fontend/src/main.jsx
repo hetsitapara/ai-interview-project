@@ -6,6 +6,13 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/auth.css";
 import "./styles/dashboard.css";
+import "./styles/admin.css";
+import "./styles/report.css";
+import "./styles/blog.css";
+import "./styles/interview.css";
+import "./styles/interviewExperience.css";
+import "./styles/questionbank.css";
+import "./styles/profile.css";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(

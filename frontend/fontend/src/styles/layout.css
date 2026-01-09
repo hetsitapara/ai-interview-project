@@ -1,5 +1,6 @@
 /* layout.css */
 
+<<<<<<< HEAD
 .page-container {
   min-height: 100vh;
   background: linear-gradient(
@@ -12,4 +13,17 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
+=======
+/* .page-container is now mostly handled globally in index.css */
+/* Minimal overrides here if specific layouts need adjustment */
+
+.page-container {
+  /* Ensure it fills screen and maintains center alignment paradigm */
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+>>>>>>> a82ca71 (include authentication and voice to text feature)
 }

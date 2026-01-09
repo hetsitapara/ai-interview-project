@@ -1,124 +1,186 @@
 /* ========== PAGE ========== */
 .qb-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4f46e5, #9333ea, #ec4899);
+  background: var(--page-gradient);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px;
+  padding: 120px 40px 40px; /* Added top padding for fixed navbar */
 }
 
 /* ========== MAIN CARD ========== */
 .qb-card {
   width: 100%;
   max-width: 1200px;
-  padding: 30px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
   animation: fadeUp 0.6s ease;
 }
 
 /* ========== TITLE ========== */
 .qb-title {
-  color: white;
-  font-size: 30px;
-  margin-bottom: 20px;
+  color: var(--text-light);
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
 }
 
 /* ========== SEARCH ========== */
 .qb-search {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  margin-bottom: 20px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: rgba(15, 23, 42, 0.3);
+  color: var(--text-light);
+  margin-bottom: 32px;
   outline: none;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.qb-search:focus {
+  border-color: var(--primary);
+  background: rgba(15, 23, 42, 0.5);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 /* ========== LAYOUT ========== */
 .qb-layout {
-  display: flex;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .qb-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ========== FILTERS ========== */
 .qb-filters {
-  width: 260px;
-  padding: 20px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.25);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  height: fit-content;
 }
 
 .qb-filters h4 {
-  color: white;
-  margin-bottom: 12px;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .filter-section {
-  margin-bottom: 14px;
+  margin-bottom: 24px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
 }
 
 .filter-section h5 {
-  color: white;
-  margin-bottom: 8px;
+  color: var(--text-light);
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
 
 .filter-section label {
-  display: block;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
   font-size: 14px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.filter-section label:hover {
+  color: var(--text-light);
 }
 
 /* ========== QUESTION LIST ========== */
 .qb-list {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 16px;
 }
 
 /* ========== QUESTION CARD ========== */
 .question-card {
-  padding: 18px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.25);
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.question-card:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .question-card p {
-  color: white;
-  font-size: 15px;
-  margin-bottom: 6px;
+  color: var(--text-light);
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 /* ========== TAGS ========== */
 .tag {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: white;
 }
 
 .tag.easy {
-  background: rgba(34, 197, 94, 0.7);
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .tag.medium {
-  background: rgba(234, 179, 8, 0.7);
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.3);
 }
 
 .tag.hard {
-  background: rgba(239, 68, 68, 0.7);
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* ========== BOOKMARK ========== */
 .bookmark {
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  color: white;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.bookmark:hover {
+  color: #facc15; /* Yellow on hover */
+  transform: scale(1.1);
 }

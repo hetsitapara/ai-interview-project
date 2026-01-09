@@ -9,6 +9,8 @@ import Interview from "./pages/Interview";
 import Reports from "./pages/Reports";
 import AdminLayout from "./admin/AdminLayout";
 import ManageQuestions from "./admin/ManageQuestions";
+import ManageUsers from "./admin/ManageUsers";
+import ManageBlogs from "./admin/ManageBlogs";
 import Profile from "./pages/profile";
 import Blogs from "./pages/Blogs";
 import InterviewExperience from "./pages/InterviewExperience";
@@ -21,13 +23,17 @@ export default function App() {
         <Route path="/questions" element={<QuestionBank />} />
         <Route path="/interview" element={<Interview />} />
         <Route path="/reports" element={<Reports />} />
-         <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<ManageQuestions />} />
-      </Route>
-        <Route path="/profile" element={<Profile />} />
-         <Route path="/blogs" element={<Blogs />} />
+          <Route path="/blogs" element={<Blogs />} />
           <Route path="/experiences" element={<InterviewExperience />} />
-          </Route>
+        </Route>
+
+        {/* Admin Routes (No Navbar from MainLayout) */}
+        <Route path="/admin" element={<AdminLayout />}>
+           <Route path="manage-questions" element={<ManageQuestions />} />
+           <Route path="manage-users" element={<ManageUsers />} />
+           <Route path="manage-blogs" element={<ManageBlogs />} />
+        </Route>
+
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

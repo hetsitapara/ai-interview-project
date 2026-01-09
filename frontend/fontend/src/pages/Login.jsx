@@ -1,26 +1,58 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "../index.css";
 
 export default function Login() {
-  const [role, setRole] = useState("user");
+  const navigate = useNavigate();
+  const [role, setRole] = useState("user"); // Still keeping UI selection if desired, but backend validates credentials
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ role, ...formData });
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, role }), // Sending role just in case backend wants it later
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // SUCCESS
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Redirect
+        if (data.user.role === 'admin') {
+            navigate("/admin/manage-questions");
+        } else {
+            navigate("/dashboard");
+        }
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to connect to server");
+    }
   };
 
   return (
     <div className="page-container">
       <div className="card">
         <h2>Welcome Back</h2>
+        {error && <p style={{color: "red", textAlign: "center", marginBottom: "1rem"}}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -31,18 +63,16 @@ export default function Login() {
             </select>
           </div>
 
-          {role === "user" && (
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter email"
-                onChange={handleChange}
-                required
-              />
-            </div>
-          )}
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter email"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
           <div className="form-group">
             <label>Password</label>
@@ -59,7 +89,7 @@ export default function Login() {
         </form>
 
         <p className="footer-text">
-          AI Interview Practice System
+          Don't have an account? <Link to="/register" className="link">Register</Link>
         </p>
       </div>
     </div>
