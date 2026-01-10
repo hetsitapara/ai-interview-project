@@ -14,6 +14,7 @@ import ManageBlogs from "./admin/ManageBlogs";
 import Profile from "./pages/profile";
 import Blogs from "./pages/Blogs";
 import InterviewExperience from "./pages/InterviewExperience";
+import LandingPage from "./pages/LandingPage";
 export default function App() {
   return (
     <BrowserRouter>
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/reports" element={<Reports />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/experiences" element={<InterviewExperience />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Admin Routes (No Navbar from MainLayout) */}
@@ -34,7 +36,7 @@ export default function App() {
            <Route path="manage-blogs" element={<ManageBlogs />} />
         </Route>
 
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

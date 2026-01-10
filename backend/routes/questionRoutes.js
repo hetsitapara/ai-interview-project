@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { getQuestions, addQuestion, updateQuestion, deleteQuestion } = require('../controllers/questionController');
+const { getQuestions, addQuestion, updateQuestion, deleteQuestion, createQuestions } = require('../controllers/questionController');
 const { protect, admin } = require('../middleware/authMiddleware');
+
+router.route('/bulk').post(protect, admin, createQuestions);
 
 router.route('/')
     .get(protect, getQuestions)

@@ -3,15 +3,22 @@ const Question = require('../models/Question');
 // @desc    Get all questions (with filters)
 // @route   GET /api/questions
 // @access  Private (or Public? Let's make it Private as only logged users might access the bank)
+// @desc    Get all questions (with filters)
+// @route   GET /api/questions
+// @access  Private
 const getQuestions = async (req, res) => {
     try {
-        const { topic, difficulty, search } = req.query;
+        const { topic, category, difficulty, search } = req.query;
         let query = {};
 
         if (topic) {
-            // Support comma separated topics or single topic
             const topics = topic.split(',');
             query.topic = { $in: topics };
+        }
+
+        if (category) {
+            const categories = category.split(',');
+            query.category = { $in: categories };
         }
 
         if (difficulty) {
@@ -20,13 +27,48 @@ const getQuestions = async (req, res) => {
         }
 
         if (search) {
-            query.title = { $regex: search, $options: 'i' }; // Case-insensitive search
+            // Use text search if available, otherwise regex fall back
+            // For partial matches regex is often preferred by users, strictly text index requires full words usually.
+            // Let's stick to regex for "contains" search behavior which users usually expect.
+            // But user asked for indexing. We added index. We can use it if we want 'smart' search.
+            // Let's use Regex on question and answer for broad matching.
+            query.$or = [
+                { question: { $regex: search, $options: 'i' } },
+                { answer: { $regex: search, $options: 'i' } }
+            ];
         }
 
-        const questions = await Question.find(query).sort({ createdAt: -1 });
-        res.json(questions);
+        // Pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const total = await Question.countDocuments(query);
+        const questions = await Question.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.json({
+            questions,
+            page,
+            pages: Math.ceil(total / limit),
+            total
+        });
     } catch (error) {
         console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get all distinct categories
+// @route   GET /api/questions/categories
+// @access  Private
+const getCategories = async (req, res) => {
+    try {
+        const categories = await Question.distinct('category');
+        res.json(categories.filter(c => c && c.trim() !== '')); // Remove empty categories
+    } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }
 };
@@ -36,17 +78,19 @@ const getQuestions = async (req, res) => {
 // @access  Private (ideally admin only, but for now any user)
 const addQuestion = async (req, res) => {
     try {
-        const { title, topic, difficulty, answer } = req.body;
+        const { question, topic, category, difficulty, answer, source_type } = req.body;
 
-        if (!title || !topic || !difficulty) {
+        if (!question || !topic || !difficulty) {
             return res.status(400).json({ message: 'Please provide all required fields' });
         }
 
-        const question = await Question.create({
-            title,
+        const newQuestion = await Question.create({
+            question,
             topic,
+            category,
             difficulty,
-            answer
+            answer,
+            source_type
         });
 
         res.status(201).json(question);
@@ -100,9 +144,32 @@ const deleteQuestion = async (req, res) => {
     }
 };
 
+// @desc    Bulk add questions
+// @route   POST /api/questions/bulk
+// @access  Private/Admin
+const createQuestions = async (req, res) => {
+    try {
+        const questions = req.body; // Expecting an array of question objects
+
+        if (!Array.isArray(questions) || questions.length === 0) {
+            return res.status(400).json({ message: 'Please provide an array of questions' });
+        }
+
+        // Optional: Validate each question object here if needed
+
+        const createdQuestions = await Question.insertMany(questions);
+        res.status(201).json(createdQuestions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error: ' + error.message });
+    }
+};
+
 module.exports = {
     getQuestions,
+    getCategories,
     addQuestion,
+    createQuestions,
     updateQuestion,
     deleteQuestion
 };

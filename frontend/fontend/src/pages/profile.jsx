@@ -1,5 +1,3 @@
-import "../styles/profile.css";
-
 import { useState, useEffect } from "react";
 import "../styles/profile.css";
 
@@ -97,8 +95,8 @@ export default function Profile() {
     }
   };
 
-  if (loading) return <div className="profile-page">Loading...</div>;
-  if (error) return <div className="profile-page">Error: {error}</div>;
+  if (loading) return <div className="profile-page"><p style={{color: 'white'}}>Loading profile...</p></div>;
+  if (error) return <div className="profile-page"><p style={{color: 'red'}}>Error: {error}</p></div>;
 
   return (
     <div className="profile-page">

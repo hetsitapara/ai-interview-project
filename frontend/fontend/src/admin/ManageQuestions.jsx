@@ -4,6 +4,8 @@ import "../styles/admin.css"; // Ensure you have styles for modals/forms if need
 
 export default function ManageQuestions() {
   const [questions, setQuestions] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -11,22 +13,25 @@ export default function ManageQuestions() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState({
-    title: "",
+    question: "",
     topic: "DSA",
+    category: "",
     difficulty: "Easy",
-    answer: ""
+    answer: "",
+    source_type: "Technical"
   });
 
   // Fetch Questions
   const fetchQuestions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/questions', {
+      const res = await fetch(`http://localhost:5001/api/questions?page=${page}&limit=20`, {
          headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch questions');
       const data = await res.json();
-      setQuestions(data);
+      setQuestions(data.questions || []);
+      setTotalPages(data.pages || 1);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,7 +41,7 @@ export default function ManageQuestions() {
 
   useEffect(() => {
     fetchQuestions();
-  }, []);
+  }, [page]);
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -46,7 +51,7 @@ export default function ManageQuestions() {
 
   // Open Add Modal
   const openAddModal = () => {
-    setCurrentQuestion({ title: "", topic: "DSA", difficulty: "Easy", answer: "" });
+    setCurrentQuestion({ question: "", topic: "DSA", category: "", difficulty: "Easy", answer: "", source_type: "Technical" });
     setIsEditing(false);
     setShowModal(true);
   };
@@ -110,19 +115,64 @@ export default function ManageQuestions() {
     }
   };
 
+  // Bulk Modal State
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [bulkJson, setBulkJson] = useState("");
+
+  // ... existing code ...
+
+  // Submit Bulk Form
+  const handleBulkSubmit = async (e) => {
+    e.preventDefault();
+    try {
+        const token = localStorage.getItem('token');
+        let parsedData;
+        try {
+            parsedData = JSON.parse(bulkJson);
+            if (!Array.isArray(parsedData)) throw new Error("Input must be a JSON array");
+        } catch (err) {
+            throw new Error("Invalid JSON format: " + err.message);
+        }
+
+        const res = await fetch('http://localhost:5001/api/questions/bulk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(parsedData)
+        });
+
+        if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.message || 'Bulk upload failed');
+        }
+
+        setShowBulkModal(false);
+        setBulkJson("");
+        fetchQuestions(); // Refresh list
+        alert(`Successfully uploaded ${parsedData.length} questions!`);
+    } catch (err) {
+        alert(err.message);
+    }
+  };
+
   return (
     <>
       <div className="admin-header">
         <h3>Admin Dashboard - Manage Questions</h3>
       </div>
 
-      <button className="add-btn" onClick={openAddModal}>+ Add New Question</button>
+      <div style={{display: 'flex', gap: '10px'}}>
+        <button className="add-btn" onClick={openAddModal}>+ Add New Question</button>
+        <button className="add-btn" style={{background: '#8b5cf6'}} onClick={() => setShowBulkModal(true)}>+ Bulk Upload</button>
+      </div>
 
       {loading ? <p>Loading...</p> : (
         <table className="admin-table">
             <thead>
             <tr>
-                <th>Title</th>
+                <th>Question</th>
                 <th>Topic</th>
                 <th>Difficulty</th>
                 <th>Actions</th>
@@ -131,7 +181,7 @@ export default function ManageQuestions() {
             <tbody>
             {questions.map(q => (
                 <tr key={q._id}>
-                <td>{q.title}</td>
+                <td>{q.question}</td>
                 <td>{q.topic}</td>
                 <td>
                     <span className={`tag ${q.difficulty.toLowerCase()}`}>{q.difficulty}</span>
@@ -146,6 +196,25 @@ export default function ManageQuestions() {
         </table>
       )}
 
+      {/* Pagination Controls */}
+      <div style={{display: 'flex', justifyContent: 'center', margin: '20px 0', gap: '10px'}}>
+        <button 
+            disabled={page === 1} 
+            onClick={() => setPage(page - 1)}
+            style={{padding: '5px 15px', cursor: 'pointer', opacity: page === 1 ? 0.5 : 1}}
+        >
+            Previous
+        </button>
+        <span style={{color: 'white', alignSelf: 'center'}}>Page {page} of {totalPages}</span>
+        <button 
+            disabled={page === totalPages} 
+            onClick={() => setPage(page + 1)}
+            style={{padding: '5px 15px', cursor: 'pointer', opacity: page === totalPages ? 0.5 : 1}}
+        >
+            Next
+        </button>
+      </div>
+
       {/* Modal Overlay */}
       {showModal && (
         <div className="modal-overlay">
@@ -153,8 +222,12 @@ export default function ManageQuestions() {
                 <h3>{isEditing ? 'Edit Question' : 'Add New Question'}</h3>
                 <form onSubmit={handleSubmit} className="admin-form">
                     <div className="form-group">
-                        <label>Title</label>
-                        <input type="text" name="title" value={currentQuestion.title} onChange={handleChange} required />
+                        <label>Question</label>
+                        <input type="text" name="question" value={currentQuestion.question} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Category (Optional)</label>
+                        <input type="text" name="category" value={currentQuestion.category} onChange={handleChange} placeholder="e.g. DBMS, Web Dev"/>
                     </div>
                     <div className="form-group">
                         <label>Topic</label>
@@ -182,6 +255,32 @@ export default function ManageQuestions() {
                     <div className="modal-actions">
                         <button type="button" onClick={() => setShowModal(false)} className="cancel-btn">Cancel</button>
                         <button type="submit" className="save-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkModal && (
+        <div className="modal-overlay">
+            <div className="modal-content">
+                <h3>Bulk Upload Questions</h3>
+                <p style={{fontSize: '0.9rem', color: '#ccc', marginBottom: '10px'}}>Paste JSON array of questions here.</p>
+                <form onSubmit={handleBulkSubmit} className="admin-form">
+                    <div className="form-group">
+                        <textarea 
+                            value={bulkJson} 
+                            onChange={(e) => setBulkJson(e.target.value)} 
+                            placeholder='[{"title": "...", "topic": "...", "difficulty": "...", "answer": "..."}]'
+                            style={{minHeight: '200px', fontFamily: 'monospace'}}
+                            required
+                        ></textarea>
+                    </div>
+                    
+                    <div className="modal-actions">
+                        <button type="button" onClick={() => setShowBulkModal(false)} className="cancel-btn">Cancel</button>
+                        <button type="submit" className="save-btn">pUpload</button>
                     </div>
                 </form>
             </div>

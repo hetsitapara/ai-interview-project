@@ -1,14 +1,17 @@
 const mongoose = require('mongoose');
 
 const questionSchema = mongoose.Schema({
-    title: {
+    question: {
         type: String,
-        required: [true, 'Please add a question title']
+        required: [true, 'Please add a question']
     },
     topic: {
         type: String,
-        required: [true, 'Please add a topic'],
-        enum: ['DSA', 'DBMS', 'OS', 'HR', 'Other'] // Enforce consistent topics
+        required: [true, 'Please add a topic']
+    },
+    category: {
+        type: String,
+        default: 'General'
     },
     difficulty: {
         type: String,
@@ -19,12 +22,18 @@ const questionSchema = mongoose.Schema({
         type: String,
         default: ''
     },
+    source_type: {
+        type: String,
+        default: 'Technical'
+    },
     tags: {
         type: [String],
         default: []
     }
-}, {
     timestamps: true
 });
+
+// Add text index for search optimization
+questionSchema.index({ question: 'text', answer: 'text', category: 'text', topic: 'text' });
 
 module.exports = mongoose.model('Question', questionSchema);
