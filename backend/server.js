@@ -26,6 +26,9 @@ app.use('/api/questions', require('./routes/questionRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/blogs', require('./routes/blogRoutes'));
 app.use('/api/interview', require('./routes/interviewRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/experiences', require('./routes/experienceRoutes'));
+app.use('/api/mcq', require('./routes/mcqRoutes'));
 
 // Error Handler (Basic)
 app.use((err, req, res, next) => {

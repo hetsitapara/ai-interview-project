@@ -6,50 +6,42 @@ export default function InterviewExperience() {
   const [companyFilter, setCompanyFilter] = useState("Company");
   const [difficultyFilter, setDifficultyFilter] = useState("Difficulty");
 
-  // Mock Data
-  const experiences = [
-    {
-      id: 1,
-      company: "Google",
-      role: "Software Engineer",
-      level: "Medium",
-      desc: "Had 3 rounds of coding interviews and 1 system design round. Focus on DSA and scalability.",
-      topics: ["Graph Algorithms", "Dynamic Programming", "Distributed Systems"]
-    },
-    {
-      id: 2,
-      company: "Amazon",
-      role: "SDE I",
-      level: "Easy",
-      desc: "Two coding rounds focused on Arrays and Strings. One LP round.",
-      topics: ["Arrays", "Strings", "Leadership Principles"]
-    },
-    {
-      id: 3,
-      company: "TCS",
-      role: "System Engineer",
-      level: "Easy",
-      desc: "Basic aptitude and one technical round with basic Java questions.",
-      topics: ["Java Basics", "Aptitude", "SQL"]
-    },
-    {
-      id: 4,
-      company: "Infosys",
-      role: "Specialist Programmer",
-      level: "Hard",
-      desc: "Competitve programming style questions. Dynamic Programming and Trees.",
-      topics: ["DP", "Trees", "Graph"]
-    }
-  ];
+  const [experiences, setExperiences] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredExperiences = experiences.filter(exp => {
-      const matchesSearch = exp.company.toLowerCase().includes(search.toLowerCase()) || 
-                            exp.role.toLowerCase().includes(search.toLowerCase());
-      const matchesCompany = companyFilter === "Company" || exp.company === companyFilter;
-      const matchesDifficulty = difficultyFilter === "Difficulty" || exp.level === difficultyFilter;
+  const fetchExperiences = async () => {
+      setLoading(true);
+      try {
+          const params = new URLSearchParams();
+          if (search) params.append('search', search);
+          if (companyFilter !== "Company") params.append('company', companyFilter);
+          if (difficultyFilter !== "Difficulty") params.append('level', difficultyFilter);
 
-      return matchesSearch && matchesCompany && matchesDifficulty;
-  });
+          const token = localStorage.getItem('token');
+          // Assuming public endpoint, but sending token if good practice (not strictly needed for GET based on route)
+          const res = await fetch(`http://localhost:5001/api/experiences?${params.toString()}`);
+          const data = await res.json();
+          if(res.ok) {
+              setExperiences(data);
+          }
+      } catch (err) {
+          console.error("Failed to fetch experiences", err);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  useEffect(() => {
+     // Debounce search
+     const timer = setTimeout(() => {
+         fetchExperiences();
+     }, 500);
+     return () => clearTimeout(timer);
+  }, [search, companyFilter, difficultyFilter]);
+
+  // Unique Companies for dropdown (can be computed from fetched data or separate API, for now simple from current list or static if desired. Static list of major companies is fine or we can extend logic later)
+  // For now let's keep the filter static or simple, the search triggers the fetch.
+
 
   return (
     <div className="exp-page">
@@ -85,11 +77,13 @@ export default function InterviewExperience() {
 
         {/* Experience List */}
         <div className="exp-list">
-          {filteredExperiences.length > 0 ? (
-              filteredExperiences.map(exp => (
-                  <ExperienceCard key={exp.id} data={exp} />
-              ))
-          ) : <p>No experiences found matching filters.</p>}
+          {loading ? <p>Loading experiences...</p> : (
+             experiences.length > 0 ? (
+                experiences.map(exp => (
+                    <ExperienceCard key={exp._id} data={exp} />
+                ))
+            ) : <p>No experiences found matching filters.</p>
+          )}
         </div>
 
       </div>

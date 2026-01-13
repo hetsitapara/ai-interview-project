@@ -62,6 +62,11 @@ export default function Navbar() {
                 </NavLink>
                 </li>
                 <li>
+                <NavLink to="/mcq" className="nav-link">
+                    MCQ Practice
+                </NavLink>
+                </li>
+                <li>
                 <NavLink to="/blogs" className="nav-link">
                     Blogs
                 </NavLink>

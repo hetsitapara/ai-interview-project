@@ -55,13 +55,13 @@ export default function Login() {
         {error && <p style={{color: "red", textAlign: "center", marginBottom: "1rem"}}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          {/* <div className="form-group">
             <label>Login as</label>
             <select value={role} onChange={(e) => setRole(e.target.value)}>
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
-          </div>
+          </div> */}
 
           <div className="form-group">
             <label>Email</label>
