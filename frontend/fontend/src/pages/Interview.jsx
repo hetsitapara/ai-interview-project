@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "../styles/interview.css";
+import "../styles/report.css";
+import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo } from "react-icons/fa";
 
 export default function Interview() {
   const [step, setStep] = useState("setup"); // setup, interview, loading, results
@@ -382,71 +384,92 @@ export default function Interview() {
   const renderResults = () => {
       if (!report) return <div>No report data found.</div>;
       
+      const questionsData = report.questions || [];
+
       return (
-          <div className="report-card" style={{marginTop: '100px', maxWidth: '1000px'}}>
-              <h2 className="report-title" style={{textAlign: 'center'}}>Interview Analysis</h2>
-              
-              <div className="score-grid">
-                  <div className="score-card">
-                      <h4>Overall Score</h4>
-                      <div className="score">{report.overallScore.toFixed(1)}/10</div>
-                      <span>Based on AI Evaluation</span>
-                  </div>
-                  <div className="score-card">
-                      <h4>Questions Attempted</h4>
-                      <div className="score">{report.questions.length}</div>
-                      <span>{config.category} • {config.difficulty}</span>
-                  </div>
-                  <div className="score-card">
-                      <h4>Performance</h4>
-                      <div className="score">
-                          {report.overallScore >= 8 ? "Excellent" : report.overallScore >= 5 ? "Good" : "Needs Practice"}
+          <div className="report-page" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 100, height: 'auto', minHeight: '100vh', padding: '40px 20px' }}>
+              <div className="detail-container fade-in" style={{ maxWidth: '1000px', margin: '0 auto', background: 'rgba(15, 23, 42, 0.95)' }}>
+                  
+                  {/* Header */}
+                  <div className="report-header">
+                      <div className="report-meta">
+                          <h1>Interview Analysis</h1>
+                          <p>{config.category} • {questionsData.length} Questions</p>
                       </div>
-                      <span>Qualitative Rating</span>
+                      <div className="badge positive" style={{ fontSize: '1.5rem', padding: '10px 25px' }}>
+                          Score: {report.overallScore.toFixed(1)}/10
+                      </div>
                   </div>
-              </div>
-              
-              <div className="history-list">
-                  {report.questions.map((q, idx) => (
-                      <div key={idx} className="history-card" style={{flexDirection: 'column', alignItems: 'flex-start', cursor: 'default'}}>
-                          <div style={{width: '100%', marginBottom: '15px'}}>
-                              <div className="history-info">
-                                  <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                                     <h3>Q{idx+1}: {q.questionText}</h3>
-                                     <span className={`score-badge`} style={{background: q.final_score >= 7 ? '#2ed573' : q.final_score >= 4 ? '#ffa502' : '#ff4757'}}>
-                                         {q.final_score}/10
-                                     </span>
-                                  </div>
+
+                  {/* Stats Row */}
+                  <div className="stats-row">
+                      <div className="stat-card">
+                          <div className="stat-title">Overall Score</div>
+                          <div className="stat-value">{report.overallScore.toFixed(1)}</div>
+                          <div style={{color: '#9ca3af', fontSize: '0.8rem'}}>Based on AI Evaluation</div>
+                      </div>
+                      <div className="stat-card">
+                          <div className="stat-title">Performance</div>
+                          <div className="stat-value" style={{ fontSize: '2rem', marginTop: '15px' }}>
+                              {report.overallScore >= 8 ? "Excellent" : report.overallScore >= 5 ? "Good" : "Needs Work"}
+                          </div>
+                          <div style={{color: '#9ca3af', fontSize: '0.8rem'}}>Qualitative Rating</div>
+                      </div>
+                      <div className="stat-card">
+                          <div className="stat-title">Focus Area</div>
+                          <div className="stat-value" style={{ fontSize: '1.8rem', marginTop: '18px' }}>{config.category}</div>
+                          <div style={{color: '#9ca3af', fontSize: '0.8rem'}}>Interview Type</div>
+                      </div>
+                  </div>
+                  
+                  {/* Detailed Analysis */}
+                  <h3 className="section-title"><FaLightbulb /> Detailed Question Analysis</h3>
+                  
+                  <div className="questions-analysis">
+                      {questionsData.map((q, idx) => (
+                          <div key={idx} className="qa-card" style={{ borderColor: q.final_score >= 7 ? '#2ed573' : q.final_score >= 4 ? '#facc15' : '#ff4757' }}>
+                              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px'}}>
+                                  <div className="qa-question">Q{idx+1}: {q.questionText}</div>
+                                  <span className={`badge ${q.final_score >= 7 ? 'positive' : q.final_score >= 4 ? 'neutral' : 'negative'}`}>
+                                      {q.final_score}/10
+                                  </span>
+                              </div>
+                              
+                              <div className="qa-answer">
+                                  <span style={{color: '#94a3b8', fontSize: '0.8rem', display: 'block', marginBottom: '5px'}}>Your Answer:</span>
+                                  "{q.userAnswer}"
+                              </div>
+                              
+                              <div className="qa-answer" style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                                   <span style={{color: '#a5b4fc', fontSize: '0.8rem', display: 'block', marginBottom: '5px'}}>Ideal Answer:</span>
+                                   {q.idealAnswer || "Not available"}
+                              </div>
+
+                              <div className="metrics-badges">
+                                  <span className="badge similarity">
+                                      <FaCheckCircle /> Similarity: {Math.round((q.similarity_score||0) * 100)}%
+                                  </span>
+                                  <span className="badge tone">
+                                      <FaCommentDots /> Keywords: {Math.round((q.keyword_score||0) * 100)}%
+                                  </span>
+                                  {q.sentiment_score && (
+                                       <span className={`badge ${q.sentiment_score > 0 ? 'positive' : 'negative'}`}>
+                                          Tone: {q.sentiment_score > 0 ? "Positive" : "Negative"}
+                                      </span>
+                                  )}
                               </div>
                           </div>
-
-                          <div style={{background: 'rgba(255,255,255,0.03)', padding: '15px', borderRadius: '8px', width: '100%', marginBottom: '10px'}}>
-                              <p style={{color: '#a5b4fc', fontSize: '0.9rem', marginBottom: '5px'}}>Your Answer:</p>
-                              <p style={{color: '#e2e8f0', fontSize: '1rem'}}>{q.userAnswer}</p>
-                          </div>
-
-                          <div style={{background: 'rgba(255,255,255,0.03)', padding: '15px', borderRadius: '8px', width: '100%', marginBottom: '15px'}}>
-                               <p style={{color: '#a5b4fc', fontSize: '0.9rem', marginBottom: '5px'}}>Ideal Answer:</p>
-                               <p style={{color: '#e2e8f0', fontSize: '0.9rem'}}>{q.idealAnswer || "N/A"}</p>
-                          </div>
-
-                          <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-                              <span className="metric-tag neutral">Similarity: {Math.round(q.similarity_score * 100)}%</span>
-                              <span className="metric-tag neutral">Keywords: {Math.round(q.keyword_score * 100)}%</span>
-                              {q.sentiment_score && (
-                                  <span className={`metric-tag ${q.sentiment_score > 0 ? "positive" : "negative"}`}>
-                                      Tone: {q.sentiment_score > 0 ? "Positive" : "Neutral/Negative"}
-                                  </span>
-                              )}
-                              {q.pace_wpm && <span className="metric-tag neutral">Pace: {Math.round(q.pace_wpm)} WPM</span>}
-                          </div>
-                      </div>
-                  ))}
-              </div>
-              
-              <div className="action-buttons" style={{marginTop: '30px', justifyContent: 'center'}}>
-                 <button className="btn primary" onClick={() => setStep("setup")}>Start New Interview</button>
-                 <button className="btn secondary" onClick={() => window.location.href = '/dashboard'}>Go to Dashboard</button>
+                      ))}
+                  </div>
+                  
+                  <div className="action-buttons" style={{marginTop: '40px', justifyContent: 'center', gap: '20px'}}>
+                     <button className="btn primary" onClick={() => setStep("setup")}>
+                        <FaRedo style={{marginRight: '8px'}}/> Start New Interview
+                     </button>
+                     <button className="btn secondary" onClick={() => window.location.href = '/dashboard'}>
+                        <FaHome style={{marginRight: '8px'}}/> Go to Dashboard
+                     </button>
+                  </div>
               </div>
           </div>
       );

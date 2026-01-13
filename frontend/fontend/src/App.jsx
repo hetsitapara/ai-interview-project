@@ -15,6 +15,7 @@ import Profile from "./pages/profile";
 import Blogs from "./pages/Blogs";
 import InterviewExperience from "./pages/InterviewExperience";
 import McqPractice from "./pages/McqPractice";
+import CodingTest from "./pages/CodingTest";
 import LandingPage from "./pages/LandingPage";
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/experiences" element={<InterviewExperience />} />
           <Route path="/mcq" element={<McqPractice />} />
+          <Route path="/coding-test" element={<CodingTest />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 

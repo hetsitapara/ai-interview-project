@@ -66,6 +66,11 @@ export default function Navbar() {
                     MCQ Practice
                 </NavLink>
                 </li>
+		<li>
+                <NavLink to="/coding-test" className="nav-link">
+                    Coding Test
+                </NavLink>
+                </li>
                 <li>
                 <NavLink to="/blogs" className="nav-link">
                     Blogs
