@@ -30,10 +30,14 @@ const questionSchema = mongoose.Schema({
         type: [String],
         default: []
     }
+}, {
     timestamps: true
 });
 
 // Add text index for search optimization
 questionSchema.index({ question: 'text', answer: 'text', category: 'text', topic: 'text' });
+// Add field specific indexes
+questionSchema.index({ category: 1 });
+questionSchema.index({ difficulty: 1 });
 
 module.exports = mongoose.model('Question', questionSchema);

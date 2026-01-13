@@ -30,5 +30,8 @@ const blogSchema = mongoose.Schema(
     timestamps: true,
   }
 );
+// Add text index for search
+blogSchema.index({ title: 'text', content: 'text', tag: 'text' });
+
 
 module.exports = mongoose.model('Blog', blogSchema);

@@ -115,6 +115,26 @@ export default function ManageQuestions() {
     }
   };
 
+  // Delete All Questions
+  const handleDeleteAll = async () => {
+    if (!window.confirm("WARNING: Are you sure you want to delete ALL questions? This cannot be undone.")) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5001/api/questions/deleteAll`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Failed to delete all questions');
+
+      fetchQuestions(); // Refresh list
+      alert("All questions deleted successfully.");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   // Bulk Modal State
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [bulkJson, setBulkJson] = useState("");
@@ -166,6 +186,7 @@ export default function ManageQuestions() {
       <div style={{display: 'flex', gap: '10px'}}>
         <button className="add-btn" onClick={openAddModal}>+ Add New Question</button>
         <button className="add-btn" style={{background: '#8b5cf6'}} onClick={() => setShowBulkModal(true)}>+ Bulk Upload</button>
+        <button className="delete-btn" style={{marginLeft: 'auto'}} onClick={handleDeleteAll}>Delete All Data</button>
       </div>
 
       {loading ? <p>Loading...</p> : (
@@ -173,6 +194,7 @@ export default function ManageQuestions() {
             <thead>
             <tr>
                 <th>Question</th>
+                <th>Category</th>
                 <th>Topic</th>
                 <th>Difficulty</th>
                 <th>Actions</th>
@@ -182,6 +204,17 @@ export default function ManageQuestions() {
             {questions.map(q => (
                 <tr key={q._id}>
                 <td>{q.question}</td>
+                <td>
+                    <span style={{
+                        fontSize: '11px', 
+                        background: 'rgba(56, 189, 248, 0.15)', 
+                        color: '#38bdf8', 
+                        padding: '2px 8px', 
+                        borderRadius: '4px',
+                        textTransform: 'uppercase',
+                        fontWeight: 600
+                    }}>{q.category || 'General'}</span>
+                </td>
                 <td>{q.topic}</td>
                 <td>
                     <span className={`tag ${q.difficulty.toLowerCase()}`}>{q.difficulty}</span>

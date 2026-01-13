@@ -5,7 +5,22 @@ const Blog = require('../models/Blog');
 // @access  Private
 const getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find({}).sort({ createdAt: -1 });
+    const { tag, search } = req.query;
+    let query = {};
+
+    if (tag && tag !== 'All' && tag !== 'General') { // 'General' might be a specific tag, but if 'All' is sent
+       // Actually frontend sends specific tag.
+       query.tag = tag;
+    }
+
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: 'i' } },
+            { content: { $regex: search, $options: 'i' } }
+        ];
+    }
+
+    const blogs = await Blog.find(query).sort({ createdAt: -1 });
     res.json(blogs);
   } catch (error) {
     res.status(500).json({ message: error.message });

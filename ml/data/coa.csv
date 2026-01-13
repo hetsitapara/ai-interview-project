@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+COA,Easy,Computer Architecture Definition,What is computer architecture?,It defines the structure and behavior of a computer system visible to the programmer.,technical
+COA,Easy,Computer Organization Definition,What is computer organization?,It deals with the physical implementation of a computer system.,technical
+COA,Easy,Architecture vs Organization,Difference between computer architecture and organization,Architecture is programmer-visible; organization is hardware implementation.,technical
+COA,Easy,CPU Definition,What is a CPU?,Central Processing Unit executes instructions.,technical
+COA,Easy,CPU Components,Main components of CPU,"ALU, Control Unit, Registers.",technical
+COA,Easy,Register Definition,What is a register?,"Small, fast storage inside CPU.",technical
+COA,Easy,Instruction Set,What is an instruction set?,Collection of operations a CPU can execute.,technical
+COA,Easy,Machine Language,What is machine language?,Binary instructions executed directly by hardware.,technical
+COA,Easy,Assembly Language,What is assembly language?,Low-level language using mnemonics.,technical
+COA,Easy,Clock Cycle,What is a clock cycle?,Basic timing unit of CPU operations.,technical
+COA,Easy,Clock Speed,What is clock speed?,Number of cycles executed per second.,technical
+COA,Easy,Memory Hierarchy Concept,What is memory hierarchy?,Arrangement of memory by speed and cost.,technical
+COA,Easy,RAM Definition,What is RAM?,Volatile main memory used during execution.,technical
+COA,Easy,ROM Definition,What is ROM?,Non-volatile memory storing firmware.,technical
+COA,Easy,Bus System,What is a bus?,Communication pathway for data and control signals.,technical
+COA,Medium,Instruction Cycle,What is instruction cycle?,"Fetch, decode, execute, write-back steps.",technical
+COA,Medium,Pipelining Concept,What is pipelining?,Overlapping instruction execution stages.,technical
+COA,Medium,Pipelining Benefits,Advantages of pipelining,Increases throughput and CPU utilization.,technical
+COA,Medium,RISC Architecture,What is RISC?,Architecture using simple instructions.,technical
+COA,Medium,CISC Architecture,What is CISC?,Architecture using complex instructions.,technical
+COA,Medium,RISC vs CISC,Difference between RISC and CISC,RISC focuses on simplicity; CISC on instruction richness.,technical
+COA,Medium,Addressing Modes,What is addressing mode?,Defines how operands are accessed.,technical
+COA,Medium,Immediate Addressing,What is immediate addressing mode?,Operand is part of instruction.,technical
+COA,Medium,Direct Addressing,What is direct addressing mode?,Instruction specifies memory address.,technical
+COA,Medium,Indirect Addressing,What is indirect addressing mode?,Address field points to address.,technical
+COA,Medium,Virtual Memory Concept,What is virtual memory?,Extends main memory using disk.,technical
+COA,Medium,Paging Mechanism,What is paging?,Memory divided into fixed-size pages.,technical
+COA,Medium,Segmentation Mechanism,What is segmentation?,Memory divided into logical segments.,technical
+COA,Medium,Paging vs Segmentation,Difference between paging and segmentation,Fixed-size vs variable-size blocks.,technical
+COA,Medium,DMA,What is DMA?,Direct Memory Access without CPU involvement.,technical
+COA,Medium,Interrupt Mechanism,What is an interrupt?,Signal to CPU to handle events.,technical
+COA,Medium,Interrupt Types,Types of interrupts,"Hardware, software, internal.",technical
+COA,Medium,Cache Memory,What is cache memory?,High-speed memory storing frequently used data.,technical
+COA,Medium,Cache Levels,Levels of cache,"L1, L2, L3.",technical
+COA,Medium,I/O Mapping,What is I/O mapping?,Technique to access I/O devices.,technical
+COA,Hard,Pipeline Hazards,What are pipeline hazards?,"Structural, data, and control hazards.",technical
+COA,Hard,Data Hazards,What is data hazard?,Instruction dependency causing pipeline stall.,technical
+COA,Hard,Control Hazards,What is control hazard?,Occurs due to branch instructions.,technical
+COA,Hard,Instruction Level Parallelism,What is ILP?,Executing multiple instructions simultaneously.,technical
+COA,Hard,Superscalar Architecture,What is superscalar architecture?,Executes multiple instructions per cycle.,technical
+COA,Hard,Branch Prediction,What is branch prediction?,Predicts branch outcomes to reduce stalls.,technical
+COA,Hard,Cache Mapping Techniques,Types of cache mapping,"Direct, associative, set-associative.",technical
+COA,Hard,Cache Coherence Problem,What is cache coherence?,Maintaining consistency across caches.,technical
+COA,Hard,MESI Protocol,What is MESI protocol?,Cache coherence protocol.,technical
+COA,Hard,Virtual Address Translation,How virtual address translation works,Maps virtual to physical addresses.,technical
+COA,Hard,TLB,What is TLB?,Cache for address translations.,technical
+COA,Hard,Multiprocessor Systems,What are multiprocessor systems?,Systems with multiple CPUs.,technical
+COA,Hard,Flynn Taxonomy,Explain Flynn’s taxonomy,"SISD, SIMD, MISD, MIMD.",technical
+COA,Hard,GPU Architecture,What is GPU architecture?,Architecture optimized for parallelism.,technical
+COA,Hard,Performance Metrics,CPU performance metrics,"CPI, MIPS, FLOPS, throughput.",technical

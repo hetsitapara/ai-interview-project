@@ -165,11 +165,25 @@ const createQuestions = async (req, res) => {
     }
 };
 
+// @desc    Delete all questions
+// @route   DELETE /api/questions/deleteAll
+// @access  Private/Admin
+const deleteAllQuestions = async (req, res) => {
+    try {
+        await Question.deleteMany({});
+        res.json({ message: 'All questions removed' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 module.exports = {
     getQuestions,
     getCategories,
     addQuestion,
     createQuestions,
     updateQuestion,
-    deleteQuestion
+    deleteQuestion,
+    deleteAllQuestions
 };

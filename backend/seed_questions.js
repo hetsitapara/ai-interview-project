@@ -169,12 +169,12 @@ const questions = [
 
 const seedQuestions = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ai-interview-system');
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/sdp-project');
         console.log('MongoDB Connected');
 
         // Transform data to match Schema
         const formattedQuestions = questions.map(q => ({
-            title: q.question,
+            question: q.question,
             topic: q.category, // Assuming category maps to topic enum
             difficulty: q.difficulty,
             answer: q.answer,

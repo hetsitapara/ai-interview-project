@@ -24,10 +24,15 @@ export default function Blogs() {
     fetchBlogs();
   }, []);
 
-  const fetchBlogs = async () => {
+  // Fetch Blogs with filters
+  const fetchBlogs = async (query = {}) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5001/api/blogs', {
+      const params = new URLSearchParams();
+      if (query.search) params.append('search', query.search);
+      if (query.tag) params.append('tag', query.tag);
+      
+      const res = await fetch(`http://localhost:5001/api/blogs?${params.toString()}`, {
          headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -37,6 +42,36 @@ export default function Blogs() {
     } catch (err) {
       console.error("Failed to fetch blogs", err);
     }
+  };
+
+  useEffect(() => {
+    // Get user from local storage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) setCurrentUser(user);
+
+    fetchBlogs();
+  }, []);
+  
+  // Debounce search
+  useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+        fetchBlogs({ search, tag: selectedTag });
+      }, 500);
+
+      return () => clearTimeout(delayDebounceFn);
+  }, [search]);
+
+  const [selectedTag, setSelectedTag] = useState('');
+
+  const handleTagClick = (tag) => {
+      setSelectedTag(tag);
+      fetchBlogs({ search, tag });
+  };
+
+  const clearFilters = () => {
+      setSelectedTag('');
+      setSearch('');
+      fetchBlogs({});
   };
 
   const handleCreate = async (e) => {
@@ -84,12 +119,6 @@ export default function Blogs() {
     }
   };
 
-  // Filter blogs
-  const filteredBlogs = blogs.filter(b => 
-    b.title.toLowerCase().includes(search.toLowerCase()) || 
-    b.tag.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
     <div className="blog-page">
       <div className="blog-main-card">
@@ -110,12 +139,24 @@ export default function Blogs() {
           />
         </div>
 
+        {selectedTag && (
+            <div style={{padding: '0 20px', display:'flex', alignItems:'center', gap:'10px'}}>
+                <span>Filtering by: <strong>{selectedTag}</strong></span>
+                <button 
+                    onClick={clearFilters}
+                    style={{background:'none', border:'none', color:'#38bdf8', cursor:'pointer'}}
+                >
+                    Clear Filter
+                </button>
+            </div>
+        )}
+
         <div className="blog-layout">
 
           {/* Blog List */}
           <div className="blog-list">
-            {filteredBlogs.length === 0 ? <p>No blogs found.</p> : (
-                filteredBlogs.map(blog => (
+            {blogs.length === 0 ? <p>No blogs found.</p> : (
+                blogs.map(blog => (
                     <BlogCard 
                         key={blog._id} 
                         blog={blog} 
@@ -130,11 +171,11 @@ export default function Blogs() {
           <div className="blog-sidebar">
             <div className="sidebar-section">
               <h4>Categories</h4>
-              <ul>
-                <li>DSA</li>
-                <li>System Design</li>
-                <li>HR</li>
-                <li>Career Tips</li>
+              <ul className="category-list">
+                <li onClick={() => handleTagClick('DSA')} className={selectedTag === 'DSA' ? 'active' : ''}>DSA</li>
+                <li onClick={() => handleTagClick('System Design')} className={selectedTag === 'System Design' ? 'active' : ''}>System Design</li>
+                <li onClick={() => handleTagClick('HR')} className={selectedTag === 'HR' ? 'active' : ''}>HR</li>
+                <li onClick={() => handleTagClick('Career Tips')} className={selectedTag === 'Career Tips' ? 'active' : ''}>Career Tips</li>
               </ul>
             </div>
 

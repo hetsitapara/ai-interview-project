@@ -106,24 +106,37 @@ export default function LandingPage() {
 
       {/* Features Grid */}
       <section className="features-section">
+        <h2 className="section-title" style={{marginBottom: '3rem', textAlign: 'center'}}>
+          Everything You Need to <span className="gradient-text">Excel</span>
+        </h2>
         <div className="features-grid">
           <FeatureCard 
             icon={<FaBrain style={{ color: '#c084fc' }} />}
             title="AI Mock Interviews"
             description="Practice with an intelligent AI that adapts to your responses and provides constructive feedback."
             delay={0.2}
+            className="bento-large"
           />
            <FeatureCard 
             icon={<FaChartLine style={{ color: '#f472b6' }} />}
             title="Deep Analytics"
-            description="Track your progress with detailed reports on your communication skills, technical knowledge, and confidence."
+            description="Track your progress with detailed reports on your communication skills."
             delay={0.4}
+            className="bento-small"
           />
            <FeatureCard 
             icon={<FaRocket style={{ color: '#818cf8' }} />}
             title="Curated Question Bank"
-            description="Access thousands of questions across various domains, difficulties, and companies."
+            description="Access thousands of questions across various domains and difficulties."
             delay={0.6}
+            className="bento-small"
+          />
+          <FeatureCard 
+            icon={<FaArrowRight style={{ color: '#4ade80' }} />} 
+            title="Resume AI Scanner"
+            description="Get your resume scored by our AI against industry standards to ensure you pass the ATS."
+            delay={0.8}
+            className="bento-large"
           />
         </div>
       </section>
@@ -155,7 +168,7 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description, delay }) {
+function FeatureCard({ icon, title, description, delay, className }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -163,7 +176,7 @@ function FeatureCard({ icon, title, description, delay }) {
       viewport={{ once: true }}
       transition={{ delay, duration: 0.5 }}
       whileHover={{ y: -5 }}
-      className="feature-card"
+      className={`feature-card ${className}`}
     >
       <div className="feature-icon">
         {icon}

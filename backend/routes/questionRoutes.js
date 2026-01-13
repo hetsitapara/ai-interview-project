@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getQuestions, addQuestion, updateQuestion, deleteQuestion, createQuestions } = require('../controllers/questionController');
+const { getQuestions, addQuestion, updateQuestion, deleteQuestion, createQuestions, getCategories, deleteAllQuestions } = require('../controllers/questionController');
 const { protect, admin } = require('../middleware/authMiddleware');
+
+router.get('/categories', protect, getCategories);
+router.delete('/deleteAll', protect, admin, deleteAllQuestions);
 
 router.route('/bulk').post(protect, admin, createQuestions);
 
