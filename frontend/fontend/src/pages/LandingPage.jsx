@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaRocket, FaBrain, FaChartLine, FaArrowRight } from 'react-icons/fa';
 import '../styles/landing.css';
-import HeroImage from '/Users/hetsitapara/.gemini/antigravity/brain/71c524c8-ee07-4cdb-bcaf-8a50029a14ab/hero_ai_visual_1768040287036.png'; // Please copy this to src/assets usually, but sticking to absolute path for now as per agentic mode
+//import HeroImage from '/Users/hetsitapara/.gemini/antigravity/brain/71c524c8-ee07-4cdb-bcaf-8a50029a14ab/hero_ai_visual_1768040287036.png'; // Please copy this to src/assets usually, but sticking to absolute path for now as per agentic mode
 
 export default function LandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });

@@ -18,18 +18,18 @@ export default function QuestionBank() {
   useEffect(() => {
     // Fetch Categories for Filter
     const fetchCategories = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5001/api/questions/categories', {
-                 headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setCategories(data);
-            }
-        } catch (err) {
-            console.error("Failed to load categories", err);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5001/api/questions/categories', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data);
         }
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
     };
     fetchCategories();
   }, []);
@@ -40,32 +40,32 @@ export default function QuestionBank() {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        
+
         const queryParams = new URLSearchParams();
         if (filters.category.length > 0) queryParams.append('category', filters.category.join(','));
         if (filters.difficulty.length > 0) queryParams.append('difficulty', filters.difficulty.join(','));
         if (search) queryParams.append('search', search);
-        
+
         // Add Pagination
         queryParams.append('page', page);
         queryParams.append('limit', 10);
 
         const res = await fetch(`http://localhost:5001/api/questions?${queryParams.toString()}`, {
-             headers: {
-                'Authorization': `Bearer ${token}`
-             }
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-        
+
         if (!res.ok) throw new Error('Failed to fetch questions');
 
         const data = await res.json();
-        
+
         if (page === 1) {
-            setQuestions(data.questions);
+          setQuestions(data.questions);
         } else {
-            setQuestions(prev => [...prev, ...data.questions]);
+          setQuestions(prev => [...prev, ...data.questions]);
         }
-        
+
         setHasMore(data.page < data.pages);
 
       } catch (error) {
@@ -76,7 +76,7 @@ export default function QuestionBank() {
     };
 
     const debounceFetch = setTimeout(() => {
-        fetchQuestions();
+      fetchQuestions();
     }, 500); // Debounce search
 
     return () => clearTimeout(debounceFetch);
@@ -89,12 +89,12 @@ export default function QuestionBank() {
 
   const handleFilterChange = (category, value) => {
     setFilters(prev => {
-        const current = prev[category];
-        if (current.includes(value)) {
-            return { ...prev, [category]: current.filter(item => item !== value) };
-        } else {
-            return { ...prev, [category]: [...current, value] };
-        }
+      const current = prev[category];
+      if (current.includes(value)) {
+        return { ...prev, [category]: current.filter(item => item !== value) };
+      } else {
+        return { ...prev, [category]: [...current, value] };
+      }
     });
   };
 
@@ -127,15 +127,15 @@ export default function QuestionBank() {
             <div className="filter-section">
               <h5>Category</h5>
               {categories.length > 0 ? categories.map(cat => (
-                  <label key={cat}>
-                    <input 
-                        type="checkbox" 
-                        checked={filters.category.includes(cat)} 
-                        onChange={() => handleFilterChange('category', cat)} 
-                    /> 
-                    {cat}
-                  </label>
-              )) : <p style={{fontSize:'12px', color:'#777'}}>No categories yet</p>}
+                <label key={cat}>
+                  <input
+                    type="checkbox"
+                    checked={filters.category.includes(cat)}
+                    onChange={() => handleFilterChange('category', cat)}
+                  />
+                  {cat}
+                </label>
+              )) : <p style={{ fontSize: '12px', color: '#777' }}>No categories yet</p>}
             </div>
 
             <div className="filter-section">
@@ -145,37 +145,37 @@ export default function QuestionBank() {
               <label><input type="checkbox" checked={filters.difficulty.includes('Hard')} onChange={() => handleFilterChange('difficulty', 'Hard')} /> Hard</label>
             </div>
 
-            <button className="btn" style={{width: '100%', marginTop: '20px'}} onClick={clearFilters}>Clear Filters</button>
+            <button className="secondary-btn clear-filters-btn" onClick={clearFilters}>Clear Filters</button>
           </div>
 
           {/* Question List */}
           <div className="qb-list">
-            {loading ? (
-                <p>Loading questions...</p>
+            {loading && page === 1 ? (
+              <div className="loader">Loading questions...</div>
             ) : questions.length > 0 ? (
-                questions.map(q => (
-                    <QuestionCard
-                        key={q._id}
-                        text={q.question}
-                        category={q.category}
-                        level={q.difficulty}
-                        answer={q.answer}
-                    />
-                ))
+              questions.map(q => (
+                <QuestionCard
+                  key={q._id}
+                  text={q.question}
+                  category={q.category}
+                  level={q.difficulty}
+                  answer={q.answer}
+                />
+              ))
             ) : (
-                <p>No questions found.</p>
+              <div className="no-data">No questions found matching your criteria.</div>
             )}
 
             {/* Load More Button */}
             {questions.length > 0 && hasMore && (
-                <button 
-                    className="btn" 
-                    onClick={() => setPage(page + 1)} 
-                    style={{margin: '20px auto', display: 'block'}}
-                    disabled={loading}
-                >
-                    {loading ? 'Loading...' : 'Load More Questions'}
-                </button>
+              <button
+                className="btn load-more-btn"
+                onClick={() => setPage(page + 1)}
+                disabled={loading}
+                style={{ width: 'auto', margin: '30px auto' }}
+              >
+                {loading ? 'Loading...' : 'Load More Questions'}
+              </button>
             )}
           </div>
 
@@ -185,57 +185,35 @@ export default function QuestionBank() {
   );
 }
 
-// function QuestionCard({ text, level }) {
-//   return (
-//     <div className="question-card">
-//       <div>
-//         <p>{text}</p>
-//         <span className={`tag ${level.toLowerCase()}`}>{level}</span>
-//       </div>
-//       <span className="bookmark">🔖</span>
-//     </div>
-//   );
-// }
-
 function QuestionCard({ text, category, level, answer }) {
   const [showAnswer, setShowAnswer] = useState(false);
 
   return (
-    <div className="question-card" style={{flexDirection: 'column', alignItems: 'flex-start'}}>
-      <div style={{display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center'}}>
-        <div style={{flex: 1}}>
-            <div style={{display:'flex', gap:'8px', marginBottom: '8px', alignItems:'center'}}>
-                <span style={{
-                    fontSize: '11px', 
-                    background: 'rgba(56, 189, 248, 0.15)', 
-                    color: '#38bdf8', 
-                    padding: '2px 8px', 
-                    borderRadius: '4px',
-                    textTransform: 'uppercase',
-                    fontWeight: 600
-                }}>{category || 'General'}</span>
-                <span className={`tag ${level.toLowerCase()}`} style={{margin:0}}>{level}</span>
-            </div>
-           <p style={{fontWeight: '500', lineHeight: '1.5'}}>{text}</p>
+    <div className="question-card">
+      <div className="question-content">
+        <div className="question-meta">
+          <span className="category-tag">{category || 'General'}</span>
+          <span className={`tag ${level.toLowerCase()}`}>{level}</span>
         </div>
-        <span className="bookmark" style={{cursor:'pointer', marginLeft:'12px'}} onClick={() => setShowAnswer(!showAnswer)}>
-            {showAnswer ? '🙈' : '👁️'}
-        </span>
+        <p>{text}</p>
+
+        {showAnswer && (
+          <div className="answer-box-expanded">
+            <strong>Sample Answer:</strong>
+            <p>{answer}</p>
+          </div>
+        )}
       </div>
-      
-      {showAnswer && (
-        <div style={{
-            marginTop: '12px', 
-            padding: '12px', 
-            background: 'rgba(255,255,255,0.05)', 
-            borderRadius: '8px', 
-            width: '100%',
-            fontSize: '14px',
-            color: '#cbd5e1'
-        }}>
-            <strong>Answer:</strong> {answer}
-        </div>
-      )}
+
+      <div className="question-actions">
+        <button
+          className={`action-icon ${showAnswer ? 'active' : ''}`}
+          onClick={() => setShowAnswer(!showAnswer)}
+          title={showAnswer ? "Hide Answer" : "Show Answer"}
+        >
+          {showAnswer ? '🙈' : '👁️'}
+        </button>
+      </div>
     </div>
   );
 }

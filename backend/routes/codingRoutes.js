@@ -53,7 +53,7 @@ const executeCode = (language, code, input) => {
 
         if (language === 'python') {
             filePath = path.join(tempDir, `${filename}.py`);
-            command = 'python3'; 
+            command = 'python3';
             args = [filePath];
         } else if (language === 'javascript') {
             filePath = path.join(tempDir, `${filename}.js`);
@@ -80,38 +80,38 @@ const executeCode = (language, code, input) => {
 
         const runCode = () => {
             const child = spawn(command, args);
-            
+
             let output = '';
             let errorOutput = '';
-    
+
             // Write input to stdin
             if (input) {
                 child.stdin.write(input);
                 child.stdin.end();
             }
-    
+
             child.stdout.on('data', (data) => {
                 output += data.toString();
             });
-    
+
             child.stderr.on('data', (data) => {
                 errorOutput += data.toString();
             });
-    
+
             child.on('close', (code) => {
                 // Cleanup files
                 try {
                     fs.unlinkSync(filePath);
                     if (isCompiled && fs.existsSync(compiledPath)) fs.unlinkSync(compiledPath);
-                } catch(e) {}
-                
+                } catch (e) { }
+
                 if (code !== 0) {
                     resolve({ success: false, output: errorOutput || 'Runtime Error' });
                 } else {
                     resolve({ success: true, output: output.trim() });
                 }
             });
-    
+
             // Timeout safety
             setTimeout(() => {
                 if (!child.killed) {
@@ -119,7 +119,7 @@ const executeCode = (language, code, input) => {
                     try {
                         fs.unlinkSync(filePath);
                         if (isCompiled && fs.existsSync(compiledPath)) fs.unlinkSync(compiledPath);
-                    } catch(e) {}
+                    } catch (e) { }
                     resolve({ success: false, output: 'Time Limit Exceeded' });
                 }
             }, 2000); // 2s timeout
@@ -129,7 +129,7 @@ const executeCode = (language, code, input) => {
             const compiler = language === 'c' ? 'gcc' : 'g++';
             exec(`${compiler} "${filePath}" -o "${compiledPath}"`, (error, stdout, stderr) => {
                 if (error) {
-                    try { fs.unlinkSync(filePath); } catch(e) {}
+                    try { fs.unlinkSync(filePath); } catch (e) { }
                     resolve({ success: false, output: `Compilation Error:\n${stderr}` });
                 } else {
                     runCode();
@@ -140,6 +140,20 @@ const executeCode = (language, code, input) => {
         }
     });
 };
+
+// @desc    Run arbitrary code (Playground)
+// @route   POST /api/coding/execute
+// @access  Private
+router.post('/execute', protect, async (req, res) => {
+    const { language, code, input } = req.body;
+    try {
+        const result = await executeCode(language, code, input || "");
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Execution Error' });
+    }
+});
 
 // @desc    Run code against test cases
 // @route   POST /api/coding/run
@@ -157,14 +171,14 @@ router.post('/run', protect, async (req, res) => {
         // For MVP, let's run against ALL test cases designated as public
         // Or if user selected "Run", maybe just the first one?
         // Let's run against ALL PUBLIC test cases.
-        
+
         const publicTestCases = question.testCases.filter(tc => tc.isPublic);
         const results = [];
 
         for (const tc of publicTestCases) {
             const result = await executeCode(language, code, tc.input);
             const passed = result.success && result.output === tc.expectedOutput;
-            
+
             results.push({
                 input: tc.input,
                 expectedOutput: tc.expectedOutput,

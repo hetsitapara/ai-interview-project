@@ -57,7 +57,7 @@ router.get('/categories', protect, async (req, res) => {
 // @access  Private
 router.post('/submit', protect, async (req, res) => {
     try {
-        const { answers } = req.body; 
+        const { answers } = req.body;
         // answers: [{ questionId, selectedOptions: [indices] }]
 
         if (!answers || !Array.isArray(answers)) {
@@ -72,12 +72,12 @@ router.post('/submit', protect, async (req, res) => {
             const question = await McqQuestion.findById(ans.questionId);
             if (!question) continue;
 
-            const selected = ans.selectedOptions.sort((a,b) => a-b); // Sort for comparison
-            const correct = question.correctOptions.sort((a,b) => a-b);
-            
+            const selected = ans.selectedOptions.sort((a, b) => a - b); // Sort for comparison
+            const correct = question.correctOptions.sort((a, b) => a - b);
+
             // Check exact match
             const isCorrect = JSON.stringify(selected) === JSON.stringify(correct);
-            
+
             if (isCorrect) {
                 totalScore += 1; // 1 point per question
                 correctCount++;

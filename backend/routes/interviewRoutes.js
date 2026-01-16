@@ -17,7 +17,7 @@ router.post('/start', protect, async (req, res) => {
     try {
         const matchStage = {};
         if (category) {
-             matchStage.category = { $regex: new RegExp(category, 'i') };
+            matchStage.category = { $regex: new RegExp(category, 'i') };
         }
 
         // 1. Fetch Yes/No Question(s)
@@ -30,20 +30,20 @@ router.post('/start', protect, async (req, res) => {
         // Let's do this: Fetch 1 Yes/No. Fetch (limit - 1) Text.
         // BUT also convert some Text slots to Yes/No randomly?
         // Better: Fetch 2 Yes/No and (limit - 2) Text if limit > 3?
-        
+
         // Let's stick to the interpretation: "At least one Yes/No. The rest can be random".
         // Since we have separate collections, true random across collections is hard without 2 queries.
         // We will fetch:
         // - 1 Guaranteed Yes/No
         // - (limit - 1) Regular Questions
         // - AND potentially replace 1 Regular with another Yes/No if available?
-        
+
         // New Strategy:
         // Fetch 1 Yes/No.
         // Fetch (limit - 1) Regular.
         // If we want more Yes/No, we can just fetch 2 Yes/No and (limit - 2) Regular.
         // Let's randomize the split slightly.
-        
+
         const yesNoCount = limit > 3 ? (Math.random() > 0.5 ? 2 : 1) : 1;
         const regularCount = limit - yesNoCount;
 
@@ -59,25 +59,25 @@ router.post('/start', protect, async (req, res) => {
 
         // If not enough Yes/No questions found in category, try fetching GENERAL or RANDOM ones to satisfy requirement
         if (yesNoQuestions.length < yesNoCount) {
-             const needed = yesNoCount - yesNoQuestions.length;
-             console.log(`[Start Interview] Not enough exact match Yes/No. Fetching ${needed} from General/Any.`);
-             
-             // Fallback: exclude already found IDs (not strictly needed if count is small, but good practice)
-             const existingIds = yesNoQuestions.map(q => q._id);
+            const needed = yesNoCount - yesNoQuestions.length;
+            console.log(`[Start Interview] Not enough exact match Yes/No. Fetching ${needed} from General/Any.`);
 
-             const fallbackYesNo = await YesNoQuestion.aggregate([
-                  { $match: { _id: { $nin: existingIds } } }, // Just get any
-                  { $sample: { size: needed } }
-             ]);
-             
-             yesNoQuestions = [...yesNoQuestions, ...fallbackYesNo];
+            // Fallback: exclude already found IDs (not strictly needed if count is small, but good practice)
+            const existingIds = yesNoQuestions.map(q => q._id);
+
+            const fallbackYesNo = await YesNoQuestion.aggregate([
+                { $match: { _id: { $nin: existingIds } } }, // Just get any
+                { $sample: { size: needed } }
+            ]);
+
+            yesNoQuestions = [...yesNoQuestions, ...fallbackYesNo];
         }
-        
+
         console.log(`[Start Interview] Final Yes/No Count: ${yesNoQuestions.length}`);
 
         // If we still have 0 Yes/No questions, it means the DB is empty of them.
         // We will proceed with regular questions only but log a warning.
-        
+
         // Adjust regular count based on how many Yes/No we *actually* got (could be 0 if DB empty)
         const foundYesNo = yesNoQuestions.length;
         const neededRegular = limit - foundYesNo;
@@ -91,8 +91,8 @@ router.post('/start', protect, async (req, res) => {
 
         // 3. Combine and Shuffle
         let combinedQuestions = [
-            ...yesNoQuestions.map(q => ({...q, type: 'YesNo'})), 
-            ...regularQuestions.map(q => ({...q, type: 'Text'}))
+            ...yesNoQuestions.map(q => ({ ...q, type: 'YesNo' })),
+            ...regularQuestions.map(q => ({ ...q, type: 'Text' }))
         ];
         combinedQuestions = combinedQuestions.sort(() => Math.random() - 0.5);
 
@@ -124,8 +124,10 @@ router.post('/submit', protect, async (req, res) => {
 
         // Path to python script and executable
         const scriptPath = path.join(__dirname, '../../ml/batch_evaluate.py');
-        const pythonPath = path.join(__dirname, '../../ml/venv/bin/python');
-        
+        const pythonPath = process.platform === 'win32'
+            ? path.join(__dirname, '../../ml/venv/Scripts/python.exe')
+            : path.join(__dirname, '../../ml/venv/bin/python');
+
         // Spawn python process
         const pythonProcess = spawn(pythonPath, [scriptPath]);
 
@@ -154,7 +156,7 @@ router.post('/submit', protect, async (req, res) => {
             try {
                 // Parse results from python
                 const results = JSON.parse(dataString);
-                
+
                 // Construct interview record
                 const interviewData = {
                     user: req.user._id,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/interview.css";
-import Confetti from 'react-confetti'; 
+import Confetti from 'react-confetti';
 
 export default function McqPractice() {
   const [step, setStep] = useState("setup"); // setup, quiz, results
@@ -13,23 +13,23 @@ export default function McqPractice() {
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
   const [categories, setCategories] = useState([]);
-  
+
   useEffect(() => {
     const fetchCategories = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await axios.get("http://localhost:5001/api/mcq/categories", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setCategories(res.data);
-            if (res.data.length > 0) {
-                 setFormData(prev => ({ ...prev, category: res.data[0] }));
-            }
-        } catch (err) {
-            console.error("Failed to fetch categories", err);
-            // Fallback
-            setCategories(["React", "DSA", "DBMS", "HR", "JavaScript"]);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:5001/api/mcq/categories", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setCategories(res.data);
+        if (res.data.length > 0) {
+          setFormData(prev => ({ ...prev, category: res.data[0] }));
         }
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+        // Fallback
+        setCategories(["React", "DSA", "DBMS", "HR", "JavaScript"]);
+      }
     };
     fetchCategories();
   }, []);
@@ -57,7 +57,7 @@ export default function McqPractice() {
         alert("Authentication failed. Please Login again.");
         return;
       }
-      
+
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -116,7 +116,7 @@ export default function McqPractice() {
         alert("Session expired. Please Login again.");
         return;
       }
-      
+
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -162,7 +162,7 @@ export default function McqPractice() {
               style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
             >
               {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
@@ -258,9 +258,9 @@ export default function McqPractice() {
 
       {step === "results" && results && (
         <div className="interview-card" style={{ maxWidth: '900px', opacity: 1, visibility: 'visible', animation: 'none', transform: 'none' }}>
-             {/* Confetti Temporarily Removed */}
+          {/* Confetti Temporarily Removed */}
           <h2 style={{ textAlign: 'center', marginBottom: '24px', color: 'white' }}>Quiz Results</h2>
-          
+
           <div className="score-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '32px' }}>
             <div className="score-card" style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
               <h4>Score</h4>
@@ -277,71 +277,71 @@ export default function McqPractice() {
           </div>
 
           <div className="results-list" style={{ maxHeight: '600px', overflowY: 'auto', paddingRight: '10px' }}>
-             {results?.results && results.results.length > 0 ? (
-                 results.results.map((res, idx) => {
-                   const options = res.options || [];
-                   return (
-                    <div key={idx} className="result-item" style={{ marginBottom: '24px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', borderLeft: res.isCorrect ? '6px solid #4ade80' : '6px solid #f87171' }}>
-                      <div style={{ marginBottom: '16px', fontWeight: 'bold', fontSize: '1.1rem', color: 'white' }}>
-                        <span style={{ color: 'rgba(255,255,255,0.5)', marginRight: '10px' }}>{idx + 1}.</span>
-                        {res.questionText || res.question || "Question"}
-                      </div>
-                      
-                      <div className="options-review" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                         {options.map((opt, oIdx) => {
-                             const isSelected = (res.userSelected || []).includes(oIdx);
-                             const isCorrect = (res.correctOptions || []).includes(oIdx);
-                             
-                             let color = 'rgba(255,255,255,0.7)';
-                             if (isCorrect) color = '#4ade80';
-                             if (isSelected && !isCorrect) color = '#f87171';
-      
-                             return (
-                                 <div key={oIdx} style={{ 
-                                     background: 'rgba(255,255,255,0.02)', 
-                                     border: '1px solid rgba(255,255,255,0.05)',
-                                     color: color, 
-                                     padding: '12px 16px', 
-                                     borderRadius: '8px', 
-                                     display: 'flex',
-                                     justifyContent: 'space-between',
-                                     alignItems: 'center'
-                                  }}>
-                                     <span>{String(opt)}</span>
-                                     <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
-                                         {isSelected && <span>(You) </span>}
-                                         {isCorrect && <span>✓</span>}
-                                     </div>
-                                 </div>
-                             )
-                         })}
-                      </div>
-                      
-                      {res.explanation && (
-                          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }}>
-                              💡 {res.explanation}
-                          </div>
-                      )}
+            {results?.results && results.results.length > 0 ? (
+              results.results.map((res, idx) => {
+                const options = res.options || [];
+                return (
+                  <div key={idx} className="result-item" style={{ marginBottom: '24px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', borderLeft: res.isCorrect ? '6px solid #4ade80' : '6px solid #f87171' }}>
+                    <div style={{ marginBottom: '16px', fontWeight: 'bold', fontSize: '1.1rem', color: 'white' }}>
+                      <span style={{ color: 'rgba(255,255,255,0.5)', marginRight: '10px' }}>{idx + 1}.</span>
+                      {res.questionText || res.question || "Question"}
                     </div>
-                   );
-                 })
-             ) : (
-                 <div style={{textAlign: 'center', padding: '20px'}}>No detailed results available.</div>
-             )}
+
+                    <div className="options-review" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {options.map((opt, oIdx) => {
+                        const isSelected = (res.userSelected || []).includes(oIdx);
+                        const isCorrect = (res.correctOptions || []).includes(oIdx);
+
+                        let color = 'rgba(255,255,255,0.7)';
+                        if (isCorrect) color = '#4ade80';
+                        if (isSelected && !isCorrect) color = '#f87171';
+
+                        return (
+                          <div key={oIdx} style={{
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                            color: color,
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}>
+                            <span>{String(opt)}</span>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                              {isSelected && <span>(You) </span>}
+                              {isCorrect && <span>✓</span>}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {res.explanation && (
+                      <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }}>
+                        💡 {res.explanation}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ textAlign: 'center', padding: '20px' }}>No detailed results available.</div>
+            )}
           </div>
 
           <button className="btn primary" onClick={() => setStep("setup")} style={{ width: '100%', marginTop: '24px' }}>
-             Take Another Quiz
+            Take Another Quiz
           </button>
         </div>
       )}
-      
+
       {step === "results" && !results && (
         <div style={{ color: 'white', textAlign: 'center', marginTop: '100px' }}>
-            <h2>Processing Results...</h2>
-            <button className="btn primary" onClick={() => window.location.reload()} style={{marginTop: '20px'}}>
-                Reset
-            </button>
+          <h2>Processing Results...</h2>
+          <button className="btn primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+            Reset
+          </button>
         </div>
       )}
     </div>

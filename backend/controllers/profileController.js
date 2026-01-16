@@ -37,6 +37,7 @@ const updateProfile = async (req, res) => {
             };
         }
         if (req.body.name) user.name = req.body.name; // Allow updating name too
+        if (req.body.avatar) user.avatar = req.body.avatar;
 
         const updatedUser = await user.save();
 
@@ -47,7 +48,8 @@ const updateProfile = async (req, res) => {
             role: updatedUser.role,
             skills: updatedUser.skills,
             careerGoals: updatedUser.careerGoals,
-            socialLinks: updatedUser.socialLinks
+            socialLinks: updatedUser.socialLinks,
+            avatar: updatedUser.avatar
         });
     } catch (error) {
         console.error(error);

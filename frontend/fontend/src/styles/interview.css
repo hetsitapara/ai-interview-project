@@ -1,11 +1,11 @@
-/* ========== INTERVIEW PAGE CONTAINER ========== */
 .interview-page {
   min-height: 100vh;
   background: var(--page-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 100px 40px 40px;
+  /* Offset for Navbar */
 }
 
 /* ========== INTERVIEW CARD ========== */
@@ -123,7 +123,8 @@
 
 
 .mic-icon.active {
-  color: #ef4444; /* Red for recording */
+  color: #ef4444;
+  /* Red for recording */
   background: rgba(239, 68, 68, 0.2);
   animation: pulse 1.5s infinite;
 }
@@ -132,9 +133,11 @@
   0% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
+
   70% {
     box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
