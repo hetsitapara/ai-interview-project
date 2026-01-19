@@ -19,6 +19,12 @@ export default function AdminSidebar() {
         <Link to="/admin/manage-blogs" style={{textDecoration:'none'}}>
             <li className={isActive("/admin/manage-blogs") ? "active" : ""}>📰 Manage Blogs</li>
         </Link>
+        <Link to="/admin/manage-mcq" style={{textDecoration:'none'}}>
+            <li className={isActive("/admin/manage-mcq") ? "active" : ""}>☑️ Manage MCQs</li>
+        </Link>
+        <Link to="/admin/manage-yesno" style={{textDecoration:'none'}}>
+            <li className={isActive("/admin/manage-yesno") ? "active" : ""}>⚖️ Manage Yes/No</li>
+        </Link>
       </ul>
     </div>
   );

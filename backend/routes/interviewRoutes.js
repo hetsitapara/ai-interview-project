@@ -16,9 +16,22 @@ router.post('/start', protect, async (req, res) => {
 
     try {
         const matchStage = {};
-        if (category) {
-             matchStage.category = { $regex: new RegExp(category, 'i') };
+        
+        if (category && category !== 'Random') {
+            if (category.includes(',')) {
+                // Formatting for regex: case-insensitive match for any of the comma-separated values
+                // Or better, exact match with $in if category names are clean.
+                // Assuming front-end sends exact names from DB.
+                const categories = category.split(',').map(c => c.trim());
+                matchStage.category = { $in: categories };
+                // But DB might have slightly different casing/spacing, so let's stick to regex OR $in if we trust inputs
+                // A safe approach for "Java" vs "java" is regex for each, but $in only takes exact values.
+                // Let's rely on $in for now assuming dropdown values match DB values.
+            } else {
+                 matchStage.category = { $regex: new RegExp(category, 'i') };
+            }
         }
+        // If category is 'Random' or empty, matchStage remains empty {} -> fetches all/any questions
 
         // 1. Fetch Yes/No Question(s)
         // User wants "at least one" and "more than one also pick randomly"
@@ -169,6 +182,48 @@ router.post('/submit', protect, async (req, res) => {
                 };
 
                 const interview = await Interview.create(interviewData);
+
+                // --- GAMIFICATION UPDATE START ---
+                // Reuse logic ideally in a helper, but putting inline for now for speed
+                const today = new Date().toISOString().split('T')[0];
+                const user = await req.user; // User is already attached to req by protect middleware? 
+                // wait, req.user is document from middleware? Yes, usually.
+                // Let's re-fetch to be safe and save? Or just save req.user if it's a doc.
+                // Assuming req.user is Mongoose doc.
+                
+                let shouldIncrementStreak = false;
+                if (user.stats.lastActiveDate) {
+                     const lastDate = new Date(user.stats.lastActiveDate).toISOString().split('T')[0];
+                     const diffTime = Math.abs(new Date(today) - new Date(lastDate));
+                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                     
+                     if (diffDays === 1) {
+                         shouldIncrementStreak = true;
+                     } else if (diffDays > 1) {
+                         user.stats.streak = 0; // Reset
+                         shouldIncrementStreak = true;
+                     }
+                } else {
+                     shouldIncrementStreak = true;
+                }
+
+                if (shouldIncrementStreak && user.stats.lastActiveDate?.toISOString().split('T')[0] !== today) {
+                    user.stats.streak = (user.stats.streak || 0) + 1;
+                }
+
+                user.stats.lastActiveDate = new Date();
+                user.stats.totalScore = (user.stats.totalScore || 0) + (interviewData.overallScore * 10); // Scale score (0-10) -> (0-100) points
+                
+                // Update Activity Log
+                const logIndex = user.stats.activityLog.findIndex(l => l.date === today);
+                if (logIndex > -1) {
+                    user.stats.activityLog[logIndex].count += 1;
+                } else {
+                    user.stats.activityLog.push({ date: today, count: 1 });
+                }
+                
+                await user.save();
+                // --- GAMIFICATION END ---
 
                 res.status(201).json(interview);
 
