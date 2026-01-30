@@ -2,9 +2,12 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../index.css";
 
+import { useAuth } from "../context/AuthContext";
+
 export default function Login() {
   const navigate = useNavigate();
-  const [role, setRole] = useState("user"); // Still keeping UI selection if desired, but backend validates credentials
+  const { login } = useAuth();
+  const [role, setRole] = useState("user");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -23,21 +26,20 @@ export default function Login() {
       const response = await fetch("http://localhost:5001/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, role }), // Sending role just in case backend wants it later
+        body: JSON.stringify({ ...formData, role }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         // SUCCESS
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        
+        login(data.user, data.token);
+
         // Redirect
         if (data.user.role === 'admin') {
-            navigate("/admin/manage-questions");
+          navigate("/admin/manage-questions");
         } else {
-            navigate("/dashboard");
+          navigate("/dashboard");
         }
       } else {
         setError(data.message || "Login failed");
@@ -52,7 +54,7 @@ export default function Login() {
     <div className="page-container">
       <div className="card">
         <h2>Welcome Back</h2>
-        {error && <p style={{color: "red", textAlign: "center", marginBottom: "1rem"}}>{error}</p>}
+        {error && <p style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
           {/* <div className="form-group">

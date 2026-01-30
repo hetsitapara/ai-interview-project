@@ -40,7 +40,10 @@ async function getCroppedImg(imageSrc, pixelCrop) {
   });
 }
 
+import { useAuth } from "../context/AuthContext";
+
 export default function Profile() {
+  const { updateUser } = useAuth();
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -159,6 +162,7 @@ export default function Profile() {
 
       const data = await res.json();
       setProfile(prev => ({ ...prev, ...data }));
+      updateUser(data); // Sync with Auth Context
       setIsEditing(false);
       alert('Profile updated successfully!');
     } catch (err) {

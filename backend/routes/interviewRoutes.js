@@ -30,7 +30,7 @@ router.post('/start', protect, async (req, res) => {
                 matchStage.category = { $regex: new RegExp(category, 'i') };
             }
         }
-    }
+
         // If category is 'Random' or empty, matchStage remains empty {} -> fetches all/any questions
 
         // 1. Fetch Yes/No Question(s)
@@ -58,62 +58,62 @@ router.post('/start', protect, async (req, res) => {
         // Let's randomize the split slightly.
 
         const yesNoCount = limit > 3 ? (Math.random() > 0.5 ? 2 : 1) : 1;
-    const regularCount = limit - yesNoCount;
+        const regularCount = limit - yesNoCount;
 
-    console.log(`[Start Interview] Category: ${category}, Total: ${limit}, Yes/No Needed: ${yesNoCount}`);
+        console.log(`[Start Interview] Category: ${category}, Total: ${limit}, Yes/No Needed: ${yesNoCount}`);
 
-    // Try exact category match for Yes/No
-    let yesNoQuestions = await YesNoQuestion.aggregate([
-        { $match: matchStage },
-        { $sample: { size: yesNoCount } }
-    ]);
-
-    console.log(`[Start Interview] Found Yes/No (Exact): ${yesNoQuestions.length}`);
-
-    // If not enough Yes/No questions found in category, try fetching GENERAL or RANDOM ones to satisfy requirement
-    if (yesNoQuestions.length < yesNoCount) {
-        const needed = yesNoCount - yesNoQuestions.length;
-        console.log(`[Start Interview] Not enough exact match Yes/No. Fetching ${needed} from General/Any.`);
-
-        // Fallback: exclude already found IDs (not strictly needed if count is small, but good practice)
-        const existingIds = yesNoQuestions.map(q => q._id);
-
-        const fallbackYesNo = await YesNoQuestion.aggregate([
-            { $match: { _id: { $nin: existingIds } } }, // Just get any
-            { $sample: { size: needed } }
+        // Try exact category match for Yes/No
+        let yesNoQuestions = await YesNoQuestion.aggregate([
+            { $match: matchStage },
+            { $sample: { size: yesNoCount } }
         ]);
 
-        yesNoQuestions = [...yesNoQuestions, ...fallbackYesNo];
+        console.log(`[Start Interview] Found Yes/No (Exact): ${yesNoQuestions.length}`);
+
+        // If not enough Yes/No questions found in category, try fetching GENERAL or RANDOM ones to satisfy requirement
+        if (yesNoQuestions.length < yesNoCount) {
+            const needed = yesNoCount - yesNoQuestions.length;
+            console.log(`[Start Interview] Not enough exact match Yes/No. Fetching ${needed} from General/Any.`);
+
+            // Fallback: exclude already found IDs (not strictly needed if count is small, but good practice)
+            const existingIds = yesNoQuestions.map(q => q._id);
+
+            const fallbackYesNo = await YesNoQuestion.aggregate([
+                { $match: { _id: { $nin: existingIds } } }, // Just get any
+                { $sample: { size: needed } }
+            ]);
+
+            yesNoQuestions = [...yesNoQuestions, ...fallbackYesNo];
+        }
+
+        console.log(`[Start Interview] Final Yes/No Count: ${yesNoQuestions.length}`);
+
+        // If we still have 0 Yes/No questions, it means the DB is empty of them.
+        // We will proceed with regular questions only but log a warning.
+
+        // Adjust regular count based on how many Yes/No we *actually* got (could be 0 if DB empty)
+        const foundYesNo = yesNoQuestions.length;
+        const neededRegular = limit - foundYesNo;
+
+        const regularQuestions = await Question.aggregate([
+            { $match: matchStage },
+            { $sample: { size: neededRegular } }
+        ]);
+
+        console.log(`[Start Interview] Regular Questions Found: ${regularQuestions.length}`);
+
+        // 3. Combine and Shuffle
+        let combinedQuestions = [
+            ...yesNoQuestions.map(q => ({ ...q, type: 'YesNo' })),
+            ...regularQuestions.map(q => ({ ...q, type: 'Text' }))
+        ];
+        combinedQuestions = combinedQuestions.sort(() => Math.random() - 0.5);
+
+        res.json(combinedQuestions);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
     }
-
-    console.log(`[Start Interview] Final Yes/No Count: ${yesNoQuestions.length}`);
-
-    // If we still have 0 Yes/No questions, it means the DB is empty of them.
-    // We will proceed with regular questions only but log a warning.
-
-    // Adjust regular count based on how many Yes/No we *actually* got (could be 0 if DB empty)
-    const foundYesNo = yesNoQuestions.length;
-    const neededRegular = limit - foundYesNo;
-
-    const regularQuestions = await Question.aggregate([
-        { $match: matchStage },
-        { $sample: { size: neededRegular } }
-    ]);
-
-    console.log(`[Start Interview] Regular Questions Found: ${regularQuestions.length}`);
-
-    // 3. Combine and Shuffle
-    let combinedQuestions = [
-        ...yesNoQuestions.map(q => ({ ...q, type: 'YesNo' })),
-        ...regularQuestions.map(q => ({ ...q, type: 'Text' }))
-    ];
-    combinedQuestions = combinedQuestions.sort(() => Math.random() - 0.5);
-
-    res.json(combinedQuestions);
-} catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server Error' });
-}
 });
 
 // @desc    Submit interview and get ML report
