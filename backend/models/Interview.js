@@ -16,8 +16,8 @@ const interviewSchema = mongoose.Schema({
     },
     questions: [{
         questionId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Question'
+            type: String, // Changed from ObjectId to support CSV-based string IDs
+            required: true
         },
         questionText: String,
         userAnswer: String,

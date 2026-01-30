@@ -48,7 +48,8 @@ export default function Profile() {
     skills: [],
     careerGoals: "",
     socialLinks: { linkedin: "", github: "" },
-    avatar: ""
+    avatar: "",
+    stats: { streak: 0, activityLog: [], totalScore: 0, quizzesTaken: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,7 +86,8 @@ export default function Profile() {
           ...data,
           skills: data.skills || [],
           careerGoals: data.careerGoals || "",
-          socialLinks: data.socialLinks || { linkedin: "", github: "" }
+          socialLinks: data.socialLinks || { linkedin: "", github: "" },
+          stats: data.stats || { streak: 0, activityLog: [], totalScore: 0, quizzesTaken: 0 }
         });
       } catch (err) {
         setError(err.message);
@@ -227,6 +229,54 @@ export default function Profile() {
         <div className="profile-content">
 
           <div className="content-left">
+            {/* --- GAMIFICATION STATS --- */}
+            <div className="stats-section" style={{ display: 'flex', gap: '20px', margin: '20px 0 40px', flexWrap: 'wrap' }}>
+              <div className="stat-badge" style={{ flex: 1, background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.3)', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#818cf8' }}>🔥 {profile.stats?.streak || 0}</div>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Day Streak</div>
+              </div>
+              <div className="stat-badge" style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4ade80' }}>⚡ {profile.stats?.totalScore || 0}</div>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Total XP</div>
+              </div>
+              <div className="stat-badge" style={{ flex: 1, background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#facc15' }}>📝 {profile.stats?.quizzesTaken || 0}</div>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Quizzes Taken</div>
+              </div>
+            </div>
+
+            {/* --- ACTIVITY HEATMAP --- */}
+            <div className="heatmap-section" style={{ marginBottom: '40px', padding: '20px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <h3 style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '15px' }}>Activity Log (Last 60 Days)</h3>
+              <div className="heatmap-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(12px, 1fr))',
+                gap: '4px',
+                maxWidth: '100%'
+              }}>
+                {Array.from({ length: 60 }).map((_, i) => {
+                  const date = new Date();
+                  date.setDate(date.getDate() - (59 - i)); // Past 60 days
+                  const dateStr = date.toISOString().split('T')[0];
+                  const activity = profile.stats?.activityLog?.find(l => l.date === dateStr);
+                  const count = activity ? activity.count : 0;
+
+                  // Color intensity
+                  let bgColor = 'rgba(255,255,255,0.05)';
+                  if (count >= 1) bgColor = '#0e4429'; // Low
+                  if (count >= 3) bgColor = '#006d32'; // Med
+                  if (count >= 5) bgColor = '#26a641'; // High
+                  if (count >= 8) bgColor = '#39d353'; // Max
+
+                  return (
+                    <div key={i} title={`${dateStr}: ${count} activities`} style={{
+                      width: '100%', aspectRatio: '1/1', borderRadius: '2px', background: bgColor
+                    }}></div>
+                  )
+                })}
+              </div>
+            </div>
+
             {!isEditing ? (
               <>
                 {/* VIEW MODE */}
@@ -343,50 +393,52 @@ export default function Profile() {
           </div>
 
         </div>
-      </div>
+      </div >
 
       {/* CROP MODAL */}
-      {showCropModal && (
-        <div className="crop-modal-overlay">
-          <div className="crop-modal-content">
-            <h3 style={{ marginBottom: '20px', color: '#fff' }}>Customize Avatar</h3>
-            <div className="crop-container">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                cropShape="round"
-                onCropChange={setCrop}
-                onCropComplete={onCropComplete}
-                onZoomChange={setZoom}
-              />
-            </div>
-
-            <div className="controls-row">
-              <div className="slider-group">
-                <label>Zoom</label>
-                <input
-                  type="range"
-                  value={zoom}
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  aria-labelledby="Zoom"
-                  onChange={(e) => setZoom(e.target.value)}
+      {
+        showCropModal && (
+          <div className="crop-modal-overlay">
+            <div className="crop-modal-content">
+              <h3 style={{ marginBottom: '20px', color: '#fff' }}>Customize Avatar</h3>
+              <div className="crop-container">
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
                 />
               </div>
-            </div>
 
-            <div className="modal-actions">
-              <button className="secondary-btn" style={{ flex: 1 }} onClick={() => setShowCropModal(false)}>Cancel</button>
-              <button className="btn" style={{ flex: 1 }} onClick={handleShowCroppedImage}>
-                Save Picture
-              </button>
+              <div className="controls-row">
+                <div className="slider-group">
+                  <label>Zoom</label>
+                  <input
+                    type="range"
+                    value={zoom}
+                    min={1}
+                    max={3}
+                    step={0.1}
+                    aria-labelledby="Zoom"
+                    onChange={(e) => setZoom(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button className="secondary-btn" style={{ flex: 1 }} onClick={() => setShowCropModal(false)}>Cancel</button>
+                <button className="btn" style={{ flex: 1 }} onClick={handleShowCroppedImage}>
+                  Save Picture
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

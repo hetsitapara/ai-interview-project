@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "../styles/interview.css";
 import Confetti from 'react-confetti';
+import jsPDF from "jspdf";
 
 export default function McqPractice() {
   const [step, setStep] = useState("setup"); // setup, quiz, results
@@ -135,11 +136,74 @@ export default function McqPractice() {
     }
   };
 
-  // Helper to format time
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const downloadReport = () => {
+    const doc = new jsPDF();
+
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(99, 102, 241); // Primary Color
+    doc.text("PrepAI - MCQ Practice Report", 20, 20);
+
+    doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 30);
+    doc.text(`Category: ${formData.category}`, 20, 36);
+    doc.text(`Score: ${results?.correctCount} / ${results?.totalQuestions}`, 20, 42);
+
+    let yPos = 55;
+
+    results?.results?.forEach((res, index) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Question
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.setFont("helvetica", "bold");
+
+      const questionText = `${index + 1}. ${res.questionText}`;
+      const splitQuestion = doc.splitTextToSize(questionText, 170);
+      doc.text(splitQuestion, 20, yPos);
+      yPos += (splitQuestion.length * 6) + 2;
+
+      // Status
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      if (res.isCorrect) {
+        doc.setTextColor(46, 204, 113); // Green
+        doc.text("Result: Correct", 20, yPos);
+      } else {
+        doc.setTextColor(231, 76, 60); // Red
+        doc.text("Result: Incorrect", 20, yPos);
+      }
+      yPos += 6;
+
+      // Answer details
+      doc.setTextColor(100);
+      const correctText = `Correct Answer: ${res.correctOptions.map(i => res.options[i]).join(', ')}`;
+      const splitCorrect = doc.splitTextToSize(correctText, 170);
+      doc.text(splitCorrect, 20, yPos);
+      yPos += (splitCorrect.length * 5) + 2;
+
+      if (!res.isCorrect) {
+        const userText = `Your Answer: ${res.userSelected.map(i => res.options[i]).join(', ')}`;
+        const splitUser = doc.splitTextToSize(userText, 170);
+        doc.text(splitUser, 20, yPos);
+        yPos += (splitUser.length * 5) + 2;
+      }
+
+      yPos += 8; // Spacing
+    });
+
+    doc.save("MCQ_Report.pdf");
   };
 
   // Renders
@@ -153,18 +217,53 @@ export default function McqPractice() {
         <div className="interview-card">
           <h2>MCQ Practice Setup</h2>
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px' }}>Category</label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="input-field"
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
+            <label style={{ display: 'block', marginBottom: '8px' }}>Category (Select One or Multiple)</label>
+            <div className="category-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+              <button
+                className={`cat-btn ${formData.category === 'Random' ? 'active' : ''}`}
+                onClick={() => setFormData({ ...formData, category: 'Random' })}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  border: '1px solid #475569',
+                  background: formData.category === 'Random' ? '#6366f1' : 'rgba(30, 41, 59, 0.5)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Random
+              </button>
+              {categories.map((cat) => {
+                const isSelected = formData.category.split(',').includes(cat) && formData.category !== 'Random';
+                return (
+                  <button
+                    key={cat}
+                    className={`cat-btn ${isSelected ? 'active' : ''}`}
+                    onClick={() => {
+                      let current = formData.category === 'Random' ? [] : formData.category.split(',').filter(c => c);
+                      if (current.includes(cat)) {
+                        current = current.filter(c => c !== cat);
+                      } else {
+                        current.push(cat);
+                      }
+                      setFormData({ ...formData, category: current.length ? current.join(',') : 'Random' });
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      border: `1px solid ${isSelected ? '#6366f1' : '#475569'}`,
+                      background: isSelected ? '#6366f1' : 'rgba(30, 41, 59, 0.5)',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div className="form-group" style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '8px' }}>Number of Questions (5-20)</label>
@@ -330,20 +429,32 @@ export default function McqPractice() {
             )}
           </div>
 
-          <button className="btn primary" onClick={() => setStep("setup")} style={{ width: '100%', marginTop: '24px' }}>
-            Take Another Quiz
-          </button>
-        </div>
-      )}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+            <button className="btn primary" onClick={() => setStep("setup")} style={{ flex: 1 }}>
+              Take Another Quiz
+            </button>
+            <button
+              className="btn secondary"
+              onClick={downloadReport}
+              style={{ flex: 1, background: '#8b5cf6', color: 'white' }}
+            >
+              Download Report
+            </button>
+          </div>
+        </div >
+      )
+      }
 
-      {step === "results" && !results && (
-        <div style={{ color: 'white', textAlign: 'center', marginTop: '100px' }}>
-          <h2>Processing Results...</h2>
-          <button className="btn primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
-            Reset
-          </button>
-        </div>
-      )}
-    </div>
+      {
+        step === "results" && !results && (
+          <div style={{ color: 'white', textAlign: 'center', marginTop: '100px' }}>
+            <h2>Processing Results...</h2>
+            <button className="btn primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+              Reset
+            </button>
+          </div>
+        )
+      }
+    </div >
   );
 }

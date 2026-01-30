@@ -33,6 +33,16 @@ const userSchema = mongoose.Schema({
     avatar: {
         type: String,
         default: '' // URL to avatar image
+    },
+    stats: {
+        streak: { type: Number, default: 0 },
+        lastActiveDate: { type: Date, default: null },
+        activityLog: [{
+            date: { type: String }, // ISO Date string YYYY-MM-DD
+            count: { type: Number, default: 1 }
+        }],
+        totalScore: { type: Number, default: 0 }, // Cumulative score from all quizzes/interviews
+        quizzesTaken: { type: Number, default: 0 }
     }
 }, {
     timestamps: true

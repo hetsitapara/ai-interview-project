@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import "../styles/interview.css";
 import "../styles/report.css";
 import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo } from "react-icons/fa";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export default function Interview() {
   const [step, setStep] = useState("setup"); // setup, interview, loading, results
@@ -73,9 +75,60 @@ export default function Interview() {
   }, [step, currentQuestionIndex]);
 
 
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  };
+
+  const [loadingMessage, setLoadingMessage] = useState("Generating Report...");
+
+  const handleResumeUploadProcess = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      setLoadingMessage("Scanning Resume & Generating Questions...");
+      setStep("loading");
+
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      try {
+          const token = localStorage.getItem('token');
+          const res = await fetch('http://localhost:5001/api/resume/upload', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${token}`
+                  // No Content-Type for FormData, browser sets it with boundary
+              },
+              body: formData
+          });
+
+          if (!res.ok) throw new Error("Resume processing failed");
+
+          const data = await res.json();
+          setQuestions(data);
+          setConfig(prev => ({ ...prev, category: "Resume Based Interview" })); // Update category title
+          setStep("interview");
+
+          // Enter Fullscreen
+          try {
+             if (document.documentElement.requestFullscreen) {
+                 await document.documentElement.requestFullscreen();
+             } else if (document.documentElement.webkitRequestFullscreen) { 
+                 await document.documentElement.webkitRequestFullscreen();
+             }
+         } catch (err) { console.warn("Fullscreen request failed", err); }
+
+      } catch (err) {
+          alert(err.message);
+          setStep("setup");
+      }
+  };
+
   const startInterview = async () => {
     try {
-        const token = localStorage.getItem('token'); // Assuming auth
+        setLoadingMessage("Fetching Questions...");
+        const token = localStorage.getItem('token');
         const res = await fetch('http://localhost:5001/api/interview/start', {
             method: 'POST',
             headers: {
@@ -185,6 +238,7 @@ export default function Interview() {
   };
 
   const submitInterview = async (finalAnswers) => {
+      setLoadingMessage("Analyzing Interview...");
       setStep("loading");
       try {
         const token = localStorage.getItem('token');
@@ -218,6 +272,73 @@ export default function Interview() {
           alert(err.message);
           setStep("interview"); // Go back on error?
       }
+  };
+
+  const downloadReport = () => {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 20;
+      const maxLineWidth = pageWidth - margin * 2;
+      let y = 20;
+
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Interview Analysis Report", margin, y);
+      y += 10;
+
+      doc.setFontSize(12);
+      doc.setTextColor(100);
+      doc.text(`Category: ${config.category}  |  Date: ${new Date().toLocaleDateString()}`, margin, y);
+      y += 15;
+
+      // Score
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Overall Score: ${report.overallScore.toFixed(1)} / 10`, margin, y);
+      y += 20;
+
+      doc.setLineWidth(0.5);
+      doc.line(margin, y - 10, pageWidth - margin, y - 10);
+
+      // Questions
+      doc.setFontSize(12);
+      
+      report.questions.forEach((q, index) => {
+          // Check page break
+          if (y > 270) {
+              doc.addPage();
+              y = 20;
+          }
+
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(0);
+          const qTitle = `Q${index + 1}: ${q.questionText} (${q.final_score}/10)`;
+          const qLines = doc.splitTextToSize(qTitle, maxLineWidth);
+          doc.text(qLines, margin, y);
+          y += qLines.length * 7;
+
+          // Check space for answers
+          if (y > 270) { doc.addPage(); y = 20; }
+
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(50);
+          const ansPrefix = "Your Answer: ";
+          // Strip basic HTML if present or newlines? Usually plain text.
+          const ansText = doc.splitTextToSize(ansPrefix + (q.userAnswer || "No answer"), maxLineWidth);
+          doc.text(ansText, margin, y);
+          y += ansText.length * 7;
+
+          if (y > 270) { doc.addPage(); y = 20; }
+
+          doc.setTextColor(100); // Greyer for ideal
+          const idealPrefix = "Ideal Answer: ";
+          const idealText = doc.splitTextToSize(idealPrefix + (q.idealAnswer || "N/A"), maxLineWidth);
+          doc.text(idealText, margin, y);
+          y += idealText.length * 7 + 10; // Extra spacing
+      });
+
+      doc.save(`Interview_Report_${config.category.replace(/,/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   const toggleMic = () => {
@@ -266,26 +387,72 @@ export default function Interview() {
 
   const renderSetup = () => (
     <div className="interview-card setup-card">
-        <h2>Configure Interview</h2>
-        <div className="form-group">
-            <label>Category</label>
-            <select value={config.category} onChange={e => setConfig({...config, category: e.target.value})}>
-                {categories.length > 0 ? (
-                    categories.map(cat => <option key={cat} value={cat}>{cat}</option>)
-                ) : (
-                    <option value="">Loading categories...</option>
-                )}
-            </select>
+        <h2>Start Interview With</h2>
+        
+        {/* New Resume Upload Section */}
+        <div className="resume-upload-section" style={{marginBottom: '30px', padding: '20px', border: '1px dashed #4ade80', borderRadius: '12px', background: 'rgba(74, 222, 128, 0.05)'}}>
+            <h3>📄 Upload Resume to Personalize</h3>
+            <p style={{fontSize: '0.9rem', color: '#888', marginBottom: '15px'}}>We'll analyze your skills and ask relevant questions (Java, Python, ML, etc.)</p>
+            <input 
+                type="file" 
+                accept="application/pdf"
+                onChange={handleResumeUploadProcess}
+                style={{display: 'block', width: '100%', padding: '10px', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff'}}
+            />
         </div>
-        {/* Difficulty Removed as per request */}
-        {/* <div className="form-group">
-            <label>Difficulty</label>
-            <select value={config.difficulty} onChange={e => setConfig({...config, difficulty: e.target.value})}>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-            </select>
-        </div> */}
+
+        <div className="divider" style={{margin: '20px 0', textAlign: 'center', color: '#64748b'}}>OR</div>
+
+        <div className="form-group">
+            <label>Category (Select One or Multiple)</label>
+            <div className="category-grid" style={{display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px'}}>
+                <button 
+                    className={`cat-btn ${config.category === 'Random' ? 'active' : ''}`}
+                    onClick={() => setConfig({...config, category: 'Random'})}
+                    style={{ 
+                        padding: '8px 16px', 
+                        borderRadius: '20px', 
+                        border: '1px solid #475569', 
+                        background: config.category === 'Random' ? '#6366f1' : 'rgba(30, 41, 59, 0.5)', 
+                        color: '#fff',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                    }}
+                >
+                    Random
+                </button>
+                {categories.length > 0 ? categories.map(cat => {
+                    const isSelected = config.category.split(',').includes(cat) && config.category !== 'Random';
+                    return (
+                        <button 
+                            key={cat}
+                            className={`cat-btn ${isSelected ? 'active' : ''}`}
+                            onClick={() => {
+                                let current = config.category === 'Random' ? [] : config.category.split(',').filter(c => c);
+                                if (current.includes(cat)) {
+                                    current = current.filter(c => c !== cat);
+                                } else {
+                                    current.push(cat);
+                                }
+                                setConfig({...config, category: current.length ? current.join(',') : 'Random'});
+                            }}
+                            style={{ 
+                                padding: '8px 16px', 
+                                borderRadius: '20px', 
+                                border: `1px solid ${isSelected ? '#6366f1' : '#475569'}`, 
+                                background: isSelected ? '#6366f1' : 'rgba(30, 41, 59, 0.5)', 
+                                color: '#fff',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    )
+                }) : <p>Loading categories...</p>}
+            </div>
+        </div>
+        
         <div className="form-group">
             <label>Number of Questions</label>
             <input 
@@ -295,7 +462,7 @@ export default function Interview() {
                 onChange={e => setConfig({...config, count: Math.max(5, parseInt(e.target.value) || 0)})} 
             />
         </div>
-        <button className="btn primary" onClick={startInterview}>Start Interview</button>
+        <button className="btn primary" onClick={startInterview}>Start Manual Interview</button>
     </div>
   );
 
@@ -375,9 +542,9 @@ export default function Interview() {
 
   const renderLoading = () => (
       <div className="interview-card loading-card">
-          <h2>Generating Report...</h2>
+          <h2>{loadingMessage}</h2>
           <div className="spinner"></div> 
-          <p>AI is analyzing your answers. This may take a moment.</p>
+          <p>Please wait while we process your request.</p>
       </div>
   );
 
@@ -388,7 +555,7 @@ export default function Interview() {
 
       return (
           <div className="report-page" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 100, height: 'auto', minHeight: '100vh', padding: '40px 20px' }}>
-              <div className="detail-container fade-in" style={{ maxWidth: '1000px', margin: '0 auto', background: 'rgba(15, 23, 42, 0.95)' }}>
+              <div className="detail-container fade-in" style={{ maxWidth: '1000px', margin: '0 auto', background: 'rgba(15, 23, 42, 0.95)', padding: '20px', borderRadius: '10px' }}>
                   
                   {/* Header */}
                   <div className="report-header">
@@ -465,6 +632,9 @@ export default function Interview() {
                   <div className="action-buttons" style={{marginTop: '40px', justifyContent: 'center', gap: '20px'}}>
                      <button className="btn primary" onClick={() => setStep("setup")}>
                         <FaRedo style={{marginRight: '8px'}}/> Start New Interview
+                     </button>
+                     <button className="btn secondary" onClick={downloadReport}>
+                        <FaChartLine style={{marginRight: '8px'}}/> Download Report
                      </button>
                      <button className="btn secondary" onClick={() => window.location.href = '/dashboard'}>
                         <FaHome style={{marginRight: '8px'}}/> Go to Dashboard
