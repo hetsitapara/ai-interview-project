@@ -25,9 +25,9 @@ export default function LandingPage() {
       {/* Background Ambience */}
       <div className="landing-blob blob-1" />
       <div className="landing-blob blob-2" />
-      
+
       {/* Cursor Spotlight */}
-      <div 
+      <div
         className="cursor-spotlight"
         style={{
           background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(129, 140, 248, 0.15), transparent 40%)`
@@ -70,10 +70,10 @@ export default function LandingPage() {
             <p className="hero-desc">
               Experience personalized mock interviews, real-time feedback, and comprehensive analytics to land your dream job.
             </p>
-            
+
             <div className="hero-actions">
-               <Link to="/register">
-                <motion.button 
+              <Link to="/register">
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="btn-hero-primary"
@@ -82,7 +82,7 @@ export default function LandingPage() {
                 </motion.button>
               </Link>
               <Link to="/login">
-                 <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="btn-hero-secondary"
@@ -92,47 +92,47 @@ export default function LandingPage() {
               </Link>
             </div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="hero-image-container"
           >
-             <img src={HeroImage} alt="AI Brain Visualization" className="hero-visual" />
+            {/* <img src={HeroImage} alt="AI Brain Visualization" className="hero-visual" /> */}
           </motion.div>
         </div>
       </section>
 
       {/* Features Grid */}
       <section className="features-section">
-        <h2 className="section-title" style={{marginBottom: '3rem', textAlign: 'center'}}>
+        <h2 className="section-title" style={{ marginBottom: '3rem', textAlign: 'center' }}>
           Everything You Need to <span className="gradient-text">Excel</span>
         </h2>
         <div className="features-grid">
-          <FeatureCard 
+          <FeatureCard
             icon={<FaBrain style={{ color: '#c084fc' }} />}
             title="AI Mock Interviews"
             description="Practice with an intelligent AI that adapts to your responses and provides constructive feedback."
             delay={0.2}
             className="bento-large"
           />
-           <FeatureCard 
+          <FeatureCard
             icon={<FaChartLine style={{ color: '#f472b6' }} />}
             title="Deep Analytics"
             description="Track your progress with detailed reports on your communication skills."
             delay={0.4}
             className="bento-small"
           />
-           <FeatureCard 
+          <FeatureCard
             icon={<FaRocket style={{ color: '#818cf8' }} />}
             title="Curated Question Bank"
             description="Access thousands of questions across various domains and difficulties."
             delay={0.6}
             className="bento-small"
           />
-          <FeatureCard 
-            icon={<FaArrowRight style={{ color: '#4ade80' }} />} 
+          <FeatureCard
+            icon={<FaArrowRight style={{ color: '#4ade80' }} />}
             title="Resume AI Scanner"
             description="Get your resume scored by our AI against industry standards to ensure you pass the ATS."
             delay={0.8}
@@ -146,7 +146,7 @@ export default function LandingPage() {
         <h2 className="section-title">
           Your Path to <span style={{ color: '#818cf8' }}>Success</span>
         </h2>
-        
+
         <div className="steps-grid">
           <Step number="01" title="Sign Up" desc="Create your profile and set your goals." />
           <Step number="02" title="Practice" desc="Take AI-driven mock interviews." />
@@ -170,7 +170,7 @@ export default function LandingPage() {
 
 function FeatureCard({ icon, title, description, delay, className }) {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
