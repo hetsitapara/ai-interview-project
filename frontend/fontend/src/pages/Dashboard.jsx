@@ -38,55 +38,90 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <>
-      <div className="dashboard-container">
-        <h1>Dashboard</h1>
-
-        <div className="card-grid">
-          <DashboardCard
-            title="AI Mock Interview"
-            desc="Practice realistic, adaptive scenarios"
-            buttonText="Start New Session"
-            onClick={() => navigate('/interview')}
-          />
-          <DashboardCard
-            title="Question Bank"
-            desc="Browse thousands of practice questions"
-            buttonText="Explore Questions"
-            onClick={() => navigate('/questions')}
-          />
-          <DashboardCard
-            title="Interview Reports"
-            desc="Review feedback and track improvement"
-            buttonText="View Reports"
-            onClick={() => navigate('/reports')}
-          />
-        </div>
-
-        <div className="lower-section">
-          <div className="progress-box">
-            <h3>Skill Progress</h3>
-            {loading ? <p>Loading stats...</p> : (
-              stats.skillProgress && stats.skillProgress.length > 0 ? (
-                stats.skillProgress.map((skill, idx) => (
-                  <ProgressBar key={idx} label={skill.label} percent={skill.percent} />
-                ))
-              ) : <p>No interview data yet.</p>
-            )}
-          </div>
-
-          <div className="score-box">
-            <h3>Interview Readiness</h3>
-            <div className="score-circle">
-              <div className="score-circle-inner">{Math.round(stats.averageScore * 10)}%</div>
+    <div className="dashboard-container">
+      <div className="dashboard-wrapper">
+        <div className="main-layout">
+          {/* Dashboard Sidebar */}
+          <aside className="sidebar-panel">
+            <div className="widget-card" style={{ textAlign: 'center', padding: '40px 24px' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'var(--primary)', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', border: '4px solid rgba(255,255,255,0.1)' }}>
+                🎯
+              </div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Level 4</h3>
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Pro Interviewee</p>
+              <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', marginTop: '20px', overflow: 'hidden' }}>
+                <div style={{ width: '65%', height: '100%', background: 'var(--primary)' }}></div>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'right' }}>650 / 1000 XP</p>
             </div>
-            <p>Based on Average Score</p>
-            <div style={{ marginTop: '10px', textAlign: 'center' }}>
-              <small>Total Sessions: {stats.totalInterviews}</small>
+
+            <div className="widget-card">
+              <h4>🏆 Daily Streak</h4>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                {[1, 1, 1, 1, 0, 0, 0].map((active, i) => (
+                  <div key={i} style={{ flex: 1, height: '30px', background: active ? 'var(--primary)' : 'rgba(255,255,255,0.05)', borderRadius: '6px', border: active ? '1px solid rgba(255,255,255,0.2)' : 'none' }}></div>
+                ))}
+              </div>
+              <p style={{ fontSize: '12px', marginTop: '12px' }}>4 day streak! Keep it up to earn double XP.</p>
             </div>
-          </div>
+
+            <div className="widget-card" style={{ background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
+              <h4>🔥 Interview Heatmap</h4>
+              <p>You are most active between <b>2pm - 4pm</b>. Your responses are 15% sharper during this time!</p>
+            </div>
+          </aside>
+
+          {/* Main Dashboard Content */}
+          <main className="content-main">
+            <header style={{ marginBottom: '8px' }}>
+              <h1 style={{ fontSize: '36px', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Welcome back, Explorer</h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>Ready to conquer your next big interview?</p>
+            </header>
+
+            <div className="card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+              <DashboardCard
+                title="AI Mock Interview"
+                desc="Adaptive AI simulates real high-stakes environments."
+                buttonText="Jump In"
+                onClick={() => navigate('/interview')}
+              />
+              <DashboardCard
+                title="Question Bank"
+                desc="10,000+ curated questions across 50+ specialized domains."
+                buttonText="Browse Files"
+                onClick={() => navigate('/questions')}
+              />
+              <DashboardCard
+                title="Performance"
+                desc="Detailed sentiment and keyword analysis of your sessions."
+                buttonText="View Reports"
+                onClick={() => navigate('/reports')}
+              />
+            </div>
+
+            <div className="lower-section" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
+              <div className="progress-box" style={{ padding: '32px', borderRadius: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}>
+                <h3 style={{ marginBottom: '24px', fontSize: '20px' }}>Domain Proficiency</h3>
+                {loading ? <p>Syncing neural data...</p> : (
+                  stats.skillProgress && stats.skillProgress.length > 0 ? (
+                    stats.skillProgress.map((skill, idx) => (
+                      <ProgressBar key={idx} label={skill.label} percent={skill.percent} />
+                    ))
+                  ) : <p style={{ color: 'var(--text-muted)' }}>No session data recorded yet. Start an interview to see insights.</p>
+                )}
+              </div>
+
+              <div className="score-box" style={{ padding: '32px', borderRadius: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', textAlign: 'center' }}>
+                <h3 style={{ marginBottom: '24px', fontSize: '20px' }}>Readiness Score</h3>
+                <div className="score-circle" style={{ width: '150px', height: '150px', margin: '0 auto 20px' }}>
+                  <div className="score-circle-inner" style={{ fontSize: '32px' }}>{Math.round(stats.averageScore * 10)}%</div>
+                </div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Based on your last 5 sessions.</p>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
-    </>
+    </div>
   );
 }

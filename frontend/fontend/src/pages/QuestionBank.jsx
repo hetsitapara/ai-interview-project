@@ -105,80 +105,90 @@ export default function QuestionBank() {
 
   return (
     <div className="qb-page">
-      <div className="qb-card">
+      <div className="container-xl">
+        <div className="main-layout">
+          {/* Sidebar Area */}
+          <aside className="sidebar-panel">
+            <div className="widget-card">
+              <h4>🔍 Discovery</h4>
+              <input
+                type="text"
+                className="qb-search"
+                placeholder="Search keywords..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', borderRadius: '10px', color: '#fff', fontSize: '14px', marginTop: '12px' }}
+              />
+            </div>
 
-        <h2 className="qb-title">Question Bank</h2>
+            <div className="widget-card">
+              <h4>🏷️ Category Filter</h4>
+              <div className="filter-section" style={{ marginTop: '15px' }}>
+                {categories.length > 0 ? categories.map(cat => (
+                  <label key={cat} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', marginBottom: '10px', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={filters.category.includes(cat)}
+                      onChange={() => handleFilterChange('category', cat)}
+                      style={{ accentColor: 'var(--primary)' }}
+                    />
+                    {cat}
+                  </label>
+                )) : <p style={{ fontSize: '12px', color: '#777' }}>Syncing...</p>}
+              </div>
+            </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          className="qb-search"
-          placeholder="Search questions..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+            <div className="widget-card">
+              <h4>⚡ Difficulty</h4>
+              <div className="filter-section" style={{ marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {['Easy', 'Medium', 'Hard'].map(lvl => (
+                  <label key={lvl} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={filters.difficulty.includes(lvl)} onChange={() => handleFilterChange('difficulty', lvl)} /> {lvl}
+                  </label>
+                ))}
+              </div>
+            </div>
 
-        <div className="qb-layout">
+            <button className="btn secondary" onClick={clearFilters} style={{ width: '100%', fontSize: '14px' }}>Reset View</button>
+          </aside>
 
-          {/* Filters */}
-          <div className="qb-filters">
-            <h4>Filters</h4>
+          {/* Main Area */}
+          <main className="content-main">
+            <div className="qb-header" style={{ marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Interactive Question Bank</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '16px' }}>Master thousand of industry-specific scenarios with AI-guided ideal responses.</p>
+            </div>
 
-            <div className="filter-section">
-              <h5>Category</h5>
-              {categories.length > 0 ? categories.map(cat => (
-                <label key={cat}>
-                  <input
-                    type="checkbox"
-                    checked={filters.category.includes(cat)}
-                    onChange={() => handleFilterChange('category', cat)}
+            <div className="qb-list" style={{ display: 'grid', gap: '24px' }}>
+              {loading && page === 1 ? (
+                <div className="loader">Analyzing Question Database...</div>
+              ) : questions.length > 0 ? (
+                questions.map(q => (
+                  <QuestionCard
+                    key={q._id}
+                    text={q.question}
+                    category={q.category}
+                    level={q.difficulty}
+                    answer={q.answer}
                   />
-                  {cat}
-                </label>
-              )) : <p style={{ fontSize: '12px', color: '#777' }}>No categories yet</p>}
+                ))
+              ) : (
+                <div className="no-data">No results found in current cluster.</div>
+              )}
+
+              {/* Load More Button */}
+              {questions.length > 0 && hasMore && (
+                <button
+                  className="btn primary"
+                  onClick={() => setPage(page + 1)}
+                  disabled={loading}
+                  style={{ width: 'auto', margin: '40px auto', padding: '16px 40px', borderRadius: '50px' }}
+                >
+                  {loading ? 'Initializing Next Batch...' : 'Load More Scenarios'}
+                </button>
+              )}
             </div>
-
-            <div className="filter-section">
-              <h5>Difficulty</h5>
-              <label><input type="checkbox" checked={filters.difficulty.includes('Easy')} onChange={() => handleFilterChange('difficulty', 'Easy')} /> Easy</label>
-              <label><input type="checkbox" checked={filters.difficulty.includes('Medium')} onChange={() => handleFilterChange('difficulty', 'Medium')} /> Medium</label>
-              <label><input type="checkbox" checked={filters.difficulty.includes('Hard')} onChange={() => handleFilterChange('difficulty', 'Hard')} /> Hard</label>
-            </div>
-
-            <button className="secondary-btn clear-filters-btn" onClick={clearFilters}>Clear Filters</button>
-          </div>
-
-          {/* Question List */}
-          <div className="qb-list">
-            {loading && page === 1 ? (
-              <div className="loader">Loading questions...</div>
-            ) : questions.length > 0 ? (
-              questions.map(q => (
-                <QuestionCard
-                  key={q._id}
-                  text={q.question}
-                  category={q.category}
-                  level={q.difficulty}
-                  answer={q.answer}
-                />
-              ))
-            ) : (
-              <div className="no-data">No questions found matching your criteria.</div>
-            )}
-
-            {/* Load More Button */}
-            {questions.length > 0 && hasMore && (
-              <button
-                className="btn load-more-btn"
-                onClick={() => setPage(page + 1)}
-                disabled={loading}
-                style={{ width: 'auto', margin: '30px auto' }}
-              >
-                {loading ? 'Loading...' : 'Load More Questions'}
-              </button>
-            )}
-          </div>
-
+          </main>
         </div>
       </div>
     </div>

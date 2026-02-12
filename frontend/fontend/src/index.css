@@ -3,28 +3,34 @@
 @tailwind utilities;
 
 /* ========== GLOBAL VARIABLES ========== */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Comfortaa:wght@400;700&display=swap');
+
 :root {
+  /* Fonts */
+  --font-main: 'Quicksand', sans-serif;
+  --font-heading: 'Comfortaa', cursive;
+
   /* Colors */
-  --primary: #6366f1;
-  --secondary: #a855f7;
-  --accent: #ec4899;
+  --primary: #8b5cf6;
+  --secondary: #6366f1;
+  --accent: #f472b6;
   --text-dark: #1e293b;
-  --text-light: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-light: #ffffff;
+  --text-muted: #cbd5e1;
 
   /* Glassmorphism Tokens */
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  --glass-blur: blur(16px);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  --glass-blur: blur(20px);
 
   /* Gradients */
-  --page-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+  --page-gradient: radial-gradient(circle at top, #101020 0%, #050510 100%);
 
   /* Spacing & Radius */
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 8px;
+  --radius-lg: 32px;
+  --radius-md: 20px;
+  --radius-sm: 10px;
 }
 
 /* ========== GLOBAL RESET ========== */
@@ -32,7 +38,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -178,6 +184,66 @@ select option {
   padding: 12px;
 }
 
+/* ========== LAYOUT UTILS ========== */
+.container-xl {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.content-main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ========== WIDGET CARD ========== */
+.widget-card {
+  padding: 24px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  transition: transform 0.3s ease;
+}
+
+.widget-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.widget-card h4 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.widget-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 /* Common form field styles */
 input[type="text"],
 input[type="email"],
@@ -195,6 +261,7 @@ select {
   outline: none;
   font-size: 15px;
   transition: all 0.3s ease;
+  font-family: var(--font-main);
 }
 
 input:focus,

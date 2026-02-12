@@ -132,72 +132,39 @@ export default function Blogs() {
 
   return (
     <div className="blog-page">
-      <div className="blog-main-card">
+      <div className="container-xl">
+        <div className="main-layout">
+          {/* Blog Sidebar */}
+          <aside className="sidebar-panel">
+            <div className="widget-card">
+              <h4>🔍 Global Search</h4>
+              <input
+                className="blog-search"
+                placeholder="Search articles..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', marginTop: '12px', padding: '12px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', borderRadius: '10px' }}
+              />
+            </div>
 
-        <div className="blog-header">
-          <div>
-            <h2 className="blog-title">Blogs & Interview Tips</h2>
-            <button className="add-btn" style={{ marginTop: '10px' }} onClick={() => setShowModal(true)}>
-              + Write a Blog
-            </button>
-          </div>
-
-          <input
-            className="blog-search"
-            placeholder="Search blogs..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        {selectedTag && (
-          <div style={{ padding: '0 20px', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-            <span style={{ color: '#94a3b8', fontSize: '14px' }}>Filtering by: <strong style={{ color: '#38bdf8' }}>{selectedTag}</strong></span>
-            <button
-              onClick={clearFilters}
-              style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontSize: '14px' }}
-            >
-              Clear Filter
-            </button>
-          </div>
-        )}
-
-        <div className="blog-layout">
-
-          {/* Blog List */}
-          <div className="blog-list">
-            {blogs.length === 0 ? <p style={{ color: '#94a3b8', textAlign: 'center', padding: '40px' }}>No blogs found.</p> : (
-              blogs.map(blog => (
-                <BlogCard
-                  key={blog._id}
-                  blog={blog}
-                  currentUser={currentUser}
-                  onDelete={handleDelete}
-                  onRead={() => setViewingBlog(blog)}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="blog-sidebar">
-            <div className="sidebar-section">
-              <h4>Categories</h4>
-              <div className="category-tags-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div className="widget-card">
+              <h4>🏷️ Top Categories</h4>
+              <div className="category-tags-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '15px' }}>
                 {categories.map(tag => (
                   <span
                     key={tag}
                     onClick={() => handleTagClick(tag)}
                     className={`sidebar-tag ${selectedTag === tag ? 'active' : ''}`}
                     style={{
-                      padding: '6px 12px',
-                      background: selectedTag === tag ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${selectedTag === tag ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
-                      color: selectedTag === tag ? '#a5b4fc' : '#94a3b8',
-                      borderRadius: '20px',
+                      padding: '8px 14px',
+                      background: selectedTag === tag ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedTag === tag ? 'rgba(255,255,255,0.2)' : 'var(--glass-border)'}`,
+                      color: selectedTag === tag ? '#fff' : 'var(--text-muted)',
+                      borderRadius: '12px',
                       fontSize: '12px',
+                      fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
                     {tag}
@@ -206,39 +173,68 @@ export default function Blogs() {
               </div>
             </div>
 
-            <div className="sidebar-section">
-              <h4>Popular Blogs</h4>
-              <ul className="popular-list" style={{ listStyle: 'none', padding: 0 }}>
+            <div className="widget-card">
+              <h4>🚀 Trending Discussions</h4>
+              <ul className="popular-list" style={{ listStyle: 'none', padding: 0, marginTop: '15px' }}>
                 {popularBlogs.map((p, idx) => (
                   <li
                     key={idx}
                     style={{
-                      marginBottom: '18px',
+                      marginBottom: '16px',
                       cursor: 'pointer',
-                      padding: '10px',
+                      padding: '12px',
                       background: 'rgba(255,255,255,0.02)',
-                      borderRadius: '8px',
-                      border: '1px solid rgba(255,255,255,0.05)',
+                      borderRadius: '12px',
+                      border: '1px solid var(--glass-border)',
                       transition: 'all 0.2s ease'
                     }}
                     onClick={() => setSearch(p.title)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                      e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)';
-                    }}
                   >
-                    <div style={{ fontSize: '11px', color: '#6366f1', textTransform: 'uppercase', fontWeight: 600, marginBottom: '4px' }}>{p.tag}</div>
-                    <div style={{ fontSize: '14px', color: '#cbd5e1', fontWeight: 500 }}>{p.title}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--primary)', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>{p.tag}</div>
+                    <div style={{ fontSize: '14px', color: '#fff', fontWeight: 500, lineHeight: '1.4' }}>{p.title}</div>
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
 
+            <button className="add-btn" style={{ width: '100%', padding: '16px', borderRadius: '14px', fontWeight: '700' }} onClick={() => setShowModal(true)}>
+              + Create New Article
+            </button>
+          </aside>
+
+          {/* Blog Feed area */}
+          <main className="content-main">
+            <header style={{ marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '36px', fontWeight: '700', fontFamily: 'var(--font-heading)' }}>Knowledge Hub</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>Insights, tips, and experiences from the PrepAI community.</p>
+            </header>
+
+            {selectedTag && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
+                <span className="badge" style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: '1px solid var(--primary)' }}>{selectedTag}</span>
+                <button onClick={clearFilters} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', textDecoration: 'underline' }}>Clear All Filters</button>
+              </div>
+            )}
+
+            <div className="blog-list" style={{ display: 'grid', gap: '32px' }}>
+              {blogs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '100px 40px', background: 'var(--glass-bg)', borderRadius: '32px', border: '1px solid var(--glass-border)' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No articles match your current search criteria.</p>
+                  <button className="btn secondary" onClick={clearFilters} style={{ marginTop: '20px' }}>Show All Blogs</button>
+                </div>
+              ) : (
+                blogs.map(blog => (
+                  <BlogCard
+                    key={blog._id}
+                    blog={blog}
+                    currentUser={currentUser}
+                    onDelete={handleDelete}
+                    onRead={() => setViewingBlog(blog)}
+                  />
+                ))
+              )}
+            </div>
+          </main>
         </div>
       </div>
 

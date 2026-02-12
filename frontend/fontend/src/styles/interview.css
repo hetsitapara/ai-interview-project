@@ -2,24 +2,28 @@
   min-height: 100vh;
   background: var(--page-gradient);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 100px 40px 40px;
-  /* Offset for Navbar */
+  padding: 120px 5% 60px;
+}
+
+.interview-container {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
 }
 
 /* ========== INTERVIEW CARD ========== */
 .interview-card {
   width: 100%;
-  max-width: 800px;
-  padding: 40px;
+  padding: 48px;
   border-radius: var(--radius-lg);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   backdrop-filter: var(--glass-blur);
   box-shadow: var(--glass-shadow);
-  box-shadow: var(--glass-shadow);
-  /* animation: fadeUp 0.6s ease; */
 }
 
 /* ========== HEADER ========== */
