@@ -77,7 +77,7 @@ export default function Navbar() {
                 </ul>
 
                 {/* Profile & Logout */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                <div className="navbar-actions">
                     <NavLink to="/profile" className="nav-link" title="Profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {user?.avatar ? (
                             <img

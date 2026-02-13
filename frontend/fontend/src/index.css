@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 /* ========== GLOBAL VARIABLES ========== */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Comfortaa:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Fonts */
-  --font-main: 'Quicksand', sans-serif;
-  --font-heading: 'Comfortaa', cursive;
+  --font-main: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
 
   /* Colors */
   --primary: #8b5cf6;
@@ -38,7 +38,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: var(--font-main);
+  font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -186,15 +186,18 @@ select option {
 
 /* ========== LAYOUT UTILS ========== */
 .container-xl {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   width: 100%;
+  padding: 0 40px;
 }
 
 .main-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 32px;
+  grid-template-columns: 380px 1fr;
+  /* Broader sidebar */
+  gap: 64px;
+  /* Optimized premium spacing */
   align-items: flex-start;
 }
 

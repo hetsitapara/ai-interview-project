@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaRocket, FaBrain, FaChartLine, FaArrowRight, FaMagic } from 'react-icons/fa';
 import '../styles/landing.css';
+import '../index.css';
 
 const SplineScene = lazy(() => import('../components/SplineScene'));
 

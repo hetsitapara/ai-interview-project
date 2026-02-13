@@ -10,8 +10,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Center the container inside */
-  padding: 0 5%;
+  padding: 0 40px;
+  /* Shift everything more to the edges */
 
   background: rgba(10, 10, 15, 0.8);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -23,22 +23,40 @@
 
 .navbar-container {
   width: 100%;
-  max-width: 1400px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+}
+
+.navbar-actions {
+  flex: 1;
+  /* Stretch right side */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  /* Pin items to edge */
+  gap: 32px;
 }
 
 /* ================= LOGO ================= */
 .navbar-logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-light);
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #fff, #94a3b8);
+  flex: 1;
+  /* Stretch left side */
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1.5px;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.navbar-logo span {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 900;
 }
 
 /* ================= LINKS ================= */
@@ -46,6 +64,8 @@
   list-style: none;
   display: flex;
   gap: 32px;
+  flex: 0;
+  /* Keep centered in the middle */
 }
 
 .nav-link {
@@ -56,6 +76,8 @@
   color: var(--text-muted);
   transition: all 0.3s ease;
   position: relative;
+  white-space: nowrap;
+  /* Prevent 2-word items from wrapping */
 }
 
 .nav-link:hover {

@@ -9,9 +9,11 @@ export default function Interview() {
     const [step, setStep] = useState("setup"); // setup, interview, loading, results
     const [config, setConfig] = useState({
         category: "HR",
+        topic: "", // Add topic
         count: 5,
         difficulty: "Medium"
     });
+    const [topics, setTopics] = useState([]); // Add topics state
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState([]); // Array of { questionId, userAnswer, timeTaken }
@@ -103,11 +105,14 @@ export default function Interview() {
                 body: formData
             });
 
-            if (!res.ok) throw new Error("Resume processing failed");
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || "Resume processing failed");
+            }
 
             const data = await res.json();
             setQuestions(data);
-            setConfig(prev => ({ ...prev, category: "Resume Based Interview" })); // Update category title
+            setConfig(prev => ({ ...prev, category: "Resume Based" }));
             setStep("interview");
 
             // Enter Fullscreen
@@ -374,7 +379,7 @@ export default function Interview() {
                 if (res.ok) {
                     const data = await res.json();
                     setCategories(data);
-                    if (data.length > 0) {
+                    if (data.length > 0 && !config.category) {
                         setConfig(prev => ({ ...prev, category: data[0] }));
                     }
                 }
@@ -384,6 +389,33 @@ export default function Interview() {
         };
         fetchCategories();
     }, []);
+
+    // Fetch Topics when Category changes
+    useEffect(() => {
+        const fetchTopics = async () => {
+            // Only fetch topics if a single category is selected (not Random, not multiple)
+            if (!config.category || config.category === 'Random' || config.category.includes(',')) {
+                setTopics([]);
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token');
+                // Ensure correct endpoint usage
+                const res = await fetch(`http://localhost:5001/api/questions/${encodeURIComponent(config.category)}/topics`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setTopics(data);
+                    // Reset topic when category changes
+                    setConfig(prev => ({ ...prev, topic: "" }));
+                }
+            } catch (err) {
+                console.error("Failed to load topics", err);
+            }
+        };
+        fetchTopics();
+    }, [config.category]);
 
     const renderSetup = () => (
         <div className="interview-container">
@@ -443,7 +475,7 @@ export default function Interview() {
                             <div className="category-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                 <button
                                     className={`cat-btn ${config.category === 'Random' ? 'active' : ''}`}
-                                    onClick={() => setConfig({ ...config, category: 'Random' })}
+                                    onClick={() => setConfig({ ...config, category: 'Random', topic: '' })}
                                     style={{
                                         padding: '12px 24px',
                                         borderRadius: '12px',
@@ -465,13 +497,13 @@ export default function Interview() {
                                             key={cat}
                                             className={`cat-btn ${isSelected ? 'active' : ''}`}
                                             onClick={() => {
-                                                let current = config.category === 'Random' ? [] : config.category.split(',').filter(c => c);
-                                                if (current.includes(cat)) {
-                                                    current = current.filter(c => c !== cat);
-                                                } else {
-                                                    current.push(cat);
-                                                }
-                                                setConfig({ ...config, category: current.length ? current.join(',') : 'Random' });
+                                                // Simplified: If clicking a category, select ONLY that category to enable subtopics.
+                                                // If we want multiple categories, we disable subtopics.
+                                                // User guide: "Click to select single category for topics"
+
+                                                // Let's implement toggle behavior but if only 1 is active, fetch topics.
+                                                // Actually, common UX: Select ONE for specific drilldown.
+                                                setConfig({ ...config, category: cat, topic: '' });
                                             }}
                                             style={{
                                                 padding: '12px 24px',
@@ -492,6 +524,33 @@ export default function Interview() {
                             </div>
                         </div>
 
+                        {/* SUBTOPIC DROPDOWN */}
+                        {topics.length > 0 && (
+                            <div className="form-group" style={{ marginBottom: '32px', animation: 'fadeIn 0.5s ease' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--accent)', marginBottom: '12px', display: 'block' }}>SPECIFIC TOPIC (OPTIONAL)</label>
+                                <select
+                                    value={config.topic}
+                                    onChange={e => setConfig({ ...config, topic: e.target.value })}
+                                    style={{
+                                        width: '100%',
+                                        padding: '16px',
+                                        background: 'rgba(0,0,0,0.2)',
+                                        border: '1px solid var(--glass-border)',
+                                        borderRadius: '12px',
+                                        color: '#fff',
+                                        fontSize: '16px',
+                                        cursor: 'pointer',
+                                        appearance: 'none' // Custom arrow usually needed but browser default ok for now
+                                    }}
+                                >
+                                    <option value="" style={{ background: '#1e293b' }}>Any / Random Mix</option>
+                                    {topics.map(t => (
+                                        <option key={t} value={t} style={{ background: '#1e293b' }}>{t}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
                         <div className="form-group" style={{ marginBottom: '40px' }}>
                             <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary)', marginBottom: '12px', display: 'block' }}>NUMBER OF QUESTIONS</label>
                             <input
@@ -509,7 +568,21 @@ export default function Interview() {
                                 }}
                             />
                         </div>
-                        <button className="btn primary" onClick={startInterview} style={{ padding: '20px', borderRadius: '16px', fontSize: '18px', fontWeight: '700' }}>
+                        <button
+                            className="btn primary"
+                            onClick={startInterview}
+                            style={{
+                                padding: '20px',
+                                borderRadius: '16px',
+                                fontSize: '18px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px'
+                            }}
+                        >
                             Initialize Session
                         </button>
                     </div>

@@ -2,9 +2,6 @@ const Question = require('../models/Question');
 
 // @desc    Get all questions (with filters)
 // @route   GET /api/questions
-// @access  Private (or Public? Let's make it Private as only logged users might access the bank)
-// @desc    Get all questions (with filters)
-// @route   GET /api/questions
 // @access  Private
 const getQuestions = async (req, res) => {
     try {
@@ -27,11 +24,6 @@ const getQuestions = async (req, res) => {
         }
 
         if (search) {
-            // Use text search if available, otherwise regex fall back
-            // For partial matches regex is often preferred by users, strictly text index requires full words usually.
-            // Let's stick to regex for "contains" search behavior which users usually expect.
-            // But user asked for indexing. We added index. We can use it if we want 'smart' search.
-            // Let's use Regex on question and answer for broad matching.
             query.$or = [
                 { question: { $regex: search, $options: 'i' } },
                 { answer: { $regex: search, $options: 'i' } }
@@ -66,16 +58,31 @@ const getQuestions = async (req, res) => {
 // @access  Private
 const getCategories = async (req, res) => {
     try {
-        const categories = await Question.distinct('category');
+        const categories = await Question.find().distinct('category');
         res.json(categories.filter(c => c && c.trim() !== '')); // Remove empty categories
     } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Get distinct topics/subtopics for a specific category
+// @route   GET /api/questions/:category/topics
+// @access  Private
+const getTopicsByCategory = async (req, res) => {
+    try {
+        const { category } = req.params;
+        const topics = await Question.find({ category }).distinct('topic');
+        res.json(topics.filter(t => t && t.trim() !== ''));
+    } catch (error) {
+        console.error(error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
 // @desc    Add a new question
 // @route   POST /api/questions
-// @access  Private (ideally admin only, but for now any user)
+// @access  Private/Admin
 const addQuestion = async (req, res) => {
     try {
         const { question, topic, category, difficulty, answer, source_type } = req.body;
@@ -86,14 +93,14 @@ const addQuestion = async (req, res) => {
 
         const newQuestion = await Question.create({
             question,
-            topic,
+            topic, // This acts as the "subtopic"
             category,
             difficulty,
             answer,
             source_type
         });
 
-        res.status(201).json(question);
+        res.status(201).json(newQuestion);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server Error' });
@@ -155,8 +162,6 @@ const createQuestions = async (req, res) => {
             return res.status(400).json({ message: 'Please provide an array of questions' });
         }
 
-        // Optional: Validate each question object here if needed
-
         const createdQuestions = await Question.insertMany(questions);
         res.status(201).json(createdQuestions);
     } catch (error) {
@@ -181,6 +186,7 @@ const deleteAllQuestions = async (req, res) => {
 module.exports = {
     getQuestions,
     getCategories,
+    getTopicsByCategory,
     addQuestion,
     createQuestions,
     updateQuestion,

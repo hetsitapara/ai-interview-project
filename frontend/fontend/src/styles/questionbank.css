@@ -11,7 +11,7 @@
 /* ========== MAIN CARD ========== */
 .qb-card {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1600px;
   padding: 40px;
   border-radius: var(--radius-lg);
   background: var(--glass-bg);
@@ -38,8 +38,8 @@
 /* ========== LAYOUT ========== */
 .qb-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 40px;
+  grid-template-columns: 340px 1fr;
+  gap: 60px;
 }
 
 @media (max-width: 900px) {

@@ -1,37 +1,104 @@
 import sys
 import json
 import os
-import random
 import pdfplumber
-import pandas as pd
+import re
 
-# Define keywords mapping to CSV files
-KEYWORD_MAPPING = {
-    "java": "java_interview_dataset_20_proper.csv",
-    "heap": "java_interview_dataset_20_proper.csv",
-    "spring": "java_interview_dataset_20_proper.csv",
+# Categories from DB
+CATEGORIES = [
+    'DBMS', 'DSA', 'HR', 'Java', 'JavaScript', 'Python', 'React', 'WebDev'
+]
+
+# Mapping common terms to categories and topics for better matching
+TOPIC_KEYWORDS = {
+    # DBMS
+    "sql": ("DBMS", "SQL"),
+    "database": ("DBMS", "Database"),
+    "normalization": ("DBMS", "Normalization"),
+    "acid": ("DBMS", "ACID Properties"),
+    "nosql": ("DBMS", "NoSQL"),
+    "mongodb": ("DBMS", "NoSQL"),
+    "postgresql": ("DBMS", "SQL"),
+    "mysql": ("DBMS", "SQL"),
+    "queries": ("DBMS", "SQL"),
     
-    "python": "python_interview_dataset_20_proper.csv",
-    "pandas": "python_interview_dataset_20_proper.csv",
-    "django": "python_interview_dataset_20_proper.csv",
-    "flask": "python_interview_dataset_20_proper.csv",
+    # JS
+    "javascript": ("JavaScript", "Basics"),
+    "js": ("JavaScript", "Basics"),
+    "closure": ("JavaScript", "Closures"),
+    "async": ("JavaScript", "Async/Await"),
+    "promise": ("JavaScript", "Async"),
+    "event loop": ("JavaScript", "Event Loop"),
+    "es6": ("JavaScript", "ES6+"),
+    "dom": ("JavaScript", "Basics"),
     
-    "machine learning": "ml_interview_dataset_20_proper.csv",
-    "neural network": "ml_interview_dataset_20_proper.csv",
-    "deep learning": "ml_interview_dataset_20_proper.csv",
-    "nlp": "ml_interview_dataset_20_proper.csv",
+    # React
+    "react": ("React", "Core"),
+    "hooks": ("React", "Hooks"),
+    "redux": ("React", "Redux"),
+    "context api": ("React", "Context API"),
+    "virtual dom": ("React", "Virtual DOM"),
+    "component": ("React", "Core"),
     
-    "sql": "dbms_interview_dataset_20_proper.csv",
-    "database": "dbms_interview_dataset_20_proper.csv",
-    "dbms": "dbms_interview_dataset_20_proper.csv",
+    # Python
+    "python": ("Python", "Basics"),
+    "django": ("Python", "Flask/Django Basics"),
+    "flask": ("Python", "Flask/Django Basics"),
+    "decorator": ("Python", "Decorators"),
+    "numpy": ("Python", "Basics"),
+    "pandas": ("Python", "Basics"),
     
-    "operating system": "os_interview_dataset_20_proper.csv",
-    "linux": "os_interview_dataset_20_proper.csv",
-    "deadlock": "os_interview_dataset_20_proper.csv",
+    # Java
+    "java": ("Java", "Basics"),
+    "spring": ("Java", "Spring Boot"),
+    "hibernate": ("Java", "Hibernate"),
+    "jvm": ("Java", "JVM Architecture"),
+    "maven": ("Java", "Basics"),
+    
+    # WebDev
+    "html": ("WebDev", "HTML5 Semantic Tags"),
+    "css": ("WebDev", "Responsive Design"),
+    "flexbox": ("WebDev", "CSS Flexbox/Grid"),
+    "grid": ("WebDev", "CSS Flexbox/Grid"),
+    "rest": ("WebDev", "REST APIs"),
+    "api": ("WebDev", "REST APIs"),
+    "frontend": ("WebDev", "Basics"),
+    "backend": ("WebDev", "Basics"),
+    
+    # DSA
+    "array": ("DSA", "Arrays"),
+    "linked list": ("DSA", "Linked List"),
+    "tree": ("DSA", "Trees"),
+    "graph": ("DSA", "Graphs"),
+    "stack": ("DSA", "Stacks"),
+    "queue": ("DSA", "Queues"),
+    "sorting": ("DSA", "Sorting/Searching"),
+    "algorithm": ("DSA", "Basics"),
+    "binary search": ("DSA", "Sorting/Searching"),
+    "hashing": ("DSA", "Basics"),
+    "complexity": ("DSA", "Basics")
 }
 
-DEFAULT_CSV = "hr_interview.csv"
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+# Validation keywords - searching for standard resume sections
+MANDATORY_SECTIONS = [
+    r"education", 
+    r"experience", 
+    r"work\s*history", 
+    r"employment", 
+    r"skills", 
+    r"projects", 
+    r"objective", 
+    r"professional\s*summary", 
+    r"profile", 
+    r"contact",
+    r"certification",
+    r"academic",
+    r"achievements",
+    r"internship",
+    r"technical\s*skills",
+    r"languages",
+    r"hobbies"
+]
 
 def extract_text_from_pdf(pdf_path):
     text = ""
@@ -40,64 +107,86 @@ def extract_text_from_pdf(pdf_path):
             for page in pdf.pages:
                 page_text = page.extract_text()
                 if page_text:
-                    text += page_text.lower() + " "
+                    text += page_text + "\n"
     except Exception as e:
-        # If error reading PDF, return empty to fallback
         return ""
     return text
 
-def load_questions_from_csv(filename, count=2):
-    filepath = os.path.join(DATA_DIR, filename)
-    if not os.path.exists(filepath):
-        return []
+def validate_resume(text):
+    text_lower = text.lower()
     
-    try:
-        df = pd.read_csv(filepath)
-        # Ensure we have required columns
-        if 'question' not in df.columns or 'answer' not in df.columns:
-            return []
-            
-        questions = df.sample(min(len(df), count)).to_dict('records')
-        # Add basic ID if missing (for frontend key)
-        for i, q in enumerate(questions):
-            q['_id'] = f"{filename}_{i}_{random.randint(1000,9999)}"
-        return questions
-    except Exception:
-        return []
+    if not text or len(text.strip()) < 100:
+        return False, "Document is too short or text could not be extracted properly."
+    
+    # Check for contact info pattern (optional but strong indicator)
+    email_pattern = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+    has_email = bool(re.search(email_pattern, text_lower))
+    
+    # Check for mandatory resume sections
+    found_sections = []
+    for section in MANDATORY_SECTIONS:
+        if re.search(section, text_lower):
+            found_sections.append(section)
+    
+    # A valid resume should have at least 2 of these sections OR email + 1 section
+    if len(found_sections) < 2 and not (has_email and len(found_sections) >= 1):
+        return False, "Document analysis failed. Please ensure you are uploading a standard Resume or CV containing sections like Education, Experience, or Skills."
+        
+    return True, ""
 
 def main():
-    if len(sys.argv) < 2:
-        print(json.dumps({"error": "No file path provided"}))
-        sys.exit(1)
-        
-    pdf_path = sys.argv[1]
-    resume_text = extract_text_from_pdf(pdf_path)
-    
-    matched_files = set()
-    
-    # Identify skills
-    for keyword, filename in KEYWORD_MAPPING.items():
-        if keyword in resume_text:
-            matched_files.add(filename)
+    try:
+        if len(sys.argv) < 2:
+            print(json.dumps({"error": "No file path provided"}))
+            sys.exit(1)
             
-    final_questions = []
-    
-    if not matched_files:
-        # Fallback to HR if no technical skills found
-        matched_files.add(DEFAULT_CSV)
+        pdf_path = sys.argv[1]
         
-    # Load questions from matched topics
-    # We want around 10 questions total
-    questions_per_topic = max(2, 10 // len(matched_files))
-    
-    for filename in matched_files:
-        final_questions.extend(load_questions_from_csv(filename, questions_per_topic))
+        if not os.path.exists(pdf_path):
+            print(json.dumps({"error": f"File not found: {pdf_path}"}))
+            sys.exit(1)
+            
+        resume_text = extract_text_from_pdf(pdf_path)
         
-    # Shuffle and trim to 10
-    random.shuffle(final_questions)
-    final_questions = final_questions[:10]
-    
-    print(json.dumps(final_questions))
+        is_valid, error_msg = validate_resume(resume_text)
+        if not is_valid:
+            print(json.dumps({"error": error_msg}))
+            sys.exit(0) 
+            
+        text_lower = resume_text.lower().replace("\n", " ")
+        
+        detected_categories = set()
+        detected_topics = set()
+        
+        # 1. Direct Category Match
+        for cat in CATEGORIES:
+            # Match whole words to avoid partial matching (e.g. 'Java' inside 'Javascript' handled by order)
+            # We check JavaScript before Java
+            if re.search(rf"\b{re.escape(cat.lower())}\b", text_lower):
+                detected_categories.add(cat)
+                
+        # 2. Keyword-based Topic and Category discovery
+        for keyword, (cat, topic) in TOPIC_KEYWORDS.items():
+            if re.search(rf"\b{re.escape(keyword)}\b", text_lower):
+                detected_categories.add(cat)
+                detected_topics.add(topic)
+        
+        # Always include HR for mixed rounding
+        detected_categories.add("HR")
+        
+        # Prepare response
+        result = {
+            "success": True,
+            "categories": list(detected_categories),
+            "topics": list(detected_topics),
+            "detected_skills_count": len(detected_topics)
+        }
+        
+        print(json.dumps(result))
+        
+    except Exception as e:
+        print(json.dumps({"error": f"Internal Analysis Error: {str(e)}"}))
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

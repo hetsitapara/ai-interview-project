@@ -99,7 +99,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="lower-section" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
+            <div className="lower-section" style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr', gap: '48px' }}>
               <div className="progress-box" style={{ padding: '32px', borderRadius: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}>
                 <h3 style={{ marginBottom: '24px', fontSize: '20px' }}>Domain Proficiency</h3>
                 {loading ? <p>Syncing neural data...</p> : (

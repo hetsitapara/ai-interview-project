@@ -12,14 +12,14 @@ const getDashboardStats = async (req, res) => {
 
         // 2. Average Overall Score
         const interviews = await Interview.find({ user: userId }).select('overallScore category createdAt');
-        
+
         let totalScore = 0;
         interviews.forEach(i => totalScore += (i.overallScore || 0));
         const avgScore = totalInterviews > 0 ? (totalScore / totalInterviews).toFixed(1) : 0;
 
         // 3. Category Breakdown (Average score per category)
         const categoryStats = {}; // { "HR": { total: 0, count: 0 }, ... }
-        
+
         interviews.forEach(interview => {
             const cat = interview.category || 'General';
             if (!categoryStats[cat]) {

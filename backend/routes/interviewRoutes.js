@@ -11,58 +11,37 @@ const path = require('path');
 // @route   POST /api/interview/start
 // @access  Private
 router.post('/start', protect, async (req, res) => {
-    const { category, count = 5 } = req.body;
+    // Added topic to destructuring
+    const { category, topic, count = 5 } = req.body;
     const limit = parseInt(count);
 
     try {
         const matchStage = {};
+
+        // Category Filter
         if (category && category !== 'Random') {
             if (category.includes(',')) {
-                // Formatting for regex: case-insensitive match for any of the comma-separated values
-                // Or better, exact match with $in if category names are clean.
-                // Assuming front-end sends exact names from DB.
                 const categories = category.split(',').map(c => c.trim());
                 matchStage.category = { $in: categories };
-                // But DB might have slightly different casing/spacing, so let's stick to regex OR $in if we trust inputs
-                // A safe approach for "Java" vs "java" is regex for each, but $in only takes exact values.
-                // Let's rely on $in for now assuming dropdown values match DB values.
             } else {
                 matchStage.category = { $regex: new RegExp(category, 'i') };
             }
         }
 
+        // Subtopic Filter (New Feature)
+        if (topic && topic !== 'Random' && topic !== '') {
+            matchStage.topic = topic;
+        }
+
         // If category is 'Random' or empty, matchStage remains empty {} -> fetches all/any questions
 
-        // 1. Fetch Yes/No Question(s)
-        // User wants "at least one" and "more than one also pick randomly"
-        // Let's decide a probability. e.g. 20-30% chance for more Yes/No?
-        // Simplest Robust Logic: 
-        // Always get 1 guaranteed Yes/No. 
-        // Then get (limit - 1) from a MIXED pool or assume Text questions for the rest?
-        // The prompt says "mostly pick randomly".
-        // Let's do this: Fetch 1 Yes/No. Fetch (limit - 1) Text.
-        // BUT also convert some Text slots to Yes/No randomly?
-        // Better: Fetch 2 Yes/No and (limit - 2) Text if limit > 3?
-
-        // Let's stick to the interpretation: "At least one Yes/No. The rest can be random".
-        // Since we have separate collections, true random across collections is hard without 2 queries.
-        // We will fetch:
-        // - 1 Guaranteed Yes/No
-        // - (limit - 1) Regular Questions
-        // - AND potentially replace 1 Regular with another Yes/No if available?
-
-        // New Strategy:
-        // Fetch 1 Yes/No.
-        // Fetch (limit - 1) Regular.
-        // If we want more Yes/No, we can just fetch 2 Yes/No and (limit - 2) Regular.
-        // Let's randomize the split slightly.
-
+        // Yes/No Logic (similar to before but now respects topic)
         const yesNoCount = limit > 3 ? (Math.random() > 0.5 ? 2 : 1) : 1;
         const regularCount = limit - yesNoCount;
 
-        console.log(`[Start Interview] Category: ${category}, Total: ${limit}, Yes/No Needed: ${yesNoCount}`);
+        console.log(`[Start Interview] Category: ${category}, Topic: ${topic}, Total: ${limit}, Yes/No Needed: ${yesNoCount}`);
 
-        // Try exact category match for Yes/No
+        // Try exact match for Yes/No
         let yesNoQuestions = await YesNoQuestion.aggregate([
             { $match: matchStage },
             { $sample: { size: yesNoCount } }
@@ -70,39 +49,68 @@ router.post('/start', protect, async (req, res) => {
 
         console.log(`[Start Interview] Found Yes/No (Exact): ${yesNoQuestions.length}`);
 
-        // If not enough Yes/No questions found in category, try fetching GENERAL or RANDOM ones to satisfy requirement
+        // If not enough Yes/No questions found in category/topic, try fetching GENERAL or RANDOM ones
         if (yesNoQuestions.length < yesNoCount) {
             const needed = yesNoCount - yesNoQuestions.length;
             console.log(`[Start Interview] Not enough exact match Yes/No. Fetching ${needed} from General/Any.`);
 
-            // Fallback: exclude already found IDs (not strictly needed if count is small, but good practice)
             const existingIds = yesNoQuestions.map(q => q._id);
 
+            // Fallback might ignore topic strictly if not enough found?
+            // Or try to find random Yes/No without topic constraint but maybe kept category?
+            // Let's just find ANY random Yes/No for now to ensure we have questions.
             const fallbackYesNo = await YesNoQuestion.aggregate([
-                { $match: { _id: { $nin: existingIds } } }, // Just get any
+                { $match: { _id: { $nin: existingIds } } },
                 { $sample: { size: needed } }
             ]);
 
             yesNoQuestions = [...yesNoQuestions, ...fallbackYesNo];
         }
 
-        console.log(`[Start Interview] Final Yes/No Count: ${yesNoQuestions.length}`);
-
-        // If we still have 0 Yes/No questions, it means the DB is empty of them.
-        // We will proceed with regular questions only but log a warning.
-
-        // Adjust regular count based on how many Yes/No we *actually* got (could be 0 if DB empty)
+        // Regular Questions
         const foundYesNo = yesNoQuestions.length;
         const neededRegular = limit - foundYesNo;
 
-        const regularQuestions = await Question.aggregate([
+        let regularQuestions = await Question.aggregate([
             { $match: matchStage },
             { $sample: { size: neededRegular } }
         ]);
 
+        // If not enough regular questions found with strict topic, try relaxing topic but keeping category
+        if (regularQuestions.length < neededRegular && topic) {
+            const neededMore = neededRegular - regularQuestions.length;
+            console.log(`[Start Interview] Not enough regular questions with topic ${topic}. relaxing to category ${category}`);
+
+            // Remove topic constraint but keep category
+            const relaxedMatch = { ...matchStage };
+            delete relaxedMatch.topic;
+
+            const existingIds = regularQuestions.map(q => q._id);
+
+            const relaxedQuestions = await Question.aggregate([
+                { $match: { ...relaxedMatch, _id: { $nin: existingIds } } },
+                { $sample: { size: neededMore } }
+            ]);
+
+            regularQuestions = [...regularQuestions, ...relaxedQuestions];
+        }
+
+        // If STILL not enough (e.g. category itself has few questions), relax to ANY random
+        if (regularQuestions.length < neededRegular) {
+            const neededMore = neededRegular - regularQuestions.length;
+            console.log(`[Start Interview] Not enough regular questions in category. Fetching random.`);
+            const existingIds = regularQuestions.map(q => q._id);
+
+            const randomQuestions = await Question.aggregate([
+                { $match: { _id: { $nin: existingIds } } },
+                { $sample: { size: neededMore } }
+            ]);
+            regularQuestions = [...regularQuestions, ...randomQuestions];
+        }
+
         console.log(`[Start Interview] Regular Questions Found: ${regularQuestions.length}`);
 
-        // 3. Combine and Shuffle
+        // Combine and Shuffle
         let combinedQuestions = [
             ...yesNoQuestions.map(q => ({ ...q, type: 'YesNo' })),
             ...regularQuestions.map(q => ({ ...q, type: 'Text' }))
@@ -163,12 +171,21 @@ router.post('/submit', protect, async (req, res) => {
             if (code !== 0) {
                 console.error(`Python script exited with code ${code}`);
                 console.error(`Python stderr: ${errorString}`);
-                return res.status(500).json({ message: 'Error generating report', error: errorString });
+                // Fallback if ML fails? Or return error
+                // return res.status(500).json({ message: 'Error generating report', error: errorString });
+                // Let's create a partial report if ML fails instead of blocking user
+                console.warn("ML generation failed, proceeding with basic report");
             }
 
             try {
                 // Parse results from python
-                const results = JSON.parse(dataString);
+                let results = [];
+                try {
+                    results = JSON.parse(dataString);
+                } catch (e) {
+                    console.error("Failed to parse ML output, using fallback values");
+                    results = answers.map(a => ({ final_score: 5, feedback: " automated feedback unavailable." }));
+                }
 
                 // Construct interview record
                 const interviewData = {
@@ -179,7 +196,7 @@ router.post('/submit', protect, async (req, res) => {
                         ...ans,
                         ...results[index] // Merge ML results (scores, feedback)
                     })),
-                    overallScore: results.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / results.length,
+                    overallScore: results.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (results.length || 1),
                     detailedReport: results // Store raw report just in case
                 };
 
@@ -188,43 +205,50 @@ router.post('/submit', protect, async (req, res) => {
                 // --- GAMIFICATION UPDATE START ---
                 // Reuse logic ideally in a helper, but putting inline for now for speed
                 const today = new Date().toISOString().split('T')[0];
-                const user = await req.user; // User is already attached to req by protect middleware? 
-                // wait, req.user is document from middleware? Yes, usually.
-                // Let's re-fetch to be safe and save? Or just save req.user if it's a doc.
-                // Assuming req.user is Mongoose doc.
+                // User is already attached to req by protect middleware? 
+                const user = await req.user;
+                // Wait, protect middleware attaches user doc to req.user.
+                // We need to fetch/save.
 
-                let shouldIncrementStreak = false;
-                if (user.stats.lastActiveDate) {
-                    const lastDate = new Date(user.stats.lastActiveDate).toISOString().split('T')[0];
-                    const diffTime = Math.abs(new Date(today) - new Date(lastDate));
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                // Mongoose document is attached, so we can modify and save.
+                // Re-fetch to be absolutely sure or just trust middleware. 
+                // Middleware usually does `req.user = await User.findById(decoded.id).select('-password')`
 
-                    if (diffDays === 1) {
-                        shouldIncrementStreak = true;
-                    } else if (diffDays > 1) {
-                        user.stats.streak = 0; // Reset
+                if (user) {
+                    let shouldIncrementStreak = false;
+                    if (user.stats && user.stats.lastActiveDate) {
+                        const lastDate = new Date(user.stats.lastActiveDate).toISOString().split('T')[0];
+                        const diffTime = Math.abs(new Date(today) - new Date(lastDate));
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays === 1) {
+                            shouldIncrementStreak = true;
+                        } else if (diffDays > 1) {
+                            user.stats.streak = 0; // Reset
+                            shouldIncrementStreak = true;
+                        }
+                    } else {
                         shouldIncrementStreak = true;
                     }
-                } else {
-                    shouldIncrementStreak = true;
+
+                    if (shouldIncrementStreak && user.stats.lastActiveDate?.toISOString().split('T')[0] !== today) {
+                        user.stats.streak = (user.stats.streak || 0) + 1;
+                    }
+
+                    user.stats.lastActiveDate = new Date();
+                    user.stats.totalScore = (user.stats.totalScore || 0) + (interviewData.overallScore * 10);
+
+                    // Update Activity Log
+                    if (!user.stats.activityLog) user.stats.activityLog = [];
+                    const logIndex = user.stats.activityLog.findIndex(l => l.date === today);
+                    if (logIndex > -1) {
+                        user.stats.activityLog[logIndex].count += 1;
+                    } else {
+                        user.stats.activityLog.push({ date: today, count: 1 });
+                    }
+
+                    await user.save();
                 }
-
-                if (shouldIncrementStreak && user.stats.lastActiveDate?.toISOString().split('T')[0] !== today) {
-                    user.stats.streak = (user.stats.streak || 0) + 1;
-                }
-
-                user.stats.lastActiveDate = new Date();
-                user.stats.totalScore = (user.stats.totalScore || 0) + (interviewData.overallScore * 10); // Scale score (0-10) -> (0-100) points
-
-                // Update Activity Log
-                const logIndex = user.stats.activityLog.findIndex(l => l.date === today);
-                if (logIndex > -1) {
-                    user.stats.activityLog[logIndex].count += 1;
-                } else {
-                    user.stats.activityLog.push({ date: today, count: 1 });
-                }
-
-                await user.save();
                 // --- GAMIFICATION END ---
 
                 res.status(201).json(interview);
