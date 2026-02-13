@@ -1,0 +1,330 @@
+/* ========== BACKGROUND ========== */
+.profile-page {
+  min-height: 100vh;
+  background: var(--page-gradient);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 120px 40px 60px;
+}
+
+/* ========== PROFILE CARD ========== */
+.profile-card {
+  width: 100%;
+  max-width: 1000px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  animation: fadeUp 0.6s ease;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* ========== HERO SECTION ========== */
+.profile-hero {
+  height: 180px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+}
+
+.profile-header {
+  padding: 0 60px 30px;
+  margin-top: -50px;
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 4px solid #0f172a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background-color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-edit-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 42px;
+  height: 42px;
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  border: 3px solid #0f172a;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.avatar-edit-badge:hover {
+  transform: scale(1.1);
+  background: var(--secondary);
+}
+
+.profile-main-info {
+  margin-bottom: 12px;
+}
+
+.profile-main-info h2 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  letter-spacing: -1px;
+}
+
+.profile-main-info p {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ========== BODY SECTION ========== */
+.profile-content {
+  padding: 40px 60px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 60px;
+}
+
+@media (max-width: 900px) {
+  .profile-content {
+    grid-template-columns: 1fr;
+    padding: 30px;
+  }
+}
+
+.section-group {
+  margin-bottom: 40px;
+}
+
+.section-group h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.section-group h3 svg {
+  color: var(--primary);
+}
+
+/* ========== SKILLS ========== */
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-tag {
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  font-size: 13px;
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.bio-text {
+  line-height: 1.7;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* ========== SOCIAL LINKS ========== */
+.social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.social-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.social-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--primary);
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-card.linkedin .social-icon {
+  background: #0077b5;
+}
+
+.social-card.github .social-icon {
+  background: #333;
+}
+
+.social-info div:first-child {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.social-info div:last-child {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ========== MODAL / CROPPER ========== */
+.crop-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  backdrop-filter: blur(10px);
+}
+
+.crop-modal-content {
+  background: #111827;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 24px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* ========== BUTTONS ========== */
+.secondary-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.profile-actions-bottom {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 30px;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 20px;
+}
+
+.profile-actions-bottom .btn {
+  width: auto;
+  min-width: 180px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* ========== FORMS ========== */
+.edit-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

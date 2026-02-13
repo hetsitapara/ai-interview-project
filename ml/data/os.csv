@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+OS,Easy,OS Basics,What is an operating system?,An OS manages hardware resources and provides services to programs.,technical
+OS,Easy,OS Basics,Functions of OS,"Process management, memory management, file management, I/O handling.",technical
+OS,Easy,OS Basics,Types of operating systems,"Batch, Time-sharing, Distributed, Real-time.",technical
+OS,Easy,OS Basics,What is a kernel?,Kernel is the core part of the OS managing system resources.,technical
+OS,Easy,Process Concepts,What is a process?,A process is a program in execution.,technical
+OS,Easy,Process Concepts,Process vs program,Program is passive; process is active.,technical
+OS,Easy,Thread Concepts,What is a thread?,A thread is a lightweight process.,technical
+OS,Easy,Thread Concepts,Process vs thread,Threads share memory; processes do not.,technical
+OS,Easy,CPU Scheduling,What is CPU scheduling?,Deciding which process gets CPU time.,technical
+OS,Easy,CPU Scheduling,What is context switching?,Saving and restoring process state during CPU switch.,technical
+OS,Easy,Memory Basics,What is main memory?,Primary storage directly accessed by CPU.,technical
+OS,Easy,Memory Basics,What is secondary memory?,Non-volatile storage like disks.,technical
+OS,Easy,File Systems,What is a file system?,Manages storage and retrieval of files.,technical
+OS,Easy,I/O Systems,What is an interrupt?,Signal to CPU to handle an event.,technical
+OS,Easy,I/O Systems,Types of interrupts,"Hardware, software, internal.",technical
+OS,Medium,CPU Scheduling,Explain FCFS scheduling,Processes are scheduled in arrival order.,technical
+OS,Medium,CPU Scheduling,Explain SJF scheduling,Shortest job executes first.,technical
+OS,Medium,CPU Scheduling,Explain Round Robin scheduling,Each process gets fixed time quantum.,technical
+OS,Medium,CPU Scheduling,What is starvation?,Process waits indefinitely for CPU.,technical
+OS,Medium,Process Synchronization,What is critical section?,Code segment accessing shared resources.,technical
+OS,Medium,Process Synchronization,What is semaphore?,Synchronization primitive using counters.,technical
+OS,Medium,Process Synchronization,What is mutex?,Mutual exclusion lock.,technical
+OS,Medium,Deadlocks,What is deadlock?,Processes waiting indefinitely for resources.,technical
+OS,Medium,Deadlocks,Deadlock conditions,"Mutual exclusion, hold and wait, no preemption, circular wait.",technical
+OS,Medium,Deadlocks,Deadlock prevention,Eliminating one of the deadlock conditions.,technical
+OS,Medium,Memory Management,What is paging?,Memory divided into fixed-size pages.,technical
+OS,Medium,Memory Management,What is segmentation?,Memory divided based on logical segments.,technical
+OS,Medium,Memory Management,Paging vs segmentation,Fixed-size vs variable-size blocks.,technical
+OS,Medium,Memory Management,What is virtual memory?,Uses disk to extend main memory.,technical
+OS,Medium,File Systems,What is file allocation?,Assigning disk space to files.,technical
+OS,Medium,File Systems,File allocation methods,"Contiguous, linked, indexed.",technical
+OS,Medium,Disk Scheduling,What is disk scheduling?,Optimizing disk head movement.,technical
+OS,Medium,Disk Scheduling,SCAN algorithm,Disk arm moves in one direction servicing requests.,technical
+OS,Medium,Disk Scheduling,C-SCAN algorithm,Circular SCAN scheduling.,technical
+OS,Medium,Security,What is OS security?,Protection of system resources.,technical
+OS,Hard,Process Synchronization,Explain monitors,High-level synchronization construct.,technical
+OS,Hard,Process Synchronization,What is bounded buffer problem?,Producer-consumer synchronization problem.,technical
+OS,Hard,Deadlocks,Deadlock detection,Algorithm to detect deadlock cycles.,technical
+OS,Hard,Deadlocks,Deadlock recovery,Preemption or process termination.,technical
+OS,Hard,Memory Management,Page replacement algorithms,"FIFO, LRU, Optimal.",technical
+OS,Hard,Memory Management,What is thrashing?,Excessive paging reduces performance.,technical
+OS,Hard,Memory Management,What is TLB?,Cache for virtual-to-physical address mapping.,technical
+OS,Hard,CPU Scheduling,Multilevel queue scheduling,Processes divided into queues.,technical
+OS,Hard,CPU Scheduling,Multilevel feedback queue,Dynamic priority scheduling.,technical
+OS,Hard,File Systems,What is journaling?,Logging changes to prevent corruption.,technical
+OS,Hard,File Systems,What is inode?,Data structure storing file metadata.,technical
+OS,Hard,Concurrency,What is race condition?,Incorrect result due to unsynchronized access.,technical
+OS,Hard,Concurrency,What is priority inversion?,Lower-priority process blocks higher-priority one.,technical
+OS,Hard,Virtualization,What is virtualization?,Running multiple OS on same hardware.,technical
+OS,Hard,Virtualization,Hypervisor types,Type 1 and Type 2 hypervisors.,technical

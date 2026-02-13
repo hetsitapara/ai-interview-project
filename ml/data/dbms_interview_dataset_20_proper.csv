@@ -1,0 +1,21 @@
+id,category,difficulty,topic,question,answer,source_type
+1,DBMS,Easy,Basics,What is a DBMS and why is it used?,"A Database Management System (DBMS) is software that allows users to define, create, maintain, and control access to databases. It helps organize data efficiently, ensures data security, reduces redundancy, and allows multiple users to access data concurrently.",Technical
+2,DBMS,Easy,Database,What is a database?,"A database is an organized collection of related data stored electronically. It allows efficient storage, retrieval, and manipulation of data using structured formats.",Technical
+3,DBMS,Easy,SQL,What is SQL?,"SQL (Structured Query Language) is a standard language used to interact with relational databases. It is used to create tables, insert data, retrieve records, update values, and manage database permissions.",Technical
+4,DBMS,Easy,Keys,What is a primary key?,A primary key is a column or set of columns that uniquely identifies each record in a table. It cannot contain NULL values and ensures entity integrity.,Technical
+5,DBMS,Easy,Keys,What is a foreign key?,A foreign key is a field in one table that refers to the primary key of another table. It is used to maintain referential integrity between related tables.,Technical
+6,DBMS,Medium,Normalization,What is normalization in DBMS?,Normalization is the process of organizing data to reduce redundancy and improve data integrity. It involves dividing tables into smaller tables and defining relationships between them.,Technical
+7,DBMS,Medium,Normalization,Explain different normal forms.,"Normal forms are rules used in normalization such as 1NF, 2NF, 3NF, BCNF, 4NF, and 5NF. Each normal form removes specific types of redundancy and dependency.",Technical
+8,DBMS,Medium,Transactions,What is a transaction in DBMS?,A transaction is a sequence of operations performed as a single logical unit of work. It must satisfy ACID properties to ensure data consistency.,Technical
+9,DBMS,Medium,ACID,Explain ACID properties.,"ACID stands for Atomicity, Consistency, Isolation, and Durability. These properties ensure reliable processing of database transactions.",Technical
+10,DBMS,Medium,Indexing,What is indexing in DBMS?,Indexing is a technique used to speed up data retrieval operations by creating pointers to data stored in tables.,Technical
+11,DBMS,Medium,Views,What is a view in DBMS?,A view is a virtual table created using SQL queries. It does not store data physically and provides a simplified representation of data.,Technical
+12,DBMS,Medium,Joins,What is a join?,A join is used to combine rows from two or more tables based on a related column. It helps retrieve meaningful data from multiple tables.,Technical
+13,DBMS,Medium,Joins,Explain types of joins.,"Common joins include INNER JOIN, LEFT JOIN, RIGHT JOIN, and FULL JOIN, each determining how rows from tables are matched.",Technical
+14,DBMS,Medium,Schema,What is a database schema?,"A schema defines the structure of a database including tables, fields, relationships, and constraints.",Technical
+15,DBMS,Medium,Languages,What is DDL?,"DDL (Data Definition Language) includes SQL commands like CREATE, ALTER, and DROP used to define database structure.",Technical
+16,DBMS,Medium,Languages,What is DML?,"DML (Data Manipulation Language) includes commands like INSERT, UPDATE, DELETE, and SELECT to manipulate data.",Technical
+17,DBMS,Medium,Languages,What is DCL?,DCL (Data Control Language) includes commands like GRANT and REVOKE used to control access to database objects.,Technical
+18,DBMS,Medium,Languages,What is TCL?,"TCL (Transaction Control Language) includes COMMIT, ROLLBACK, and SAVEPOINT commands to manage transactions.",Technical
+19,DBMS,Medium,Procedures,What is a stored procedure?,"A stored procedure is a precompiled set of SQL statements stored in the database, used to improve performance and reuse code.",Technical
+20,DBMS,Medium,Triggers,What is a trigger in DBMS?,"A trigger is a database object that automatically executes in response to certain events like INSERT, UPDATE, or DELETE.",Technical
