@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+CN,Easy,Definition of Computer Network,What is a computer network?,A set of interconnected devices that communicate and share resources.,technical
+CN,Easy,Network Classification,Types of computer networks,"LAN, MAN, WAN, PAN based on geographic scope.",technical
+CN,Easy,OSI Reference Model,What is the OSI model?,A conceptual 7-layer framework for network communication.,technical
+CN,Easy,OSI Physical Layer,Role of Physical layer,Handles transmission of raw bits over physical medium.,technical
+CN,Easy,OSI Data Link Layer,Role of Data Link layer,"Provides framing, error detection, and MAC addressing.",technical
+CN,Easy,OSI Network Layer,Role of Network layer,Handles logical addressing and routing.,technical
+CN,Easy,OSI Transport Layer,Role of Transport layer,Provides end-to-end communication and reliability.,technical
+CN,Easy,OSI Application Layer,Role of Application layer,Provides network services to user applications.,technical
+CN,Easy,TCP/IP Architecture,What is TCP/IP model?,A 4-layer model used in real-world networks.,technical
+CN,Easy,IP Address Concept,What is an IP address?,A logical address identifying a device on a network.,technical
+CN,Easy,IPv4 Addressing,What is IPv4?,32-bit addressing scheme for identifying devices.,technical
+CN,Easy,IPv6 Addressing,What is IPv6?,128-bit addressing scheme solving IPv4 exhaustion.,technical
+CN,Easy,MAC Address Concept,What is a MAC address?,A unique hardware address assigned to network interfaces.,technical
+CN,Easy,Network Latency,What is latency?,Time delay in data transmission.,technical
+CN,Easy,Network Bandwidth,What is bandwidth?,Maximum data transfer capacity of a network.,technical
+CN,Medium,TCP vs UDP Comparison,Difference between TCP and UDP,TCP is reliable and connection-oriented; UDP is connectionless.,technical
+CN,Medium,TCP Three-Way Handshake,Explain TCP three-way handshake,"Connection establishment using SYN, SYN-ACK, ACK.",technical
+CN,Medium,Socket Programming Concept,What is a socket?,An endpoint for bidirectional communication.,technical
+CN,Medium,Flow Control Mechanism,What is flow control?,Prevents sender from overwhelming receiver.,technical
+CN,Medium,Congestion Control Mechanism,What is congestion control?,Prevents network congestion and packet loss.,technical
+CN,Medium,Address Resolution Protocol,What is ARP?,Maps IP addresses to MAC addresses.,technical
+CN,Medium,Dynamic Host Configuration Protocol,What is DHCP?,Automatically assigns IP configuration to devices.,technical
+CN,Medium,HyperText Transfer Protocol,What is HTTP?,Stateless protocol for web communication.,technical
+CN,Medium,Secure HTTP,Difference between HTTP and HTTPS,HTTPS uses TLS encryption.,technical
+CN,Medium,TLS/SSL Encryption,What is SSL/TLS?,Provides encrypted secure communication.,technical
+CN,Medium,Subnet Masking,What is subnetting?,Dividing a network into smaller sub-networks.,technical
+CN,Medium,Network Address Translation,What is NAT?,Maps private IPs to public IPs.,technical
+CN,Medium,Routing Fundamentals,What is routing?,Selecting optimal paths for packet transmission.,technical
+CN,Medium,Internet Control Message Protocol,What is ICMP?,Used for error reporting and diagnostics.,technical
+CN,Medium,Port Numbers,What are port numbers?,Logical identifiers for application processes.,technical
+CN,Medium,Firewall Functionality,What is a firewall?,Filters network traffic based on rules.,technical
+CN,Medium,Proxy Server Role,What is a proxy server?,Intermediary between client and server.,technical
+CN,Medium,Email Transfer Protocols,Email protocols,"SMTP, POP3, IMAP.",technical
+CN,Medium,File Transfer Protocol,What is FTP?,Protocol for transferring files over network.,technical
+CN,Medium,DNS Resolution Process,How DNS resolution works,Maps domain names to IP addresses.,technical
+CN,Hard,Sliding Window Flow Control,What is sliding window protocol?,Controls data flow using window size.,technical
+CN,Hard,Go-Back-N ARQ Protocol,Explain Go-Back-N ARQ,Retransmits frames from error point.,technical
+CN,Hard,Selective Repeat ARQ Protocol,Explain selective repeat ARQ,Retransmits only erroneous frames.,technical
+CN,Hard,TCP Congestion Control Phases,TCP congestion control phases,"Slow start, congestion avoidance, fast recovery.",technical
+CN,Hard,AIMD Algorithm,What is AIMD?,Additive Increase Multiplicative Decrease congestion control.,technical
+CN,Hard,Quality of Service Metrics,What is QoS?,"Guarantees bandwidth, delay, and jitter.",technical
+CN,Hard,Multi Protocol Label Switching,What is MPLS?,Label-based forwarding for faster routing.,technical
+CN,Hard,Software Defined Networking Architecture,What is SDN?,Separates control plane from data plane.,technical
+CN,Hard,Intrusion Detection vs Prevention,IDS vs IPS,IDS detects attacks; IPS blocks them.,technical
+CN,Hard,Virtual Private Network,What is VPN?,Secure tunnel over public networks.,technical
+CN,Hard,Load Balancing Techniques,What is load balancing?,Distributes traffic across multiple servers.,technical
+CN,Hard,Content Delivery Network Architecture,What is CDN?,Geographically distributed content servers.,technical
+CN,Hard,Border Gateway Protocol,What is BGP?,Inter-domain routing protocol.,technical
+CN,Hard,Packet Switching Technique,What is packet switching?,Data divided into packets for transmission.,technical
+CN,Hard,Network Security Attacks,Common network security attacks,"DoS, spoofing, MITM.",technical

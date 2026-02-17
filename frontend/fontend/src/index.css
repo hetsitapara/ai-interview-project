@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== GLOBAL VARIABLES ========== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Fonts */
+  --font-main: 'Outfit', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+
+  /* Colors */
+  --primary: #8b5cf6;
+  --secondary: #6366f1;
+  --accent: #f472b6;
+  --text-dark: #1e293b;
+  --text-light: #ffffff;
+  --text-muted: #cbd5e1;
+
+  /* Glassmorphism Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  --glass-blur: blur(20px);
+
+  /* Gradients */
+  --page-gradient: radial-gradient(circle at top, #101020 0%, #050510 100%);
+
+  /* Spacing & Radius */
+  --radius-lg: 32px;
+  --radius-md: 20px;
+  --radius-sm: 10px;
+}
+
+/* ========== GLOBAL RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  color: var(--text-light);
+  background: var(--page-gradient);
+  min-height: 100vh;
+}
+
+/* Add a subtle noise texture for realism */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ========== BACKGROUND UTILS ========== */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background gradient blobs/glows for depth */
+.page-container::after {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+  top: -100px;
+  left: -100px;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* ========== CARD (GLASS EFFECT) ========== */
+.card {
+  width: 420px;
+  padding: 40px;
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========== ANIMATION ========== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ========== TITLES ========== */
+.card h2 {
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* ========== BUTTON ========== */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* ========== FOOTER TEXT ========== */
+.footer-text {
+  margin-top: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ========== LINK ========== */
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: var(--secondary);
+}
+
+/* ========== GLOBAL SELECT STYLING ========== */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2rem;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #1e293b;
+  color: white;
+  padding: 12px;
+}
+
+/* ========== LAYOUT UTILS ========== */
+.container-xl {
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 40px;
+}
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  /* Broader sidebar */
+  gap: 64px;
+  /* Optimized premium spacing */
+  align-items: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.content-main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ========== WIDGET CARD ========== */
+.widget-card {
+  padding: 24px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  transition: transform 0.3s ease;
+}
+
+.widget-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.widget-card h4 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.widget-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Common form field styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+textarea,
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--glass-border);
+  color: var(--text-light);
+  outline: none;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  font-family: var(--font-main);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  background: rgba(15, 23, 42, 0.6);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}

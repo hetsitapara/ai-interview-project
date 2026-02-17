@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+HR,Easy,Personal Introduction,Tell me about yourself,Brief professional summary aligned to the role.,HR
+HR,Easy,Core Strength Identification,What are your strengths?,Role-relevant strengths with examples.,HR
+HR,Easy,Weakness Disclosure,What are your weaknesses?,Honest weakness with improvement plan.,HR
+HR,Easy,Career Choice Reasoning,Why did you choose this career?,Interest and long-term motivation.,HR
+HR,Easy,Company Selection Reason,Why do you want to join our company?,Alignment with company values.,HR
+HR,Easy,Role Awareness,What do you know about this role?,Understanding of responsibilities.,HR
+HR,Easy,Immediate Career Goals,What are your short-term goals?,Near-term professional objectives.,HR
+HR,Easy,Long-Term Career Vision,Where do you see yourself in five years?,Realistic growth trajectory.,HR
+HR,Easy,Teamwork Preference,Do you prefer working alone or in a team?,Flexibility and collaboration mindset.,HR
+HR,Easy,Basic Time Management,How do you manage your time?,Prioritization techniques.,HR
+HR,Easy,Relocation Readiness,Are you willing to relocate?,Openness to relocation.,HR
+HR,Easy,Compensation Expectation,What are your salary expectations?,Market-aware salary range.,HR
+HR,Easy,Skill Learning Approach,How do you learn new skills?,Learning methods and curiosity.,HR
+HR,Easy,Personal Interests,What are your hobbies?,Traits reflected through interests.,HR
+HR,Easy,Joining Availability,When can you join?,Availability timeline.,HR
+HR,Medium,Team Collaboration Example,Describe a time you worked in a team,Collaboration using STAR framework.,HR
+HR,Medium,Workplace Conflict Handling,How do you handle conflicts at work?,Resolution through communication.,HR
+HR,Medium,Failure Reflection,Tell me about a failure,Learning from mistakes.,HR
+HR,Medium,Stress Management Strategy,How do you handle stress?,Stress coping mechanisms.,HR
+HR,Medium,Deadline Execution,Describe meeting a tight deadline,Planning and execution.,HR
+HR,Medium,Feedback Acceptance,How do you handle feedback?,Openness and improvement.,HR
+HR,Medium,Leadership Exposure Example,Have you ever led a team?,Leadership responsibilities.,HR
+HR,Medium,Decision-Making Scenario,Describe a difficult decision,Reasoning and outcome.,HR
+HR,Medium,Change Adaptability,How do you adapt to change?,Flexibility in dynamic environments.,HR
+HR,Medium,Professional Ethics Understanding,What does work ethic mean to you?,Integrity and responsibility.,HR
+HR,Medium,Proactive Initiative,Describe a time you took initiative,Proactive contribution.,HR
+HR,Medium,Communication Effectiveness,How do you ensure clear communication?,Listening and clarity.,HR
+HR,Medium,Task Prioritization,How do you handle multiple tasks?,Prioritization techniques.,HR
+HR,Medium,Resilience After Failure,How do you stay motivated after failure?,Motivation strategies.,HR
+HR,Medium,Client Conflict Resolution,Describe handling a difficult client,Professional resolution.,HR
+HR,Medium,Mistake Ownership,How do you handle mistakes?,Accountability and correction.,HR
+HR,Medium,Ethical Judgment Scenario,Describe an ethical challenge,Value-based decision.,HR
+HR,Medium,Feedback Implementation,Describe using feedback to improve,Applying feedback.,HR
+HR,Medium,Cross-Team Coordination,Experience working with other teams,Coordination skills.,HR
+HR,Medium,Self-Improvement Strategy,How do you improve performance?,Continuous improvement approach.,HR
+HR,Hard,Leadership Style Definition,Describe your leadership style,Situational leadership explanation.,HR
+HR,Hard,Underperformance Management,How do you handle underperforming teammates?,Coaching and accountability.,HR
+HR,Hard,Influence Without Authority Case,Influence without authority example,Persuasion and trust.,HR
+HR,Hard,Goal Alignment Strategy,Aligning personal goals with company goals,Strategic alignment.,HR
+HR,Hard,Crisis Decision-Making,Describe handling a crisis,Calm decision-making.,HR
+HR,Hard,Ethical Dilemma Resolution,Describe a serious ethical dilemma,Ethical reasoning.,HR
+HR,Hard,Conflict Mediation Process,How do you mediate conflicts?,Neutral conflict resolution.,HR
+HR,Hard,Stakeholder Priority Management,Handling conflicting stakeholder demands,Stakeholder balancing.,HR
+HR,Hard,Organizational Change Leadership,How do you lead change?,Driving adoption.,HR
+HR,Hard,Burnout Prevention,How do you prevent burnout?,Work-life balance strategies.,HR
+HR,Hard,Negotiation Outcome,Describe a successful negotiation,Negotiation preparation and outcome.,HR
+HR,Hard,Mentorship Approach,How do you mentor juniors?,Guidance and development.,HR
+HR,Hard,Decision Accountability Example,Owning a wrong decision,Responsibility and learning.,HR
+HR,Hard,Work Culture Evaluation,What makes a good work culture?,Values and collaboration.,HR
+HR,Hard,Career Development Planning,How do you plan long-term career growth?,Structured growth planning.,HR
