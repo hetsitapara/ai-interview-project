@@ -158,25 +158,50 @@ def main():
         detected_categories = set()
         detected_topics = set()
         
-        # 1. Direct Category Match
+        # 1. Direct Category Match & Explicit Skills
+        explicit_skills = []
         for cat in CATEGORIES:
-            # Match whole words to avoid partial matching (e.g. 'Java' inside 'Javascript' handled by order)
-            # We check JavaScript before Java
+            # We check JavaScript before Java (handled by set or explicit order logic if needed)
             if re.search(rf"\b{re.escape(cat.lower())}\b", text_lower):
                 detected_categories.add(cat)
+                explicit_skills.append(cat)
                 
         # 2. Keyword-based Topic and Category discovery
         for keyword, (cat, topic) in TOPIC_KEYWORDS.items():
             if re.search(rf"\b{re.escape(keyword)}\b", text_lower):
                 detected_categories.add(cat)
                 detected_topics.add(topic)
+                explicit_skills.append(keyword.title())
         
         # Always include HR for mixed rounding
         detected_categories.add("HR")
         
+        # Name Extraction Heuristic (Simple)
+        # Assume name is often at the top, capitalized
+        lines = [line.strip() for line in resume_text.split('\n') if line.strip()]
+        candidate_name = "Candidate"
+        if lines:
+            # Check first few lines for potential name (2-3 words, capitalized)
+            for line in lines[:5]:
+                # Remove common labels
+                clean_line = re.sub(r'resume|cv|curriculum vitae', '', line, flags=re.IGNORECASE).strip()
+                if not clean_line: continue
+                # Basic check: 2-4 words, mostly letters
+                if 0 < len(clean_line.split()) <= 4 and all(c.isalpha() or c.isspace() or c in ".-" for c in clean_line):
+                    candidate_name = clean_line.title()
+                    break
+
+        # Generate Summary
+        skill_text = ", ".join(list(set(explicit_skills))[:10]) # Top 10 skills
+        focus_areas = ", ".join(list(detected_categories)[:3])
+        summary = f"Resume analysis for {candidate_name}. Detected core skills include {skill_text}. Recommended interview focus: {focus_areas}."
+
         # Prepare response
         result = {
             "success": True,
+            "name": candidate_name,
+            "summary": summary,
+            "skills": list(set(explicit_skills)),
             "categories": list(detected_categories),
             "topics": list(detected_topics),
             "detected_skills_count": len(detected_topics)

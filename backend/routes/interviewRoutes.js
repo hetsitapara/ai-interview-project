@@ -6,6 +6,7 @@ const YesNoQuestion = require('../models/YesNoQuestion');
 const Interview = require('../models/Interview');
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 // @desc    Start a new interview (Fetch questions)
 // @route   POST /api/interview/start
@@ -145,9 +146,20 @@ router.post('/submit', protect, async (req, res) => {
 
         // Path to python script and executable
         const scriptPath = path.join(__dirname, '../../ml/batch_evaluate.py');
-        const pythonPath = process.platform === 'win32'
-            ? path.join(__dirname, '../../ml/venv/Scripts/python.exe')
-            : path.join(__dirname, '../../ml/venv/bin/python');
+
+        let pythonPath;
+        if (process.platform === "win32") {
+            pythonPath = path.resolve(__dirname, '../../ml/venv/Scripts/python.exe');
+        } else {
+            pythonPath = path.resolve(__dirname, '../../ml/venv/bin/python');
+        }
+
+        if (!fs.existsSync(pythonPath)) {
+            console.warn(`[Interview Submit] venv python not found at ${pythonPath}, falling back to system python`);
+            pythonPath = process.platform === "win32" ? 'python' : 'python3';
+        }
+
+        console.log(`[Interview Submit] Spawning: ${pythonPath} ${scriptPath}`);
 
         // Spawn python process
         const pythonProcess = spawn(pythonPath, [scriptPath]);
@@ -167,13 +179,16 @@ router.post('/submit', protect, async (req, res) => {
             errorString += data.toString();
         });
 
+        pythonProcess.on('error', (err) => {
+            console.error("Failed to start python process:", err);
+            // Verify if we can continue or should fail? 
+            // We'll let the close handler manage the response with fallback
+        });
+
         pythonProcess.on('close', async (code) => {
             if (code !== 0) {
                 console.error(`Python script exited with code ${code}`);
                 console.error(`Python stderr: ${errorString}`);
-                // Fallback if ML fails? Or return error
-                // return res.status(500).json({ message: 'Error generating report', error: errorString });
-                // Let's create a partial report if ML fails instead of blocking user
                 console.warn("ML generation failed, proceeding with basic report");
             }
 
@@ -181,10 +196,21 @@ router.post('/submit', protect, async (req, res) => {
                 // Parse results from python
                 let results = [];
                 try {
-                    results = JSON.parse(dataString);
+                    if (dataString.trim()) {
+                        results = JSON.parse(dataString);
+                    } else {
+                        throw new Error("Empty output from python script");
+                    }
                 } catch (e) {
-                    console.error("Failed to parse ML output, using fallback values");
-                    results = answers.map(a => ({ final_score: 5, feedback: " automated feedback unavailable." }));
+                    console.error("Failed to parse ML output, using fallback values", e);
+                    // Fallback Results
+                    results = answers.map(a => ({
+                        final_score: 5,
+                        feedback: "Automated feedback unavailable at this time.",
+                        similarity_score: 0.5,
+                        keyword_score: 0.5,
+                        idealAnswer: a.idealAnswer || "Reference answer not available."
+                    }));
                 }
 
                 // Construct interview record
@@ -203,16 +229,8 @@ router.post('/submit', protect, async (req, res) => {
                 const interview = await Interview.create(interviewData);
 
                 // --- GAMIFICATION UPDATE START ---
-                // Reuse logic ideally in a helper, but putting inline for now for speed
                 const today = new Date().toISOString().split('T')[0];
-                // User is already attached to req by protect middleware? 
-                const user = await req.user;
-                // Wait, protect middleware attaches user doc to req.user.
-                // We need to fetch/save.
-
-                // Mongoose document is attached, so we can modify and save.
-                // Re-fetch to be absolutely sure or just trust middleware. 
-                // Middleware usually does `req.user = await User.findById(decoded.id).select('-password')`
+                const user = req.user;
 
                 if (user) {
                     let shouldIncrementStreak = false;

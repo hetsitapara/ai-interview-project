@@ -16,7 +16,7 @@ export default function Blogs() {
     tag: "General"
   });
 
-  const [selectedTag, setSelectedTag] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [viewingBlog, setViewingBlog] = useState(null);
 
   const categories = [
@@ -47,10 +47,10 @@ export default function Blogs() {
       const params = new URLSearchParams();
 
       const s = query.search !== undefined ? query.search : search;
-      const t = query.tag !== undefined ? query.tag : selectedTag;
+      const t = query.tags !== undefined ? query.tags : selectedTags; // array
 
       if (s) params.append('search', s);
-      if (t) params.append('tag', t);
+      if (t && t.length > 0) params.append('tag', t.join(','));
 
       const res = await fetch(`http://localhost:5001/api/blogs?${params.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -74,15 +74,20 @@ export default function Blogs() {
   }, [search]);
 
   const handleTagClick = (tag) => {
-    const newTag = selectedTag === tag ? '' : tag;
-    setSelectedTag(newTag);
-    fetchBlogs({ tag: newTag });
+    let newTags;
+    if (selectedTags.includes(tag)) {
+      newTags = selectedTags.filter(t => t !== tag);
+    } else {
+      newTags = [...selectedTags, tag];
+    }
+    setSelectedTags(newTags);
+    fetchBlogs({ tags: newTags });
   };
 
   const clearFilters = () => {
-    setSelectedTag('');
+    setSelectedTags([]);
     setSearch('');
-    fetchBlogs({ search: '', tag: '' });
+    fetchBlogs({ search: '', tags: [] });
   };
 
   const handleCreate = async (e) => {
@@ -154,12 +159,12 @@ export default function Blogs() {
                   <span
                     key={tag}
                     onClick={() => handleTagClick(tag)}
-                    className={`sidebar-tag ${selectedTag === tag ? 'active' : ''}`}
+                    className={`sidebar-tag ${selectedTags.includes(tag) ? 'active' : ''}`}
                     style={{
                       padding: '8px 14px',
-                      background: selectedTag === tag ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${selectedTag === tag ? 'rgba(255,255,255,0.2)' : 'var(--glass-border)'}`,
-                      color: selectedTag === tag ? '#fff' : 'var(--text-muted)',
+                      background: selectedTags.includes(tag) ? 'var(--primary)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedTags.includes(tag) ? 'rgba(255,255,255,0.2)' : 'var(--glass-border)'}`,
+                      color: selectedTags.includes(tag) ? '#fff' : 'var(--text-muted)',
                       borderRadius: '12px',
                       fontSize: '12px',
                       fontWeight: '600',
@@ -209,9 +214,11 @@ export default function Blogs() {
               <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>Insights, tips, and experiences from the PrepAI community.</p>
             </header>
 
-            {selectedTag && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                <span className="badge" style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: '1px solid var(--primary)' }}>{selectedTag}</span>
+            {selectedTags.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                {selectedTags.map(tag => (
+                  <span key={tag} className="badge" style={{ background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: '1px solid var(--primary)' }}>{tag}</span>
+                ))}
                 <button onClick={clearFilters} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '14px', textDecoration: 'underline' }}>Clear All Filters</button>
               </div>
             )}

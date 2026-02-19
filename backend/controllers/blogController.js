@@ -8,16 +8,20 @@ const getBlogs = async (req, res) => {
     const { tag, search } = req.query;
     let query = {};
 
-    if (tag && tag !== 'All' && tag !== 'General') { // 'General' might be a specific tag, but if 'All' is sent
-       // Actually frontend sends specific tag.
-       query.tag = tag;
+    if (tag && tag !== 'All') {
+      if (tag.includes(',')) {
+        const tags = tag.split(',').map(t => t.trim());
+        query.tag = { $in: tags };
+      } else {
+        query.tag = tag;
+      }
     }
 
     if (search) {
-        query.$or = [
-            { title: { $regex: search, $options: 'i' } },
-            { content: { $regex: search, $options: 'i' } }
-        ];
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ];
     }
 
     const blogs = await Blog.find(query).sort({ createdAt: -1 });
@@ -43,7 +47,7 @@ const createBlog = async (req, res) => {
       title,
       content,
       // Use user's name from token/database. Assuming req.user is populated by middleware
-      author: req.user.name || 'Anonymous', 
+      author: req.user.name || 'Anonymous',
       tag: tag || 'General' // Add tag support if schema allows, otherwise just ignore or add to schema
     });
 

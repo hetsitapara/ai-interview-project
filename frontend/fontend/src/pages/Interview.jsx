@@ -6,18 +6,21 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 export default function Interview() {
-    const [step, setStep] = useState("setup"); // setup, interview, loading, results
+    const [step, setStep] = useState('setup'); // setup -> analysis -> interview -> results
     const [config, setConfig] = useState({
         category: "HR",
         topic: "", // Add topic
         count: 5,
         difficulty: "Medium"
     });
+    const [selectedRange, setSelectedRange] = useState('5-10'); // New state for visual range selection
     const [topics, setTopics] = useState([]); // Add topics state
     const [questions, setQuestions] = useState([]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState([]); // Array of { questionId, userAnswer, timeTaken }
     const [currentAnswer, setCurrentAnswer] = useState("");
+    const [resumeAnalysis, setResumeAnalysis] = useState(null); // New state for resume analysis data
+    const [loadingMessage, setLoadingMessage] = useState('');
     const [isListening, setIsListening] = useState(false);
     const [timer, setTimer] = useState(0); // Seconds per question
     const [report, setReport] = useState(null);
@@ -53,8 +56,19 @@ export default function Interview() {
                 setCurrentAnswer(baseTextRef.current + (baseTextRef.current && currentSessionTranscript ? " " : "") + currentSessionTranscript);
             };
 
-            recognitionRef.current.onstart = () => setIsListening(true);
-            recognitionRef.current.onend = () => setIsListening(false);
+            recognitionRef.current.onstart = () => {
+                setIsListening(true);
+            };
+
+            recognitionRef.current.onend = () => {
+                // Auto-restart if it was supposed to be listening (and wasn't stopped manually)
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onerror = (event) => {
+                console.error("Speech recognition error", event.error);
+                setIsListening(false);
+            };
         }
 
         return () => {
@@ -76,13 +90,6 @@ export default function Interview() {
         return () => clearInterval(timerRef.current);
     }, [step, currentQuestionIndex]);
 
-
-    const handleResumeUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-    };
-
-    const [loadingMessage, setLoadingMessage] = useState("Generating Report...");
 
     const handleResumeUploadProcess = async (e) => {
         const file = e.target.files[0];
@@ -111,9 +118,21 @@ export default function Interview() {
             }
 
             const data = await res.json();
-            setQuestions(data);
-            setConfig(prev => ({ ...prev, category: "Resume Based" }));
-            setStep("interview");
+            if (data.analysis) {
+                setResumeAnalysis(data.analysis);
+                // Pre-fill config with detected categories
+                if (data.analysis.categories && data.analysis.categories.length > 0) {
+                    setConfig(prev => ({
+                        ...prev,
+                        category: data.analysis.categories.join(',')
+                    }));
+                }
+                setStep("analysis"); // Go to analysis view first
+            } else {
+                // Fallback to old behavior if no analysis returned (shouldn't happen with new backend)
+                setQuestions(data);
+                setStep("interview");
+            }
 
             // Enter Fullscreen
             try {
@@ -164,6 +183,20 @@ export default function Interview() {
 
         } catch (err) {
             alert(err.message);
+            if (step === 'loading') setStep('setup');
+        }
+    };
+
+    // Function to start interview from Analysis view
+    const startInterviewFromAnalysis = async () => {
+        setLoadingMessage("Generating Interview Questions...");
+        setStep("loading");
+
+        try {
+            await startInterview();
+        } catch (err) {
+            console.error("Failed to start interview from analysis", err);
+            setStep("setup");
         }
     };
 
@@ -182,7 +215,7 @@ export default function Interview() {
     // Exit Fullscreen on cleanup or when interview ends
     useEffect(() => {
         return () => {
-            if (document.exitFullscreen) {
+            if (document.fullscreenElement && document.exitFullscreen) {
                 document.exitFullscreen().catch(err => console.log(err)); // Ignore error if not in fullscreen
             }
         };
@@ -268,7 +301,9 @@ export default function Interview() {
 
             // Exit Fullscreen
             if (document.exitFullscreen) {
-                document.exitFullscreen().catch(err => console.log(err));
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(err => console.log(err));
+                }
             } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
             }
@@ -365,8 +400,6 @@ export default function Interview() {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // --- RENDER HELPERS ---
-
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
@@ -393,21 +426,18 @@ export default function Interview() {
     // Fetch Topics when Category changes
     useEffect(() => {
         const fetchTopics = async () => {
-            // Only fetch topics if a single category is selected (not Random, not multiple)
-            if (!config.category || config.category === 'Random' || config.category.includes(',')) {
+            if (!config.category || config.category === 'Random') {
                 setTopics([]);
                 return;
             }
             try {
                 const token = localStorage.getItem('token');
-                // Ensure correct endpoint usage
                 const res = await fetch(`http://localhost:5001/api/questions/${encodeURIComponent(config.category)}/topics`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
                     setTopics(data);
-                    // Reset topic when category changes
                     setConfig(prev => ({ ...prev, topic: "" }));
                 }
             } catch (err) {
@@ -471,7 +501,7 @@ export default function Interview() {
                         </div>
 
                         <div className="form-group" style={{ marginBottom: '32px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary)', marginBottom: '12px', display: 'block' }}>TARGET CATEGORIES</label>
+                            <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary)', marginBottom: '12px', display: 'block' }}>TARGET CATEGORIES (Multi-Select)</label>
                             <div className="category-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                 <button
                                     className={`cat-btn ${config.category === 'Random' ? 'active' : ''}`}
@@ -491,19 +521,23 @@ export default function Interview() {
                                     Default Selection
                                 </button>
                                 {categories.length > 0 ? categories.map(cat => {
-                                    const isSelected = config.category.split(',').includes(cat) && config.category !== 'Random';
+                                    const selectedCats = config.category.split(',').map(c => c.trim()).filter(c => c && c !== 'Random');
+                                    const isSelected = selectedCats.includes(cat);
+
                                     return (
                                         <button
                                             key={cat}
                                             className={`cat-btn ${isSelected ? 'active' : ''}`}
                                             onClick={() => {
-                                                // Simplified: If clicking a category, select ONLY that category to enable subtopics.
-                                                // If we want multiple categories, we disable subtopics.
-                                                // User guide: "Click to select single category for topics"
-
-                                                // Let's implement toggle behavior but if only 1 is active, fetch topics.
-                                                // Actually, common UX: Select ONE for specific drilldown.
-                                                setConfig({ ...config, category: cat, topic: '' });
+                                                let newCats = [...selectedCats];
+                                                if (isSelected) {
+                                                    newCats = newCats.filter(c => c !== cat);
+                                                } else {
+                                                    newCats.push(cat);
+                                                }
+                                                const newCategoryString = newCats.length > 0 ? newCats.join(',') : 'Random';
+                                                const newTopic = newCats.length > 1 ? '' : config.topic;
+                                                setConfig({ ...config, category: newCategoryString, topic: newTopic });
                                             }}
                                             style={{
                                                 padding: '12px 24px',
@@ -524,8 +558,8 @@ export default function Interview() {
                             </div>
                         </div>
 
-                        {/* SUBTOPIC DROPDOWN */}
-                        {topics.length > 0 && (
+                        {/* SUBTOPIC DROPDOWN - Hybrid Approach */}
+                        {topics.length > 0 && config.category !== 'Random' && !config.category.includes(',') && (
                             <div className="form-group" style={{ marginBottom: '32px', animation: 'fadeIn 0.5s ease' }}>
                                 <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--accent)', marginBottom: '12px', display: 'block' }}>SPECIFIC TOPIC (OPTIONAL)</label>
                                 <select
@@ -540,7 +574,7 @@ export default function Interview() {
                                         color: '#fff',
                                         fontSize: '16px',
                                         cursor: 'pointer',
-                                        appearance: 'none' // Custom arrow usually needed but browser default ok for now
+                                        appearance: 'none'
                                     }}
                                 >
                                     <option value="" style={{ background: '#1e293b' }}>Any / Random Mix</option>
@@ -551,22 +585,78 @@ export default function Interview() {
                             </div>
                         )}
 
-                        <div className="form-group" style={{ marginBottom: '40px' }}>
-                            <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary)', marginBottom: '12px', display: 'block' }}>NUMBER OF QUESTIONS</label>
-                            <input
-                                type="number"
-                                min="5" max="15"
-                                value={config.count}
-                                onChange={e => setConfig({ ...config, count: Math.max(5, parseInt(e.target.value) || 0) })}
-                                style={{
-                                    padding: '16px',
-                                    background: 'rgba(0,0,0,0.2)',
-                                    border: '1px solid var(--glass-border)',
-                                    borderRadius: '12px',
-                                    color: '#fff',
-                                    fontSize: '16px'
-                                }}
-                            />
+                        {/* Multi-Topic Grid (if multiple categories selected) */}
+                        {topics.length > 0 && config.category.includes(',') && (
+                            <div className="form-group" style={{ marginBottom: '32px', animation: 'fadeIn 0.5s ease' }}>
+                                <label style={{ fontSize: '14px', fontWeight: '600', color: 'var(--accent)', marginBottom: '12px', display: 'block' }}>SPECIFIC TOPICS (Optional, Multi-Select)</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                    {topics.map(t => {
+                                        const selectedTopics = config.topic ? config.topic.split(',').map(s => s.trim()) : [];
+                                        const isSelected = selectedTopics.includes(t);
+                                        return (
+                                            <button
+                                                key={t}
+                                                onClick={() => {
+                                                    let newTopics = [...selectedTopics];
+                                                    if (isSelected) {
+                                                        newTopics = newTopics.filter(topic => topic !== t);
+                                                    } else {
+                                                        newTopics.push(t);
+                                                    }
+                                                    setConfig({ ...config, topic: newTopics.join(',') });
+                                                }}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: '20px',
+                                                    border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--glass-border)'}`,
+                                                    background: isSelected ? 'var(--accent)' : 'rgba(255, 255, 255, 0.05)',
+                                                    color: isSelected ? '#fff' : '#cbd5e1',
+                                                    fontSize: '13px',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                            >
+                                                {t}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="form-group" style={{ marginBottom: '32px' }}>
+                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#10b981', marginBottom: '12px', display: 'block' }}>NUMBER OF QUESTIONS (Randomized Range)</label>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                {['5-10', '10-15', '15-20'].map(range => (
+                                    <button
+                                        key={range}
+                                        onClick={() => {
+                                            setSelectedRange(range);
+                                            const [min, max] = range.split('-').map(Number);
+                                            const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
+                                            setConfig({ ...config, count: randomCount });
+                                        }}
+                                        className={`range-btn ${selectedRange === range ? 'active' : ''}`}
+                                        style={{
+                                            flex: 1,
+                                            padding: '16px',
+                                            borderRadius: '12px',
+                                            border: `1px solid ${selectedRange === range ? '#10b981' : 'var(--glass-border)'}`,
+                                            background: selectedRange === range ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                            color: selectedRange === range ? '#10b981' : '#cbd5e1',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        {range}
+                                    </button>
+                                ))}
+                            </div>
+                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#64748b' }}>
+                                System will select {config.count} questions.
+                            </p>
                         </div>
                         <button
                             className="btn primary"
@@ -600,7 +690,17 @@ export default function Interview() {
                 <div className="interview-card">
                     <div className="interview-header">
                         <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-                        <span>{formatTime(timer)}</span>
+                        <span className="badge" style={{
+                            marginLeft: '10px',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            background: 'rgba(255,255,255,0.1)',
+                            fontSize: '0.8em',
+                            color: '#cbd5e1'
+                        }}>
+                            {q.type === 'YesNo' ? 'Rapid Fire' : 'Descriptive'}
+                        </span>
+                        <span style={{ marginLeft: 'auto' }}>{formatTime(timer)}</span>
                     </div>
 
                     <div className="progress-track">
@@ -679,7 +779,6 @@ export default function Interview() {
 
     const renderResults = () => {
         if (!report) return <div>No report data found.</div>;
-
         const questionsData = report.questions || [];
 
         return (
@@ -693,7 +792,7 @@ export default function Interview() {
                             <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>{config.category} • {questionsData.length} Evaluated Scenarios</p>
                         </div>
                         <div className="badge positive" style={{ fontSize: '2rem', padding: '20px 40px', borderRadius: '24px', background: 'var(--primary)', boxShadow: '0 10px 40px rgba(124, 58, 237, 0.3)' }}>
-                            {report.overallScore.toFixed(1)} <span style={{ fontSize: '1rem', opacity: 0.8 }}>/ 10</span>
+                            {Math.min(10, report.overallScore).toFixed(1)} <span style={{ fontSize: '1rem', opacity: 0.8 }}>/ 10</span>
                         </div>
                     </div>
 
@@ -715,7 +814,39 @@ export default function Interview() {
                         </div>
                     </div>
 
-                    {/* Detailed Analysis */}
+                    {/* Detailed Metrics Breakdown */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+                        {[
+                            { label: 'Relevance', score: (report.questions.reduce((acc, q) => acc + (q.relevance_score || 0), 0) / report.questions.length), color: '#3b82f6' },
+                            { label: 'Communication', score: (report.questions.reduce((acc, q) => acc + (q.communication_score || 0), 0) / report.questions.length), color: '#a855f7' },
+                            { label: 'Confidence', score: (report.questions.reduce((acc, q) => acc + (q.confidence_score || 0), 0) / report.questions.length), color: '#ef4444' },
+                        ].map(metric => (
+                            <div key={metric.label} style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>{metric.label}</span>
+                                    <span style={{ fontSize: '14px', fontWeight: '700', color: metric.color }}>{metric.score.toFixed(1)}/10</span>
+                                </div>
+                                <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${metric.score * 10}%`, background: metric.color, transition: 'width 1s ease' }}></div>
+                                </div>
+                            </div>
+                        ))}
+                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>Response Time</span>
+                                <span style={{ fontSize: '14px', fontWeight: '700', color: '#10b981' }}>
+                                    {(report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length).toFixed(1)}/10
+                                </span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                {((report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length) >= 8) ? "Optimal Pace" : "Needs Adjustment"}
+                            </div>
+                            <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginTop: '10px' }}>
+                                <div style={{ height: '100%', width: `${(report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length) * 10}%`, background: '#10b981', transition: 'width 1s ease' }}></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <h3 className="section-title" style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '24px' }}><FaLightbulb color="var(--primary)" /> Point-by-Point Feedback</h3>
 
                     <div className="questions-analysis" style={{ display: 'grid', gap: '24px' }}>
@@ -766,8 +897,103 @@ export default function Interview() {
         );
     };
 
+    const renderAnalysis = () => (
+        <div style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            background: 'var(--bg-dark)', zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto'
+        }}>
+            <div className="glass-card" style={{ maxWidth: '800px', width: '90%', padding: '40px', animation: 'fadeIn 0.5s ease', margin: '40px 0' }}>
+                <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '8px', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    Resume Analysis
+                </h2>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '32px' }}>
+                    AI-powered breakdown of {resumeAnalysis?.name || "Candidate"}'s profile
+                </p>
+
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '24px', borderRadius: '16px', marginBottom: '24px', border: '1px solid var(--glass-border)' }}>
+                    <h3 style={{ color: 'var(--primary)', marginBottom: '12px', fontSize: '1.1rem' }}>Executive Summary</h3>
+                    <p style={{ lineHeight: '1.6', color: '#cbd5e1' }}>{resumeAnalysis?.summary}</p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+                    <div>
+                        <h4 style={{ color: 'var(--accent)', marginBottom: '12px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Detected Skills</h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {resumeAnalysis?.skills && resumeAnalysis.skills.map(skill => (
+                                <span key={skill} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '12px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                    {skill}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style={{ color: 'var(--secondary)', marginBottom: '12px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Recommended Focus</h4>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {resumeAnalysis?.categories && resumeAnalysis.categories.map(cat => (
+                                <span key={cat} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', fontSize: '12px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                                    {cat}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '32px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#10b981', marginBottom: '12px', display: 'block' }}>NUMBER OF QUESTIONS</label>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        {['5-10', '10-15', '15-20'].map(range => (
+                            <button
+                                key={range}
+                                onClick={() => {
+                                    setSelectedRange(range);
+                                    const [min, max] = range.split('-').map(Number);
+                                    const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
+                                    setConfig({ ...config, count: randomCount });
+                                }}
+                                className={`range-btn ${selectedRange === range ? 'active' : ''}`}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '12px',
+                                    border: `1px solid ${selectedRange === range ? '#10b981' : 'var(--glass-border)'}`,
+                                    background: selectedRange === range ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                    color: selectedRange === range ? '#10b981' : '#cbd5e1',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                {range}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                    <button
+                        onClick={() => setStep("setup")}
+                        className="btn"
+                        style={{ background: 'transparent', border: '1px solid var(--glass-border)' }}
+                    >
+                        Adjust Settings
+                    </button>
+                    <button
+                        onClick={startInterviewFromAnalysis}
+                        className="btn primary"
+                        style={{ padding: '12px 32px' }}
+                    >
+                        Start Interview &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="interview-page">
+            {step === "analysis" && renderAnalysis()}
             {step === "setup" && renderSetup()}
             {step === "interview" && renderInterview()}
             {step === "loading" && renderLoading()}

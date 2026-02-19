@@ -66,13 +66,24 @@ const getCategories = async (req, res) => {
     }
 };
 
-// @desc    Get distinct topics/subtopics for a specific category
+// @desc    Get distinct topics/subtopics for a specific category (or multiple)
 // @route   GET /api/questions/:category/topics
 // @access  Private
 const getTopicsByCategory = async (req, res) => {
     try {
         const { category } = req.params;
-        const topics = await Question.find({ category }).distinct('topic');
+        let query = {};
+
+        if (category && category !== 'Random') {
+            if (category.includes(',')) {
+                const categories = category.split(',').map(c => c.trim());
+                query.category = { $in: categories };
+            } else {
+                query.category = category;
+            }
+        }
+
+        const topics = await Question.find(query).distinct('topic');
         res.json(topics.filter(t => t && t.trim() !== ''));
     } catch (error) {
         console.error(error);
