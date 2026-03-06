@@ -125,6 +125,8 @@ router.post('/start', protect, async (req, res) => {
     }
 });
 
+const { generateAIOverview } = require('../utils/aiOverview');
+
 // @desc    Submit interview and get ML report
 // @route   POST /api/interview/submit
 // @access  Private
@@ -141,7 +143,8 @@ router.post('/submit', protect, async (req, res) => {
         const pythonInput = answers.map(a => ({
             question: a.questionText,
             user_answer: a.userAnswer,
-            ideal_answer: a.idealAnswer || ""
+            ideal_answer: a.idealAnswer || "",
+            timeTaken: a.timeTaken || 0
         }));
 
         // Path to python script and executable
@@ -213,7 +216,7 @@ router.post('/submit', protect, async (req, res) => {
                     }));
                 }
 
-                // Construct interview record
+                // Construct interview record (Temporary with placeholders for AI Overview)
                 const interviewData = {
                     user: req.user._id,
                     category,
@@ -225,6 +228,15 @@ router.post('/submit', protect, async (req, res) => {
                     overallScore: results.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (results.length || 1),
                     detailedReport: results // Store raw report just in case
                 };
+
+                // GENERATE AI OVERVIEWS Concurrently for all questions
+                console.log("[AI Overview] Starting generation for", interviewData.questions.length, "questions...");
+                const overviewResults = await Promise.all(interviewData.questions.map(async (q) => {
+                    const overview = await generateAIOverview(q.questionText, q.userAnswer, q.final_score, q.feedback);
+                    return { ...q, aiOverview: overview };
+                }));
+
+                interviewData.questions = overviewResults;
 
                 const interview = await Interview.create(interviewData);
 

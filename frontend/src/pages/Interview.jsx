@@ -29,6 +29,24 @@ export default function Interview() {
     const recognitionRef = useRef(null);
     const timerRef = useRef(null);
 
+    // Parse URL params for "Retry" functionality
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const cat = params.get('category');
+        const diff = params.get('difficulty');
+
+        if (cat || diff) {
+            setConfig(prev => ({
+                ...prev,
+                category: cat || prev.category,
+                difficulty: diff || prev.difficulty
+            }));
+            // Optional: auto-start or stay in setup? User said "try again button", 
+            // staying in setup with pre-filled values is safer but let's see if 
+            // they want direct jump. For now, pre-fill is good.
+        }
+    }, []);
+
     // Initialize Speech Recognition
     useEffect(() => {
         const SpeechRecognition =
@@ -815,37 +833,51 @@ export default function Interview() {
                     </div>
 
                     {/* Detailed Metrics Breakdown */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '48px' }}>
-                        {[
-                            { label: 'Relevance', score: (report.questions.reduce((acc, q) => acc + (q.relevance_score || 0), 0) / report.questions.length), color: '#3b82f6' },
-                            { label: 'Communication', score: (report.questions.reduce((acc, q) => acc + (q.communication_score || 0), 0) / report.questions.length), color: '#a855f7' },
-                            { label: 'Confidence', score: (report.questions.reduce((acc, q) => acc + (q.confidence_score || 0), 0) / report.questions.length), color: '#ef4444' },
-                        ].map(metric => (
-                            <div key={metric.label} style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>{metric.label}</span>
-                                    <span style={{ fontSize: '14px', fontWeight: '700', color: metric.color }}>{metric.score.toFixed(1)}/10</span>
+                    {(() => {
+                        const metrics = report.questions.reduce((acc, q) => {
+                            acc.relevance += (q.relevance_score || 0);
+                            acc.communication += (q.communication_score || 0);
+                            acc.confidence += (q.confidence_score || 0);
+                            acc.responseTime += (q.response_time_score || 0);
+                            return acc;
+                        }, { relevance: 0, communication: 0, confidence: 0, responseTime: 0 });
+
+                        const qCount = report.questions.length || 1;
+
+                        return (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '48px' }}>
+                                {[
+                                    { label: 'Relevance', score: metrics.relevance / qCount, color: '#3b82f6' },
+                                    { label: 'Communication', score: metrics.communication / qCount, color: '#a855f7' },
+                                    { label: 'Confidence', score: metrics.confidence / qCount, color: '#ef4444' },
+                                ].map(metric => (
+                                    <div key={metric.label} style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                            <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>{metric.label}</span>
+                                            <span style={{ fontSize: '14px', fontWeight: '700', color: metric.color }}>{metric.score.toFixed(1)}/10</span>
+                                        </div>
+                                        <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${metric.score * 10}%`, background: metric.color, transition: 'width 1s ease' }}></div>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>Response Time</span>
+                                        <span style={{ fontSize: '14px', fontWeight: '700', color: '#10b981' }}>
+                                            {(metrics.responseTime / qCount).toFixed(1)}/10
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                        {(metrics.responseTime / qCount >= 8) ? "Optimal Pace" : "Needs Adjustment"}
+                                    </div>
+                                    <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginTop: '10px' }}>
+                                        <div style={{ height: '100%', width: `${(metrics.responseTime / qCount) * 10}%`, background: '#10b981', transition: 'width 1s ease' }}></div>
+                                    </div>
                                 </div>
-                                <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: `${metric.score * 10}%`, background: metric.color, transition: 'width 1s ease' }}></div>
-                                </div>
                             </div>
-                        ))}
-                        <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '16px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <span style={{ fontSize: '14px', fontWeight: '600', color: '#cbd5e1' }}>Response Time</span>
-                                <span style={{ fontSize: '14px', fontWeight: '700', color: '#10b981' }}>
-                                    {(report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length).toFixed(1)}/10
-                                </span>
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>
-                                {((report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length) >= 8) ? "Optimal Pace" : "Needs Adjustment"}
-                            </div>
-                            <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginTop: '10px' }}>
-                                <div style={{ height: '100%', width: `${(report.questions.reduce((acc, q) => acc + (q.response_time_score || 0), 0) / report.questions.length) * 10}%`, background: '#10b981', transition: 'width 1s ease' }}></div>
-                            </div>
-                        </div>
-                    </div>
+                        );
+                    })()}
 
                     <h3 className="section-title" style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '24px' }}><FaLightbulb color="var(--primary)" /> Point-by-Point Feedback</h3>
 
@@ -859,24 +891,61 @@ export default function Interview() {
                                     </span>
                                 </div>
 
-                                <div className="qa-answer" style={{ marginBottom: '20px', color: '#cbd5e1', fontSize: '16px', lineHeight: '1.6' }}>
+                                <div className="qa-answer" style={{ marginBottom: '20px', color: q.userAnswer ? '#cbd5e1' : '#f87171', fontSize: '16px', lineHeight: '1.6' }}>
                                     <span style={{ color: 'var(--primary)', fontWeight: '700', fontSize: '12px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>YOUR RESPONSE</span>
-                                    "{q.userAnswer}"
+                                    {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                                 </div>
 
-                                <div className="qa-answer" style={{ padding: '24px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc' }}>
+                                <div className="qa-answer" style={{ padding: '24px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '24px' }}>
                                     <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '12px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>AI RECOMMENDED ANSWER</span>
                                     {q.idealAnswer || "The specific ideal data for this custom question is currently being generated."}
                                 </div>
 
-                                <div className="metrics-badges" style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                                    <span className="badge similarity" style={{ padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <FaCheckCircle color="#8b5cf6" /> Accuracy: {Math.round((q.similarity_score || 0) * 100)}%
+                                <div className="metrics-badges" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '15px' }}>
+                                    <span className="badge score" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '12px', color: 'var(--primary)', fontWeight: '700', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                                        Score: {q.final_score}/10
                                     </span>
-                                    <span className="badge tone" style={{ padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <FaCommentDots color="#ec4899" /> Keywords: {Math.round((q.keyword_score || 0) * 100)}%
+                                    <span className="badge time" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', fontSize: '12px', color: '#10b981', fontWeight: '700', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                        <FaClock style={{ marginRight: '6px' }} /> {q.timeTaken ? `${q.timeTaken}s` : '0s'}
+                                    </span>
+                                    <span className="badge similarity" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.1)', fontSize: '12px', color: '#38bdf8', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                                        Match: {Math.round((q.similarity_score || 0) * 100)}%
+                                    </span>
+                                    <span className="badge tone" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.1)', fontSize: '12px', color: '#ec4899', fontWeight: '700', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
+                                        Keywords: {Math.round((q.keyword_score || 0) * 100)}%
+                                    </span>
+                                    <span className="badge rel" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.1)', fontSize: '11px', color: '#3b82f6', fontWeight: '700' }}>
+                                        Rel: {q.relevance_score || 0}/10
+                                    </span>
+                                    <span className="badge comm" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.1)', fontSize: '11px', color: '#a855f7', fontWeight: '700' }}>
+                                        Comm: {q.communication_score || 0}/10
+                                    </span>
+                                    <span className="badge conf" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)', fontSize: '11px', color: '#ef4444', fontWeight: '700' }}>
+                                        Conf: {q.confidence_score || 0}/10
                                     </span>
                                 </div>
+
+                                {q.aiOverview && (
+                                    <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)', animation: 'fadeIn 0.5s ease' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
+                                            <FaLightbulb /> AI Strategic Overview
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: '14px', color: '#bbf7d0', lineHeight: '1.6' }}>
+                                            {q.aiOverview}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {q.grammar_issues && q.grammar_issues.length > 0 && (
+                                    <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#f87171', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <FaSpellCheck /> GRAMMAR FEEDBACK
+                                        </div>
+                                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#fca5a5' }}>
+                                            {q.grammar_issues.map((issue, i) => <li key={i}>{issue}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

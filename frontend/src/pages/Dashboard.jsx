@@ -109,14 +109,56 @@ export default function Dashboard() {
                     ))
                   ) : <p style={{ color: 'var(--text-muted)' }}>No session data recorded yet. Start an interview to see insights.</p>
                 )}
+
+                <h3 style={{ marginTop: '40px', marginBottom: '24px', fontSize: '20px' }}>Recent Sessions</h3>
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  {stats.recentInterviews && stats.recentInterviews.length > 0 ? (
+                    stats.recentInterviews.map((interview, idx) => (
+                      <div key={idx} style={{
+                        padding: '16px 24px',
+                        background: 'rgba(255,255,255,0.03)',
+                        borderRadius: '16px',
+                        border: '1px solid var(--glass-border)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: '700' }}>{interview.category}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{new Date(interview.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)' }}>{interview.overallScore.toFixed(1)}/10</div>
+                          </div>
+                          <button
+                            onClick={() => window.location.href = `/interview?category=${interview.category}`}
+                            style={{
+                              background: 'var(--primary)',
+                              border: 'none',
+                              color: '#fff',
+                              padding: '8px 16px',
+                              borderRadius: '8px',
+                              fontSize: '11px',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Try Again
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No recent activity.</p>}
+                </div>
               </div>
 
-              <div className="score-box" style={{ padding: '32px', borderRadius: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', textAlign: 'center' }}>
+              <div className="score-box" style={{ padding: '32px', borderRadius: '32px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', textAlign: 'center', height: 'fit-content' }}>
                 <h3 style={{ marginBottom: '24px', fontSize: '20px' }}>Readiness Score</h3>
                 <div className="score-circle" style={{ width: '150px', height: '150px', margin: '0 auto 20px' }}>
                   <div className="score-circle-inner" style={{ fontSize: '32px' }}>{Math.round(stats.averageScore * 10)}%</div>
                 </div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Based on your last 5 sessions.</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Based on your last {stats.totalInterviews > 5 ? '5' : stats.totalInterviews} sessions.</p>
               </div>
             </div>
           </main>

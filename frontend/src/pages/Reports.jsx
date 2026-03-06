@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/report.css";
-import { FaArrowLeft, FaCalendarAlt, FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck } from "react-icons/fa";
+import { FaArrowLeft, FaCalendarAlt, FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaRedo } from "react-icons/fa";
 
 export default function Reports() {
     const [history, setHistory] = useState([]);
@@ -109,8 +109,8 @@ export default function Reports() {
                         ) : (
                             <div className="history-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
                                 {history.map(item => (
-                                    <div key={item._id} className="history-card" onClick={() => handleViewReport(item._id)} style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}>
-                                        <div className="history-content">
+                                    <div key={item._id} className="history-card" style={{ transition: 'all 0.3s ease', position: 'relative' }}>
+                                        <div className="history-content" onClick={() => handleViewReport(item._id)} style={{ cursor: 'pointer' }}>
                                             <div className="history-header" style={{ marginBottom: '20px' }}>
                                                 <div className="history-date" style={{ color: 'var(--text-muted)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                                     <FaCalendarAlt /> {new Date(item.createdAt).toLocaleDateString()}
@@ -127,8 +127,32 @@ export default function Reports() {
                                                 <div className="score-mini" style={{ fontSize: '24px', fontWeight: '800', color: 'var(--primary)' }}>{item.overallScore ? item.overallScore.toFixed(1) : 0}</div>
                                                 <div className="score-label" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/ 10</div>
                                             </div>
-                                            <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                                                <FaChartLine />
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const navigate = window.confirm("Retake this exact session settings?");
+                                                        if (navigate) window.location.href = `/interview?category=${item.category}&difficulty=${item.difficulty}`;
+                                                    }}
+                                                    style={{
+                                                        background: 'rgba(139, 92, 246, 0.1)',
+                                                        border: '1px solid var(--primary)',
+                                                        color: 'var(--primary)',
+                                                        padding: '8px 12px',
+                                                        borderRadius: '8px',
+                                                        fontSize: '12px',
+                                                        fontWeight: '700',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    <FaRedo style={{ marginRight: '5px' }} /> Retry
+                                                </button>
+                                                <div
+                                                    onClick={() => handleViewReport(item._id)}
+                                                    style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', cursor: 'pointer' }}
+                                                >
+                                                    <FaChartLine />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -145,16 +169,38 @@ export default function Reports() {
 function ReportDetail({ report }) {
     const questions = report.questions || [];
 
+    const handleRetry = () => {
+        window.location.href = `/interview?category=${report.category}&difficulty=${report.difficulty}`;
+    };
+
     return (
         <div className="detail-container fade-in">
             {/* Header */}
-            <div className="report-header">
+            <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div className="report-meta">
                     <h1>{report.category} Report</h1>
                     <p><FaCalendarAlt style={{ marginRight: '8px' }} />Conducted on {new Date(report.createdAt).toLocaleString()}</p>
                 </div>
-                <div className="badge positive" style={{ fontSize: '1.2rem', padding: '10px 20px' }}>
-                    Final Score: {report.overallScore.toFixed(1)}/10
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '15px' }}>
+                    <div className="badge positive" style={{ fontSize: '1.2rem', padding: '10px 20px' }}>
+                        Final Score: {report.overallScore.toFixed(1)}/10
+                    </div>
+                    <button
+                        className="btn primary"
+                        onClick={handleRetry}
+                        style={{
+                            padding: '12px 24px',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: '700',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)'
+                        }}
+                    >
+                        <FaRedo /> Retake This Session
+                    </button>
                 </div>
             </div>
 
@@ -185,39 +231,59 @@ function ReportDetail({ report }) {
                     <div key={idx} className="qa-card">
                         <div className="qa-question">Q{idx + 1}: {q.questionText}</div>
 
-                        <div className="qa-answer">
+                        <div className="qa-answer" style={{ marginBottom: '15px', color: q.userAnswer ? '#cbd5e1' : '#f87171' }}>
                             <span style={{ color: '#94a3b8', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Your Answer:</span>
-                            "{q.userAnswer}"
+                            {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                         </div>
 
-                        <div className="metrics-badges">
-                            <span className="badge similarity">
-                                <FaCheckCircle /> Match: {Math.round((q.similarity_score || 0) * 100)}%
+                        {q.idealAnswer && (
+                            <div className="qa-answer" style={{ padding: '15px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '20px' }}>
+                                <span style={{ color: '#818cf8', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Ideal Answer:</span>
+                                {q.idealAnswer}
+                            </div>
+                        )}
+
+                        <div className="metrics-badges" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px' }}>
+                            <span className="badge score" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '0.75rem', color: '#8b5cf6', fontWeight: '700' }}>
+                                Score: {q.final_score || 0}/10
                             </span>
-
-                            {q.sentiment && (
-                                <span className="badge tone">
-                                    <FaCommentDots /> Tone: {q.sentiment.label}
+                            <span className="badge time" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', fontSize: '0.75rem', color: '#10b981', fontWeight: '700' }}>
+                                <FaClock /> {q.timeTaken ? `${q.timeTaken}s` : '0s'}
+                            </span>
+                            <span className="badge similarity" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', fontSize: '0.75rem', color: '#38bdf8', fontWeight: '700' }}>
+                                Match: {Math.round((q.similarity_score || 0) * 100)}%
+                            </span>
+                            {q.keyword_score !== undefined && (
+                                <span className="badge tone" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(236, 72, 153, 0.1)', fontSize: '0.75rem', color: '#ec4899', fontWeight: '700' }}>
+                                    Keywords: {Math.round((q.keyword_score || 0) * 100)}%
                                 </span>
                             )}
-
-                            {q.pace && (
-                                <span className="badge pace">
-                                    <FaClock /> {q.pace.wpm} WPM ({q.pace.label})
-                                </span>
-                            )}
-
-                            {q.grammar && (
-                                <span className="badge grammar">
-                                    <FaSpellCheck /> Grammar: {q.grammar.score}/100
-                                </span>
-                            )}
+                            <span className="badge rel" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(59, 130, 246, 0.1)', fontSize: '0.7rem', color: '#3b82f6', fontWeight: '700' }}>
+                                Rel: {q.relevance_score || 0}/10
+                            </span>
+                            <span className="badge comm" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(168, 85, 247, 0.1)', fontSize: '0.7rem', color: '#a855f7', fontWeight: '700' }}>
+                                Comm: {q.communication_score || 0}/10
+                            </span>
+                            <span className="badge conf" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', fontSize: '0.7rem', color: '#ef4444', fontWeight: '700' }}>
+                                Conf: {q.confidence_score || 0}/10
+                            </span>
                         </div>
+
+                        {q.aiOverview && (
+                            <div className="qa-overview" style={{ marginTop: '15px', padding: '15px', borderRadius: '12px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)' }}>
+                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <FaLightbulb /> AI STRATEGIC OVERVIEW
+                                </div>
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#bbf7d0', lineHeight: '1.5' }}>
+                                    {q.aiOverview}
+                                </p>
+                            </div>
+                        )}
 
                         {q.grammar && q.grammar.issues && q.grammar.issues.length > 0 && (
-                            <div className="feedback-section">
-                                <div className="feedback-title"><FaExclamationTriangle /> Grammar Issues</div>
-                                <ul style={{ margin: 0, paddingLeft: '20px', color: '#ffbdc3' }}>
+                            <div className="feedback-section" style={{ marginTop: '15px' }}>
+                                <div className="feedback-title" style={{ fontSize: '0.8rem', color: '#f87171' }}><FaExclamationTriangle /> Grammar Feedback</div>
+                                <ul style={{ margin: 0, paddingLeft: '20px', color: '#ffbdc3', fontSize: '0.85rem' }}>
                                     {q.grammar.issues.map((issue, i) => <li key={i}>{issue}</li>)}
                                 </ul>
                             </div>

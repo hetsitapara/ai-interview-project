@@ -26,7 +26,11 @@ const interviewSchema = mongoose.Schema({
         similarity_score: Number,
         keyword_score: Number,
         final_score: Number,
-        feedback: String
+        feedback: String,
+        aiOverview: {
+            type: String,
+            default: ''
+        }
     }],
     overallScore: {
         type: Number,

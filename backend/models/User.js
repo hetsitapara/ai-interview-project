@@ -43,7 +43,9 @@ const userSchema = mongoose.Schema({
         }],
         totalScore: { type: Number, default: 0 }, // Cumulative score from all quizzes/interviews
         quizzesTaken: { type: Number, default: 0 }
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
 }, {
     timestamps: true
 });

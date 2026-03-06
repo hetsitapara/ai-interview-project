@@ -167,7 +167,9 @@ export default function Login() {
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', cursor: 'pointer' }}>
                 <input type="checkbox" style={{ accentColor: '#6366f1' }} /> Remember me
               </label>
-              <a href="#" style={{ color: '#818cf8', textDecoration: 'none' }}>Forgot password?</a>
+              <Link to="/forgot-password" style={{ color: '#818cf8', textDecoration: 'none' }}>
+                Forgot password?
+              </Link>
             </div>
 
             <button
