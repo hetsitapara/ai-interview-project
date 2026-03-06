@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "../styles/interview.css";
 import "../styles/report.css";
-import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo } from "react-icons/fa";
+import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal } from "react-icons/fa";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -24,6 +24,15 @@ export default function Interview() {
     const [isListening, setIsListening] = useState(false);
     const [timer, setTimer] = useState(0); // Seconds per question
     const [report, setReport] = useState(null);
+    const [devMode, setDevMode] = useState(false);
+    const [expandedResults, setExpandedResults] = useState({});
+
+    const toggleResultField = (idx, field) => {
+        setExpandedResults(prev => ({
+            ...prev,
+            [`${idx}_${field}`]: !prev[`${idx}_${field}`]
+        }));
+    };
 
     const baseTextRef = useRef("");
     const recognitionRef = useRef(null);
@@ -34,16 +43,63 @@ export default function Interview() {
         const params = new URLSearchParams(window.location.search);
         const cat = params.get('category');
         const diff = params.get('difficulty');
+        const top = params.get('topic');
+        const cnt = params.get('count');
+        const retryId = params.get('retryId');
 
-        if (cat || diff) {
+        if (retryId) {
+            const fetchRetry = async () => {
+                setLoadingMessage("Restoring Session...");
+                setStep("loading");
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await fetch(`http://localhost:5001/api/interview/${retryId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setConfig({
+                            category: data.category,
+                            topic: data.topic || "",
+                            difficulty: data.difficulty,
+                            count: data.questions.length
+                        });
+                        setResumeAnalysis(data.resumeAnalysis || null);
+                        
+                        // Map archived questions back to session format (if they exist)
+                        if (data.questions && data.questions.length > 0) {
+                            const retryQuestions = data.questions.map(q => ({
+                                _id: q.questionId,
+                                question: q.questionText,
+                                category: data.category,
+                                topic: data.topic,
+                                answer: q.idealAnswer,
+                                type: (q.idealAnswer === 'Yes' || q.idealAnswer === 'No') ? 'YesNo' : 'Text'
+                            }));
+                            setQuestions(retryQuestions);
+                            // If it's a retry with saved questions, go directly to analysis or interview
+                            setStep(data.resumeAnalysis ? "analysis" : "interview");
+                        } else {
+                            // If it's an old session without saved questions, stay in setup but with correct config
+                            setStep("setup");
+                        }
+                    } else {
+                        throw new Error("Failed to fetch session");
+                    }
+                } catch (err) {
+                    console.error("Retry failed", err);
+                    setStep("setup");
+                }
+            };
+            fetchRetry();
+        } else if (cat || diff || top || cnt) {
             setConfig(prev => ({
                 ...prev,
                 category: cat || prev.category,
-                difficulty: diff || prev.difficulty
+                difficulty: diff || prev.difficulty,
+                topic: top || prev.topic,
+                count: cnt ? parseInt(cnt) : prev.count
             }));
-            // Optional: auto-start or stay in setup? User said "try again button", 
-            // staying in setup with pre-filled values is safer but let's see if 
-            // they want direct jump. For now, pre-fill is good.
         }
     }, []);
 
@@ -167,7 +223,20 @@ export default function Interview() {
         }
     };
 
-    const startInterview = async () => {
+    const startInterview = async (forceNew = false) => {
+        // Reset session state
+        setAnswers([]);
+        setCurrentQuestionIndex(0);
+        setCurrentAnswer("");
+        setTimer(0);
+        setReport(null);
+
+        // If we already have questions (from a previous attempt or retry fetch) and aren't forcing a fresh batch
+        if (questions.length > 0 && !forceNew) {
+            setStep("interview");
+            return;
+        }
+
         try {
             setLoadingMessage("Fetching Questions...");
             const token = localStorage.getItem('token');
@@ -256,6 +325,8 @@ export default function Interview() {
         const answerData = {
             questionId: currentQ._id,
             questionText: currentQ.question,
+            category: currentQ.category,
+            topic: currentQ.topic,
             idealAnswer: currentQ.answer,
             userAnswer: currentAnswer,
             timeTaken: timer
@@ -280,6 +351,8 @@ export default function Interview() {
         const answerData = {
             questionId: currentQ._id,
             questionText: currentQ.question,
+            category: currentQ.category,
+            topic: currentQ.topic,
             idealAnswer: currentQ.answer,
             userAnswer: currentAnswer,
             timeTaken: timer
@@ -306,7 +379,9 @@ export default function Interview() {
                 },
                 body: JSON.stringify({
                     category: config.category,
+                    topic: config.topic,
                     difficulty: config.difficulty,
+                    resumeAnalysis: resumeAnalysis,
                     answers: finalAnswers
                 })
             });
@@ -672,13 +747,51 @@ export default function Interview() {
                                     </button>
                                 ))}
                             </div>
-                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#64748b' }}>
+                            <p style={{ marginTop: '8px', fontSize: '12px', color: '#64748b', marginBottom: '32px' }}>
                                 System will select {config.count} questions.
                             </p>
+
+                            {/* Developer Mode Toggle */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                    <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: devMode ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: devMode ? '#10b981' : '#94a3b8', fontSize: '1.2rem' }}>
+                                        <FaSpellCheck />
+                                    </div>
+                                    <div>
+                                        <h4 style={{ margin: 0, color: '#fff', fontSize: '16px', fontWeight: '700' }}>Developer Mode</h4>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>Shows ideal answers for scoring verification</p>
+                                    </div>
+                                </div>
+                                <div 
+                                    onClick={() => setDevMode(!devMode)} 
+                                    style={{ 
+                                        width: '56px', 
+                                        height: '28px', 
+                                        padding: '4px',
+                                        background: devMode ? 'linear-gradient(to right, #10b981, #059669)' : 'rgba(255,255,255,0.1)', 
+                                        borderRadius: '20px', 
+                                        position: 'relative', 
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        border: '1px solid rgba(255,255,255,0.1)'
+                                    }}
+                                >
+                                    <div style={{ 
+                                        width: '20px', 
+                                        height: '20px', 
+                                        background: '#fff', 
+                                        borderRadius: '50%', 
+                                        position: 'absolute', 
+                                        left: devMode ? '31px' : '4px',
+                                        transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+                                    }}></div>
+                                </div>
+                            </div>
                         </div>
                         <button
                             className="btn primary"
-                            onClick={startInterview}
+                            onClick={() => startInterview(true)}
                             style={{
                                 padding: '20px',
                                 borderRadius: '16px',
@@ -730,7 +843,83 @@ export default function Interview() {
 
                     <div className="question-box">
                         <p><strong>Question:</strong> {q.question}</p>
+                        <div className="question-tags" style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                            {q.category && (
+                                <span className="subject-tag category" style={{ 
+                                    background: 'rgba(99, 102, 241, 0.15)', 
+                                    color: '#818cf8', 
+                                    padding: '4px 10px', 
+                                    borderRadius: '6px', 
+                                    fontSize: '11px', 
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    border: '1px solid rgba(99, 102, 241, 0.2)'
+                                }}>
+                                    {q.category}
+                                </span>
+                            )}
+                            {q.topic && (
+                                <span className="subject-tag topic" style={{ 
+                                    background: 'rgba(16, 185, 129, 0.15)', 
+                                    color: '#34d399', 
+                                    padding: '4px 10px', 
+                                    borderRadius: '6px', 
+                                    fontSize: '11px', 
+                                    fontWeight: '700',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    border: '1px solid rgba(16, 185, 129, 0.2)'
+                                }}>
+                                    {q.topic}
+                                </span>
+                            )}
+                        </div>
                     </div>
+
+                    {devMode && (
+                        <div className="dev-answer-box" style={{ 
+                            marginBottom: '24px', 
+                            padding: '24px', 
+                            background: 'rgba(56, 189, 248, 0.08)', 
+                            border: '1px solid rgba(56, 189, 248, 0.2)', 
+                            borderLeft: '4px solid #38bdf8',
+                            borderRadius: '16px',
+                            fontSize: '14px',
+                            color: '#e2e8f0',
+                            animation: 'slideIn 0.3s ease'
+                        }}>
+                            <div style={{ color: '#38bdf8', fontWeight: '800', fontSize: '11px', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '1px' }}>
+                                <FaSpellCheck /> DEBUG MODE: IDEAL ANSWER
+                            </div>
+                            <p style={{ margin: 0, lineHeight: '1.6', color: '#bae6fd', fontSize: '15px' }}>
+                                {q.answer}
+                            </p>
+                            <button 
+                                onClick={() => {
+                                    const ans = q.answer;
+                                    setCurrentAnswer(ans);
+                                }}
+                                style={{ 
+                                    marginTop: '16px', 
+                                    background: 'rgba(56, 189, 248, 0.2)', 
+                                    border: '1px solid rgba(56, 189, 248, 0.3)', 
+                                    color: '#fff', 
+                                    padding: '8px 16px', 
+                                    borderRadius: '8px', 
+                                    fontSize: '12px', 
+                                    fontWeight: '700', 
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}
+                            >
+                                <FaTerminal style={{ fontSize: '10px' }} /> AUTO-FILL RESPONSE
+                            </button>
+                        </div>
+                    )}
 
                     <div className="answer-box">
                         {q.type === 'YesNo' ? (
@@ -814,6 +1003,39 @@ export default function Interview() {
                         </div>
                     </div>
 
+                    {/* Archived Resume Analysis if available */}
+                    {resumeAnalysis && (
+                        <div style={{ marginBottom: '40px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                                <FaSpellCheck style={{ color: 'var(--primary)' }} />
+                                <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>Session Profile Breakdown</h3>
+                            </div>
+                            <p style={{ color: '#94a3b8', lineHeight: '1.6', fontSize: '14px', marginBottom: '20px' }}>{resumeAnalysis.summary}</p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px' }}>
+                                {resumeAnalysis.skills && (
+                                    <div>
+                                        <h4 style={{ fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1px' }}>Detected Skills</h4>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                            {resumeAnalysis.skills.map(s => (
+                                                <span key={s} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(236, 72, 153, 0.1)', color: '#f472b6', fontSize: '11px', border: '1px solid rgba(236, 72, 153, 0.2)' }}>{s}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {resumeAnalysis.categories && (
+                                    <div>
+                                        <h4 style={{ fontSize: '0.8rem', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1px' }}>Recommended Focus</h4>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                            {resumeAnalysis.categories.map(c => (
+                                                <span key={c} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', fontSize: '11px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>{c}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Stats Row */}
                     <div className="stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '48px' }}>
                         <div className="stat-card" style={{ padding: '32px', borderRadius: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)' }}>
@@ -884,11 +1106,42 @@ export default function Interview() {
                     <div className="questions-analysis" style={{ display: 'grid', gap: '24px' }}>
                         {questionsData.map((q, idx) => (
                             <div key={idx} className="qa-card" style={{ padding: '32px', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', borderLeft: `6px solid ${q.final_score >= 7 ? '#2ed573' : q.final_score >= 4 ? '#facc15' : '#ff4757'}`, borderTop: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
                                     <div className="qa-question" style={{ fontSize: '20px', fontWeight: '700', color: '#fff' }}>Scenario {idx + 1}: {q.questionText}</div>
                                     <span style={{ padding: '8px 20px', borderRadius: '12px', background: q.final_score >= 7 ? 'rgba(46, 213, 115, 0.2)' : 'rgba(255, 71, 87, 0.2)', color: q.final_score >= 7 ? '#2ed573' : '#ff4757', fontWeight: '700' }}>
                                         {q.final_score}/10
                                     </span>
+                                </div>
+
+                                <div className="qa-tags" style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                                    {q.category && (
+                                        <span style={{ 
+                                            background: 'rgba(99, 102, 241, 0.1)', 
+                                            color: '#818cf8', 
+                                            padding: '2px 10px', 
+                                            borderRadius: '6px', 
+                                            fontSize: '10px', 
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase',
+                                            border: '1px solid rgba(99, 102, 241, 0.2)'
+                                        }}>
+                                            {q.category}
+                                        </span>
+                                    )}
+                                    {q.topic && (
+                                        <span style={{ 
+                                            background: 'rgba(16, 185, 129, 0.1)', 
+                                            color: '#34d399', 
+                                            padding: '2px 10px', 
+                                            borderRadius: '6px', 
+                                            fontSize: '10px', 
+                                            fontWeight: '700',
+                                            textTransform: 'uppercase',
+                                            border: '1px solid rgba(16, 185, 129, 0.2)'
+                                        }}>
+                                            {q.topic}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="qa-answer" style={{ marginBottom: '20px', color: q.userAnswer ? '#cbd5e1' : '#f87171', fontSize: '16px', lineHeight: '1.6' }}>
@@ -896,9 +1149,34 @@ export default function Interview() {
                                     {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                                 </div>
 
-                                <div className="qa-answer" style={{ padding: '24px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '24px' }}>
-                                    <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '12px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>AI RECOMMENDED ANSWER</span>
-                                    {q.idealAnswer || "The specific ideal data for this custom question is currently being generated."}
+                                <div style={{ marginBottom: '24px' }}>
+                                    <button 
+                                        onClick={() => toggleResultField(idx, 'suggestion')}
+                                        style={{ 
+                                            background: 'rgba(99, 102, 241, 0.1)', 
+                                            border: '1px solid rgba(99, 102, 241, 0.2)', 
+                                            color: '#818cf8', 
+                                            padding: '10px 20px', 
+                                            borderRadius: '10px', 
+                                            fontSize: '13px', 
+                                            fontWeight: '700', 
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            transition: 'all 0.2s ease',
+                                            marginBottom: expandedResults[`${idx}_suggestion`] ? '16px' : '0'
+                                        }}
+                                    >
+                                        <FaCommentDots /> {expandedResults[`${idx}_suggestion`] ? 'HIDE SUGGESTION' : 'VIEW SUGGESTION'}
+                                    </button>
+                                    
+                                    {expandedResults[`${idx}_suggestion`] && (
+                                        <div className="qa-answer" style={{ padding: '24px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', animation: 'fadeIn 0.3s ease' }}>
+                                            <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '12px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>SUGGESTION</span>
+                                            {q.idealAnswer || "The specific ideal data for this custom scenario is being analyzed."}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="metrics-badges" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '15px' }}>
@@ -925,16 +1203,43 @@ export default function Interview() {
                                     </span>
                                 </div>
 
-                                {q.aiOverview && (
-                                    <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)', animation: 'fadeIn 0.5s ease' }}>
-                                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
-                                            <FaLightbulb /> AI Strategic Overview
-                                        </div>
-                                        <p style={{ margin: 0, fontSize: '14px', color: '#bbf7d0', lineHeight: '1.6' }}>
-                                            {q.aiOverview}
-                                        </p>
-                                    </div>
-                                )}
+                                <div style={{ marginBottom: '20px' }}>
+                                    {q.aiOverview && (
+                                        <>
+                                            <button 
+                                                onClick={() => toggleResultField(idx, 'overview')}
+                                                style={{ 
+                                                    background: 'rgba(74, 222, 128, 0.1)', 
+                                                    border: '1px solid rgba(74, 222, 128, 0.2)', 
+                                                    color: '#4ade80', 
+                                                    padding: '10px 20px', 
+                                                    borderRadius: '10px', 
+                                                    fontSize: '13px', 
+                                                    fontWeight: '700', 
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '8px',
+                                                    transition: 'all 0.2s ease',
+                                                    marginBottom: expandedResults[`${idx}_overview`] ? '16px' : '20px'
+                                                }}
+                                            >
+                                                <FaLightbulb /> {expandedResults[`${idx}_overview`] ? 'HIDE STRATEGIC OVERVIEW' : 'VIEW STRATEGIC OVERVIEW'}
+                                            </button>
+
+                                            {expandedResults[`${idx}_overview`] && (
+                                                <div style={{ padding: '24px', borderRadius: '16px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)', animation: 'fadeIn 0.3s ease', marginBottom: '20px' }}>
+                                                    <div style={{ fontSize: '12px', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase' }}>
+                                                        <FaLightbulb /> AI Strategic Overview
+                                                    </div>
+                                                    <p style={{ margin: 0, fontSize: '14px', color: '#bbf7d0', lineHeight: '1.6' }}>
+                                                        {q.aiOverview}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
 
                                 {q.grammar_issues && q.grammar_issues.length > 0 && (
                                     <div style={{ marginTop: '20px', padding: '16px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
@@ -951,8 +1256,8 @@ export default function Interview() {
                     </div>
 
                     <div className="action-buttons" style={{ marginTop: '60px', justifyContent: 'center', gap: '20px' }}>
-                        <button className="btn primary" onClick={() => setStep("setup")} style={{ padding: '16px 32px', borderRadius: '14px' }}>
-                            <FaRedo style={{ marginRight: '8px' }} /> Try Again
+                        <button className="btn primary" onClick={() => startInterview()} style={{ padding: '16px 32px', borderRadius: '14px' }}>
+                            <FaRedo style={{ marginRight: '8px' }} /> Retake Session
                         </button>
                         <button className="btn secondary" onClick={downloadReport} style={{ padding: '16px 32px', borderRadius: '14px' }}>
                             <FaChartLine style={{ marginRight: '8px' }} /> Export PDF

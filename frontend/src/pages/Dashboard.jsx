@@ -132,7 +132,7 @@ export default function Dashboard() {
                             <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)' }}>{interview.overallScore.toFixed(1)}/10</div>
                           </div>
                           <button
-                            onClick={() => window.location.href = `/interview?category=${interview.category}`}
+                            onClick={() => window.location.href = `/interview?retryId=${interview._id}`}
                             style={{
                               background: 'var(--primary)',
                               border: 'none',

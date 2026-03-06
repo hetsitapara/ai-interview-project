@@ -168,6 +168,7 @@ export default function QuestionBank() {
                     key={q._id}
                     text={q.question}
                     category={q.category}
+                    topic={q.topic}
                     level={q.difficulty}
                     answer={q.answer}
                   />
@@ -195,7 +196,7 @@ export default function QuestionBank() {
   );
 }
 
-function QuestionCard({ text, category, level, answer }) {
+function QuestionCard({ text, category, topic, level, answer }) {
   const [showAnswer, setShowAnswer] = useState(false);
 
   return (
@@ -206,6 +207,32 @@ function QuestionCard({ text, category, level, answer }) {
           <span className={`tag ${level.toLowerCase()}`}>{level}</span>
         </div>
         <p>{text}</p>
+        <div className="question-subject-tags" style={{ marginTop: '10px', display: 'flex', gap: '6px' }}>
+          <span style={{ 
+            background: 'rgba(99, 102, 241, 0.1)', 
+            color: '#818cf8', 
+            padding: '2px 8px', 
+            borderRadius: '4px', 
+            fontSize: '0.65rem', 
+            fontWeight: '700',
+            border: '1px solid rgba(99, 102, 241, 0.2)'
+          }}>
+            #{category ? category.toLowerCase().replace(/\s+/g, '') : 'gen'}
+          </span>
+          {topic && (
+            <span style={{ 
+              background: 'rgba(16, 185, 129, 0.1)', 
+              color: '#34d399', 
+              padding: '2px 8px', 
+              borderRadius: '4px', 
+              fontSize: '0.65rem', 
+              fontWeight: '700',
+              border: '1px solid rgba(16, 185, 129, 0.2)'
+            }}>
+              #{topic.toLowerCase().replace(/\s+/g, '')}
+            </span>
+          )}
+        </div>
 
         {showAnswer && (
           <div className="answer-box-expanded">

@@ -168,9 +168,17 @@ export default function Reports() {
 
 function ReportDetail({ report }) {
     const questions = report.questions || [];
+    const [expandedResults, setExpandedResults] = useState({});
+
+    const toggleField = (idx, field) => {
+        setExpandedResults(prev => ({
+            ...prev,
+            [`${idx}_${field}`]: !prev[`${idx}_${field}`]
+        }));
+    };
 
     const handleRetry = () => {
-        window.location.href = `/interview?category=${report.category}&difficulty=${report.difficulty}`;
+        window.location.href = `/interview?retryId=${report._id}`;
     };
 
     return (
@@ -204,6 +212,35 @@ function ReportDetail({ report }) {
                 </div>
             </div>
 
+            {/* Archived Resume Analysis if available */}
+            {report.resumeAnalysis && (
+                <div style={{ marginBottom: '40px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid var(--glass-border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                        <FaSpellCheck style={{ color: 'var(--primary)' }} />
+                        <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>Archived Profile Analysis</h3>
+                    </div>
+                    <p style={{ color: '#94a3b8', lineHeight: '1.6', fontSize: '14px', marginBottom: '20px' }}>{report.resumeAnalysis.summary}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px' }}>
+                        <div>
+                            <h4 style={{ fontSize: '0.8rem', color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1px' }}>Detected Skills</h4>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {report.resumeAnalysis.skills?.map(s => (
+                                    <span key={s} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(236, 72, 153, 0.1)', color: '#f472b6', fontSize: '11px', border: '1px solid rgba(236, 72, 153, 0.2)' }}>{s}</span>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style={{ fontSize: '0.8rem', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '1px' }}>Recommended Focus</h4>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {report.resumeAnalysis.categories?.map(c => (
+                                    <span key={c} style={{ padding: '6px 12px', borderRadius: '20px', background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', fontSize: '11px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>{c}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Stats Row */}
             <div className="stats-row">
                 <div className="stat-card">
@@ -229,19 +266,75 @@ function ReportDetail({ report }) {
             <div className="questions-analysis">
                 {questions.map((q, idx) => (
                     <div key={idx} className="qa-card">
-                        <div className="qa-question">Q{idx + 1}: {q.questionText}</div>
+                        <div className="qa-question" style={{ marginBottom: (q.category || q.topic) ? '12px' : '20px' }}>Q{idx + 1}: {q.questionText}</div>
+                        
+                        {(q.category || q.topic) && (
+                            <div className="qa-tags" style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                                {q.category && (
+                                    <span style={{ 
+                                        background: 'rgba(99, 102, 241, 0.1)', 
+                                        color: '#818cf8', 
+                                        padding: '2px 10px', 
+                                        borderRadius: '6px', 
+                                        fontSize: '10px', 
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        border: '1px solid rgba(99, 102, 241, 0.2)'
+                                    }}>
+                                        {q.category}
+                                    </span>
+                                )}
+                                {q.topic && (
+                                    <span style={{ 
+                                        background: 'rgba(16, 185, 129, 0.1)', 
+                                        color: '#34d399', 
+                                        padding: '2px 10px', 
+                                        borderRadius: '6px', 
+                                        fontSize: '10px', 
+                                        fontWeight: '700',
+                                        textTransform: 'uppercase',
+                                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                                    }}>
+                                        {q.topic}
+                                    </span>
+                                )}
+                            </div>
+                        )}
 
                         <div className="qa-answer" style={{ marginBottom: '15px', color: q.userAnswer ? '#cbd5e1' : '#f87171' }}>
                             <span style={{ color: '#94a3b8', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Your Answer:</span>
                             {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                         </div>
 
-                        {q.idealAnswer && (
-                            <div className="qa-answer" style={{ padding: '15px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '20px' }}>
-                                <span style={{ color: '#818cf8', fontSize: '0.8rem', display: 'block', marginBottom: '5px' }}>Ideal Answer:</span>
-                                {q.idealAnswer}
-                            </div>
-                        )}
+                        <div style={{ marginBottom: '20px' }}>
+                            <button 
+                                onClick={() => toggleField(idx, 'suggestion')}
+                                style={{ 
+                                    background: 'rgba(99, 102, 241, 0.1)', 
+                                    border: '1px solid rgba(99, 102, 241, 0.2)', 
+                                    color: '#818cf8', 
+                                    padding: '8px 16px', 
+                                    borderRadius: '10px', 
+                                    fontSize: '0.75rem', 
+                                    fontWeight: '700', 
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    transition: 'all 0.2s ease',
+                                    marginBottom: expandedResults[`${idx}_suggestion`] ? '12px' : '0'
+                                }}
+                            >
+                                <FaCommentDots /> {expandedResults[`${idx}_suggestion`] ? 'HIDE SUGGESTION' : 'VIEW SUGGESTION'}
+                            </button>
+
+                            {expandedResults[`${idx}_suggestion`] && q.idealAnswer && (
+                                <div className="qa-answer" style={{ padding: '20px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '16px', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', animation: 'fadeIn 0.3s ease' }}>
+                                    <span style={{ color: '#818cf8', fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>SUGGESTION</span>
+                                    {q.idealAnswer || "The specific ideal data for this custom scenario is being analyzed."}
+                                </div>
+                            )}
+                        </div>
 
                         <div className="metrics-badges" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px' }}>
                             <span className="badge score" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '0.75rem', color: '#8b5cf6', fontWeight: '700' }}>
@@ -269,16 +362,43 @@ function ReportDetail({ report }) {
                             </span>
                         </div>
 
-                        {q.aiOverview && (
-                            <div className="qa-overview" style={{ marginTop: '15px', padding: '15px', borderRadius: '12px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)' }}>
-                                <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <FaLightbulb /> AI STRATEGIC OVERVIEW
-                                </div>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#bbf7d0', lineHeight: '1.5' }}>
-                                    {q.aiOverview}
-                                </p>
-                            </div>
-                        )}
+                        <div style={{ marginBottom: '20px' }}>
+                            {q.aiOverview && (
+                                <>
+                                    <button 
+                                        onClick={() => toggleField(idx, 'overview')}
+                                        style={{ 
+                                            background: 'rgba(74, 222, 128, 0.1)', 
+                                            border: '1px solid rgba(74, 222, 128, 0.2)', 
+                                            color: '#4ade80', 
+                                            padding: '8px 16px', 
+                                            borderRadius: '10px', 
+                                            fontSize: '0.75rem', 
+                                            fontWeight: '700', 
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            transition: 'all 0.2s ease',
+                                            marginBottom: expandedResults[`${idx}_overview`] ? '12px' : '20px'
+                                        }}
+                                    >
+                                        <FaLightbulb /> {expandedResults[`${idx}_overview`] ? 'HIDE STRATEGIC OVERVIEW' : 'VIEW STRATEGIC OVERVIEW'}
+                                    </button>
+
+                                    {expandedResults[`${idx}_overview`] && (
+                                        <div className="qa-overview" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)', animation: 'fadeIn 0.3s ease', marginBottom: '15px' }}>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <FaLightbulb /> AI STRATEGIC OVERVIEW
+                                            </div>
+                                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#bbf7d0', lineHeight: '1.5' }}>
+                                                {q.aiOverview}
+                                            </p>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
 
                         {q.grammar && q.grammar.issues && q.grammar.issues.length > 0 && (
                             <div className="feedback-section" style={{ marginTop: '15px' }}>

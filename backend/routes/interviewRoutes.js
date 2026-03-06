@@ -132,7 +132,7 @@ const { generateAIOverview } = require('../utils/aiOverview');
 // @access  Private
 router.post('/submit', protect, async (req, res) => {
     try {
-        const { category, difficulty, answers } = req.body;
+        const { category, difficulty, topic, resumeAnalysis, answers } = req.body;
         // answers array of { questionId, questionText, userAnswer, idealAnswer, timeTaken }
 
         if (!answers || answers.length === 0) {
@@ -220,7 +220,9 @@ router.post('/submit', protect, async (req, res) => {
                 const interviewData = {
                     user: req.user._id,
                     category,
+                    topic,
                     difficulty,
+                    resumeAnalysis,
                     questions: answers.map((ans, index) => ({
                         ...ans,
                         ...results[index] // Merge ML results (scores, feedback)
@@ -302,7 +304,7 @@ router.get('/history', protect, async (req, res) => {
     try {
         const interviews = await Interview.find({ user: req.user._id })
             .sort({ createdAt: -1 })
-            .select('category overallScore createdAt difficulty');
+            .select('category topic overallScore createdAt difficulty');
         res.json(interviews);
     } catch (error) {
         console.error(error);

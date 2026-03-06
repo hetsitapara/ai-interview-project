@@ -15,6 +15,10 @@ const YesNoQuestionSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  topic: {
+    type: String,
+    default: 'General'
+  },
   difficulty: {
     type: String,
     default: 'Easy'

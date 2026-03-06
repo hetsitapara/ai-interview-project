@@ -408,10 +408,28 @@ export default function CodingTest() {
                 </div>
               ) : selectedQuestion ? (
                 <div className="markdown-body">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'white', margin: 0, fontFamily: 'var(--font-heading)' }}>
-                      {selectedQuestion.title}
-                    </h1>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'white', margin: 0, fontFamily: 'var(--font-heading)' }}>
+                        {selectedQuestion.title}
+                      </h1>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {selectedQuestion.tags && selectedQuestion.tags.map(tag => (
+                          <span key={tag} style={{
+                            fontSize: '10px',
+                            fontWeight: '700',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            background: 'rgba(56, 189, 248, 0.1)',
+                            color: '#38bdf8',
+                            border: '1px solid rgba(56, 189, 248, 0.2)',
+                            textTransform: 'uppercase'
+                          }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                     <span style={{
                       fontSize: '12px',
                       fontWeight: '700',

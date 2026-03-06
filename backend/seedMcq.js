@@ -351,18 +351,20 @@ const questions = [
         category: 'JavaScript'
     },
     {
-        question: "How to add an event listener?",
+        question: "Methods to add an event listener?",
         options: ["element.onClick", "element.addEventListener", "element.listen", "None"],
         correctOptions: [1],
         type: 'MCQ',
-        category: 'JavaScript'
+        category: 'JavaScript',
+        topic: 'DOM'
     },
     {
         question: "What is the use of map()?",
         options: ["Modify array elements", "Filter elements", "Find element", "Loop only"],
         correctOptions: [0],
         type: 'MCQ',
-        category: 'JavaScript'
+        category: 'JavaScript',
+        topic: 'Arrays'
     }
 ];
 

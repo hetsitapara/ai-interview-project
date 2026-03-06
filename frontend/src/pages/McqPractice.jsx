@@ -332,11 +332,42 @@ export default function McqPractice() {
                   ></div>
                 </div>
 
-                <div className="question-text" style={{ fontSize: '24px', fontWeight: '700', marginBottom: '32px', lineHeight: '1.4' }}>
+                <div className="question-text" style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px', lineHeight: '1.4' }}>
                   {questions[currentQIndex].question}
                   {questions[currentQIndex].type === "MSQ" && (
                     <span style={{ fontSize: '14px', color: 'var(--primary)', marginLeft: '12px', textTransform: 'uppercase' }}>(Select Multiple)</span>
                   )}
+                </div>
+
+                <div className="qa-tags" style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
+                    {questions[currentQIndex].category && (
+                        <span style={{ 
+                            background: 'rgba(99, 102, 241, 0.1)', 
+                            color: '#818cf8', 
+                            padding: '2px 10px', 
+                            borderRadius: '6px', 
+                            fontSize: '10px', 
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            border: '1px solid rgba(99, 102, 241, 0.2)'
+                        }}>
+                            {questions[currentQIndex].category}
+                        </span>
+                    )}
+                    {questions[currentQIndex].topic && (
+                        <span style={{ 
+                            background: 'rgba(16, 185, 129, 0.1)', 
+                            color: '#34d399', 
+                            padding: '2px 10px', 
+                            borderRadius: '6px', 
+                            fontSize: '10px', 
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            border: '1px solid rgba(16, 185, 129, 0.2)'
+                        }}>
+                            {questions[currentQIndex].topic}
+                        </span>
+                    )}
                 </div>
 
                 <div className="options-grid" style={{ display: 'grid', gap: '16px' }}>
@@ -417,10 +448,43 @@ export default function McqPractice() {
                   const options = res.options || [];
                   return (
                     <div key={idx} className="result-item" style={{ marginBottom: '24px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', borderLeft: res.isCorrect ? '6px solid #4ade80' : '6px solid #f87171' }}>
-                      <div style={{ marginBottom: '16px', fontWeight: 'bold', fontSize: '1.1rem', color: 'white' }}>
+                      <div style={{ marginBottom: (res.category || res.topic) ? '8px' : '16px', fontWeight: 'bold', fontSize: '1.1rem', color: 'white' }}>
                         <span style={{ color: 'rgba(255,255,255,0.5)', marginRight: '10px' }}>{idx + 1}.</span>
                         {res.questionText || res.question || "Question"}
                       </div>
+
+                      {(res.category || res.topic) && (
+                          <div className="qa-tags" style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                              {res.category && (
+                                  <span style={{ 
+                                      background: 'rgba(99, 102, 241, 0.1)', 
+                                      color: '#818cf8', 
+                                      padding: '2px 8px', 
+                                      borderRadius: '4px', 
+                                      fontSize: '9px', 
+                                      fontWeight: '700',
+                                      textTransform: 'uppercase',
+                                      border: '1px solid rgba(99, 102, 241, 0.2)'
+                                  }}>
+                                      {res.category}
+                                  </span>
+                              )}
+                              {res.topic && (
+                                  <span style={{ 
+                                      background: 'rgba(16, 185, 129, 0.1)', 
+                                      color: '#34d399', 
+                                      padding: '2px 8px', 
+                                      borderRadius: '4px', 
+                                      fontSize: '9px', 
+                                      fontWeight: '700',
+                                      textTransform: 'uppercase',
+                                      border: '1px solid rgba(16, 185, 129, 0.2)'
+                                  }}>
+                                      {res.topic}
+                                  </span>
+                              )}
+                          </div>
+                      )}
 
                       <div className="options-review" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {options.map((opt, oIdx) => {

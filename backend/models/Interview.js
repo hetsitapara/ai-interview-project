@@ -10,9 +10,17 @@ const interviewSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    topic: {
+        type: String,
+        default: ''
+    },
     difficulty: {
         type: String,
         default: 'Medium'
+    },
+    resumeAnalysis: {
+        type: Object,
+        default: null
     },
     questions: [{
         questionId: {

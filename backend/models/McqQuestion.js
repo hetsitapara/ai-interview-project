@@ -22,6 +22,10 @@ const mcqQuestionSchema = new mongoose.Schema({
         type: String,
         required: true,
         index: true
+    },
+    topic: {
+        type: String,
+        default: 'General'
     }
 }, { timestamps: true });
 
