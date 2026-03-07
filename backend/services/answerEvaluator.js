@@ -1,124 +1,87 @@
 const ollama = require("ollama").default;
 
-/*
-Preloaded prompt with your conditions
-*/
+// Keep the prompt short to reduce LLM processing time
+const BASE_PROMPT = `You are an AI interview evaluator. Improve or correct the candidate's answer.
 
-const BASE_PROMPT = `
-You are an AI interview evaluator.
+Rules:
+- PARTIAL: Keep the user's idea, fix grammar, add keywords, improve clarity.
+- CORRECT: Keep almost identical, only fix minor grammar.
+- INCORRECT: Provide the ideal answer instead.
 
-Your job is to improve or correct a candidate's answer.
-
-Follow these rules strictly:
-
-CASE 1 — PARTIALLY CORRECT ANSWER
-If the user's answer is partially correct:
-- Keep the user's idea
-- Fix grammar and spelling
-- Add missing keywords if necessary
-- Improve clarity
-- Do NOT completely rewrite the answer
-
-CASE 2 — CORRECT ANSWER
-If the answer is correct:
-- Keep the answer almost identical
-- Only fix grammar and wording
-
-CASE 3 — INCORRECT ANSWER
-If the answer is completely incorrect:
-- Ignore the user's answer
-- Provide the correct answer using the ideal answer
-
-IMPORTANT: Return ONLY a valid JSON object, no extra text:
-
-{
-  "type": "correct | partial | incorrect",
-  "refined_answer": "final improved answer"
-}
-`;
+Return ONLY valid JSON (no extra text):
+{"type":"correct|partial|incorrect","refined_answer":"final answer here"}`;
 
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
-const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
 
 /**
- * Evaluates a user's answer against an ideal answer using Ollama (local LLM).
- * @param {string} question - The interview question.
- * @param {string} idealAnswer - The reference/ideal answer.
- * @param {string} userAnswer - The answer provided by the candidate.
- * @returns {Promise<Object>} - An object with { type, refined_answer }.
+ * Timeout wrapper: rejects if Ollama takes too long.
+ */
+function withTimeout(promise, ms = 30000) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`Ollama timeout after ${ms}ms`)), ms)
+  );
+  return Promise.race([promise, timeout]);
+}
+
+/**
+ * Evaluates a user's answer using local Ollama LLM.
  */
 async function evaluateAnswer(question, idealAnswer, userAnswer) {
   const prompt = `${BASE_PROMPT}
 
-Question:
-${question}
+Q: ${question}
+Ideal: ${idealAnswer}
+User: ${userAnswer || "No answer"}
 
-Ideal Answer:
-${idealAnswer}
-
-User Answer:
-${userAnswer || "No answer provided"}
-
-Remember: Return ONLY valid JSON.`;
+JSON:`;
 
   try {
-    const response = await ollama.chat({
-      model: OLLAMA_MODEL,
-      messages: [
-        { role: "user", content: prompt }
-      ],
-      options: {
-        temperature: 0.3,   // Low temperature for consistent evaluation
-        num_predict: 512    // Limit response length
-      }
-    });
+    const response = await withTimeout(
+      ollama.chat({
+        model: OLLAMA_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        options: {
+          temperature: 0.1,  // Very low for fast, consistent output
+          num_predict: 256,  // Short output only
+          top_k: 10          // Narrow sampling for speed
+        }
+      }),
+      45000 // 45 second timeout
+    );
 
     let text = response.message.content.trim();
 
-    // Clean markdown code blocks if present
-    if (text.startsWith("```json")) {
-      text = text.replace(/```json|```/g, "").trim();
-    } else if (text.startsWith("```")) {
-      text = text.replace(/```/g, "").trim();
-    }
+    // Strip markdown code blocks
+    text = text.replace(/```json|```/g, "").trim();
 
-    // Extract JSON if there's extra text around it
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    // Extract the first JSON object found
+    const jsonMatch = text.match(/\{[\s\S]*?\}/);
     if (jsonMatch) {
       text = jsonMatch[0];
     }
 
     try {
       const parsed = JSON.parse(text);
-      console.log(`✅ Ollama evaluation complete (type: ${parsed.type})`);
+      console.log(`✅ Ollama [${question.substring(0,30)}...] → ${parsed.type}`);
       return {
         type: parsed.type || "partial",
-        refined_answer: parsed.refined_answer || text
+        refined_answer: parsed.refined_answer || userAnswer
       };
-    } catch (parseError) {
-      console.error("⚠️ Failed to parse Ollama JSON output, using raw text:", text.substring(0, 100));
-      return {
-        type: "partial",
-        refined_answer: text
-      };
+    } catch {
+      // If can't parse, return raw text as refined answer
+      return { type: "partial", refined_answer: text };
     }
+
   } catch (error) {
-    console.error("❌ Ollama Error:", error.message);
-
-    let explanation = "AI evaluation unavailable.";
-    if (error.message.includes("ECONNREFUSED") || error.message.includes("fetch")) {
-      explanation = "Ollama is not running. Please start it with: ollama serve";
-      console.error("💡 Start Ollama with: ollama serve");
-    } else if (error.message.includes("model") && error.message.includes("not found")) {
-      explanation = `Model '${OLLAMA_MODEL}' not found. Run: ollama pull ${OLLAMA_MODEL}`;
-      console.error(`💡 Pull the model with: ollama pull ${OLLAMA_MODEL}`);
+    if (error.message.includes("timeout")) {
+      console.warn("⏳ Ollama timeout — returning original answer");
+    } else if (error.message.includes("ECONNREFUSED")) {
+      console.error("❌ Ollama not running! Start with: ollama serve");
+    } else {
+      console.error("❌ Ollama Error:", error.message);
     }
-
-    return {
-      type: "error",
-      refined_answer: userAnswer,
-      explanation
-    };
+    // Always fall back gracefully — never block the interview from completing
+    return { type: "error", refined_answer: userAnswer };
   }
 }
 

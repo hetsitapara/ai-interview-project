@@ -140,17 +140,29 @@ router.post('/submit', protect, async (req, res) => {
             return res.status(400).json({ message: 'No answers submitted' });
         }
 
-        // --- GEMINI ANSWER REFINEMENT START ---
-        console.log("[Gemini Refinement] Refining", answers.length, "answers...");
-        const refinedAnswers = await Promise.all(answers.map(async (a) => {
-            const evaluation = await evaluateAnswer(a.questionText, a.idealAnswer, a.userAnswer);
-            return {
-                ...a,
-                refinedAnswer: evaluation.refined_answer || a.userAnswer,
-                evaluationType: evaluation.type || 'unknown'
-            };
-        }));
-        // --- GEMINI ANSWER REFINEMENT END ---
+        // --- OLLAMA ANSWER EVALUATION ---
+        // Run up to 3 evaluations concurrently to balance speed vs. Ollama load
+        console.log("[Ollama Evaluation] Evaluating", answers.length, "answers...");
+        
+        const evalWithLimit = async (items, limit) => {
+            const results = [];
+            for (let i = 0; i < items.length; i += limit) {
+                const batch = items.slice(i, i + limit);
+                const batchResults = await Promise.all(batch.map(async (a) => {
+                    const evaluation = await evaluateAnswer(a.questionText, a.idealAnswer, a.userAnswer);
+                    return {
+                        ...a,
+                        refinedAnswer: evaluation.refined_answer || a.userAnswer,
+                        evaluationType: evaluation.type || 'unknown'
+                    };
+                }));
+                results.push(...batchResults);
+            }
+            return results;
+        };
+
+        const refinedAnswers = await evalWithLimit(answers, 3);
+        // --- OLLAMA EVALUATION END ---
 
         // Prepare input for python script
         const pythonInput = refinedAnswers.map(a => ({
