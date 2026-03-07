@@ -1,7 +1,9 @@
-import "../styles/questionbank.css";
-
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/questionbank.css";
+import { FaBrain, FaMagic, FaSpinner } from "react-icons/fa";
+
+const API = 'http://localhost:5001/api';
 
 export default function QuestionBank() {
   const [questions, setQuestions] = useState([]);
@@ -198,6 +200,28 @@ export default function QuestionBank() {
 
 function QuestionCard({ text, category, topic, level, answer }) {
   const [showAnswer, setShowAnswer] = useState(false);
+  const [aiAnswer, setAiAnswer] = useState('');
+  const [loadingAi, setLoadingAi] = useState(false);
+
+  const generateAiAnswer = async () => {
+    setLoadingAi(true);
+    setAiAnswer('');
+    setShowAnswer(true); // Open the box
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${API}/ai/model-answer`, { 
+        question: text,
+        idealAnswer: answer
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAiAnswer(res.data.answer);
+    } catch (err) {
+      setAiAnswer('Could not generate AI answer at this time. Please ensure Ollama is running.');
+    } finally {
+      setLoadingAi(false);
+    }
+  };
 
   return (
     <div className="question-card">
@@ -236,8 +260,33 @@ function QuestionCard({ text, category, topic, level, answer }) {
 
         {showAnswer && (
           <div className="answer-box-expanded">
-            <strong>Sample Answer:</strong>
-            <p>{answer}</p>
+            <div style={{ marginBottom: '15px' }}>
+              <strong style={{ color: 'var(--accent)', fontSize: '11px', textTransform: 'uppercase' }}>Reference Answer:</strong>
+              <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#cbd5e1' }}>{answer}</p>
+            </div>
+
+            {aiAnswer || loadingAi ? (
+              <div style={{ background: 'rgba(139, 92, 246, 0.05)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <FaBrain style={{ color: 'var(--primary)', fontSize: '12px' }} />
+                  <strong style={{ color: 'var(--primary)', fontSize: '11px', textTransform: 'uppercase' }}>llama3 Model Answer</strong>
+                </div>
+                {loadingAi ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8', fontSize: '13px' }}>
+                    <FaSpinner className="spin" /> Generating...
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, fontSize: '14px', color: '#f1f5f9', fontStyle: 'italic', lineHeight: '1.6' }}>"{aiAnswer}"</p>
+                )}
+              </div>
+            ) : (
+              <button 
+                onClick={generateAiAnswer} 
+                style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <FaMagic /> Generate AI Ideal Response
+              </button>
+            )}
           </div>
         )}
       </div>

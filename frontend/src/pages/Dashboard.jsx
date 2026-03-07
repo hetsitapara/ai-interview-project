@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import Navbar from "../components/navbar";
 import DashboardCard from "../components/DashboardCard";
 import ProgressBar from "../components/ProgressBar";
 import { useNavigate } from "react-router-dom";
+import { FaBrain, FaCalendarDay, FaLightbulb, FaRocket, FaSpinner } from "react-icons/fa";
+
+const API = 'http://localhost:5001/api';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -12,6 +16,8 @@ export default function Dashboard() {
     recentInterviews: []
   });
   const [loading, setLoading] = useState(true);
+  const [studyPlan, setStudyPlan] = useState(null);
+  const [planLoading, setPlanLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +26,7 @@ export default function Dashboard() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await fetch('http://localhost:5001/api/dashboard/stats', {
+        const res = await fetch(`${API}/dashboard/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -36,6 +42,30 @@ export default function Dashboard() {
     };
     fetchStats();
   }, []);
+
+  const generatePlan = async () => {
+    setPlanLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      // Get bottom 3 skills as weak areas
+      const weakAreas = [...stats.skillProgress]
+        .sort((a, b) => a.accuracy - b.accuracy)
+        .slice(0, 3)
+        .map(s => s.category);
+
+      const res = await axios.post(`${API}/ai/study-plan`, { 
+        weakAreas: weakAreas.length > 0 ? weakAreas : ['General Coding', 'Data Structures', 'System Design'],
+        level: 'Intermediate'
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setStudyPlan(res.data.plan);
+    } catch (err) {
+      console.error("Plan error:", err);
+    } finally {
+      setPlanLoading(false);
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -69,6 +99,46 @@ export default function Dashboard() {
               <h4>🔥 Interview Heatmap</h4>
               <p>You are most active between <b>2pm - 4pm</b>. Your responses are 15% sharper during this time!</p>
             </div>
+
+            {/* AI Study Plan Widget */}
+            <div className="widget-card" style={{ border: '1px solid rgba(139, 92, 246, 0.3)', background: 'rgba(139, 92, 246, 0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                <FaBrain style={{ color: 'var(--primary)' }} />
+                <h4 style={{ margin: 0 }}>AI Study Plan</h4>
+              </div>
+              
+              {!studyPlan ? (
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '15px' }}>Let llama3 analyze your weak areas and create a 5-day plan.</p>
+                  <button 
+                    onClick={generatePlan} 
+                    disabled={planLoading}
+                    style={{ background: 'var(--primary)', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                  >
+                    {planLoading ? <FaSpinner className="spin" /> : <><FaRocket /> Generate Plan</>}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
+                   <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '700', marginBottom: '12px' }}>🎯 Goal: {studyPlan.weekly_goal}</p>
+                   {studyPlan.plan.map((d, i) => (
+                     <div key={i} style={{ marginBottom: '15px', padding: '10px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--accent)' }}>{d.day}</span>
+                          <span style={{ fontSize: '11px', color: '#fff' }}>{d.topic}</span>
+                        </div>
+                        <ul style={{ margin: 0, paddingLeft: '15px', color: '#94a3b8', fontSize: '11px' }}>
+                          {d.goals.map((g, j) => <li key={j}>{g}</li>)}
+                        </ul>
+                     </div>
+                   ))}
+                   <div style={{ background: 'rgba(251, 191, 36, 0.1)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.2)', marginTop: '10px' }}>
+                      <p style={{ margin: 0, fontSize: '11px', color: '#fde68a' }}>💡 <b>Pro Tip:</b> {studyPlan.tip}</p>
+                   </div>
+                   <button onClick={() => setStudyPlan(null)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '11px', marginTop: '15px', cursor: 'pointer', width: '100%' }}>Reset Plan</button>
+                </div>
+              )}
+            </div>
           </aside>
 
           {/* Main Dashboard Content */}
@@ -86,10 +156,10 @@ export default function Dashboard() {
                 onClick={() => navigate('/interview')}
               />
               <DashboardCard
-                title="Question Bank"
-                desc="10,000+ curated questions across 50+ specialized domains."
-                buttonText="Browse Files"
-                onClick={() => navigate('/questions')}
+                title="Resume Advisor"
+                desc="ATS-optimized resume reviews and skills gaps analysis."
+                buttonText="Analyze Now"
+                onClick={() => navigate('/resume-advisor')}
               />
               <DashboardCard
                 title="Performance"

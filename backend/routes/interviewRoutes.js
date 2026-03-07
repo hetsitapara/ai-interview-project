@@ -358,4 +358,36 @@ router.get('/:id', protect, async (req, res) => {
     }
 });
 
+const { generateHint, generateCoaching } = require('../services/aiService');
+
+// @desc  Get a hint for a question mid-interview
+// @route POST /api/interview/hint
+// @access Private
+router.post('/hint', protect, async (req, res) => {
+    try {
+        const { question } = req.body;
+        if (!question) return res.status(400).json({ message: 'question is required' });
+        const hint = await generateHint(question);
+        res.json({ success: true, hint });
+    } catch (err) {
+        console.error('Hint error:', err);
+        res.status(500).json({ message: 'Failed to generate hint' });
+    }
+});
+
+// @desc  Get AI coaching based on completed interview results
+// @route POST /api/interview/coaching
+// @access Private
+router.post('/coaching', protect, async (req, res) => {
+    try {
+        const { results } = req.body;
+        if (!results || results.length === 0) return res.status(400).json({ message: 'results are required' });
+        const coaching = await generateCoaching(results);
+        res.json({ success: true, coaching });
+    } catch (err) {
+        console.error('Coaching error:', err);
+        res.status(500).json({ message: 'Failed to generate coaching' });
+    }
+});
+
 module.exports = router;

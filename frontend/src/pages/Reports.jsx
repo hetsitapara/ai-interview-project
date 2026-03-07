@@ -1,11 +1,36 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "../styles/report.css";
-import { FaArrowLeft, FaCalendarAlt, FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaRedo } from "react-icons/fa";
+import { FaArrowLeft, FaCalendarAlt, FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaRedo, FaBrain } from "react-icons/fa";
+
+const API = 'http://localhost:5001/api';
 
 export default function Reports() {
     const [history, setHistory] = useState([]);
     const [selectedReport, setSelectedReport] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [coaching, setCoaching] = useState('');
+    const [coachingLoading, setCoachingLoading] = useState(false);
+
+    const fetchCoaching = async (report) => {
+        setCoachingLoading(true);
+        setCoaching('');
+        try {
+            const token = localStorage.getItem('token');
+            const results = (report.questions || []).map(q => ({
+                question: q.questionText,
+                user_answer: q.userAnswer,
+                accuracy_score: q.accuracy_score,
+                evaluation: q.evaluationType
+            }));
+            const res = await axios.post(`${API}/interview/coaching`, { results }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setCoaching(res.data.coaching);
+        } catch { setCoaching('Keep practicing! Focus on areas where your scores were lowest.'); }
+        finally { setCoachingLoading(false); }
+    };
+
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -37,9 +62,10 @@ export default function Reports() {
             if (res.ok) {
                 const data = await res.json();
                 setSelectedReport(data);
+                fetchCoaching(data); // Auto-fetch AI coaching
             }
         } catch (err) {
-            alert('Failed to load report details');
+            console.error("Failed to fetch report", err);
         } finally {
             setLoading(false);
         }
@@ -55,7 +81,12 @@ export default function Reports() {
                     <button className="btn back-btn" onClick={() => setSelectedReport(null)} style={{ marginBottom: '30px' }}>
                         <FaArrowLeft /> Back to Dashboard
                     </button>
-                    <ReportDetail report={selectedReport} />
+                    <ReportDetail 
+                        report={selectedReport} 
+                        coaching={coaching} 
+                        coachingLoading={coachingLoading} 
+                        fetchCoaching={() => fetchCoaching(selectedReport)}
+                    />
                 </div>
             </div>
         );
@@ -166,7 +197,7 @@ export default function Reports() {
     );
 }
 
-function ReportDetail({ report }) {
+function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
     const questions = report.questions || [];
     const [expandedResults, setExpandedResults] = useState({});
 
@@ -184,7 +215,7 @@ function ReportDetail({ report }) {
     return (
         <div className="detail-container fade-in">
             {/* Header */}
-            <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div className="report-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '30px' }}>
                 <div className="report-meta">
                     <h1>{report.category} Report</h1>
                     <p><FaCalendarAlt style={{ marginRight: '8px' }} />Conducted on {new Date(report.createdAt).toLocaleString()}</p>
@@ -210,6 +241,44 @@ function ReportDetail({ report }) {
                         <FaRedo /> Retake This Session
                     </button>
                 </div>
+            </div>
+            {/* AI Coach Card */}
+            <div style={{ 
+                background: 'rgba(139, 92, 246, 0.05)', 
+                borderRadius: '20px', 
+                padding: '24px', 
+                border: '1px solid rgba(139, 92, 246, 0.2)', 
+                marginBottom: '40px',
+                position: 'relative',
+                overflow: 'hidden'
+            }}>
+                <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '100px', color: 'rgba(139, 92, 246, 0.03)', pointerEvents: 'none' }}>
+                    <FaBrain />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ padding: '8px', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.1)', color: 'var(--primary)' }}>
+                        <FaBrain />
+                    </div>
+                    <div>
+                        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.2rem', fontWeight: '700' }}>AI Performance Coach</h3>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8' }}>Personalized analysis by llama3</p>
+                    </div>
+                </div>
+
+                {coachingLoading ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>
+                        <div style={{ margin: '0 auto 10px auto', width: '24px', height: '24px', border: '3px solid rgba(139,92,246,0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                        Analyzing your performance...
+                    </div>
+                ) : coaching ? (
+                    <div className="coaching-text" style={{ color: '#e2e8f0', lineHeight: '1.6', fontSize: '15px' }}>
+                        {coaching}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center' }}>
+                        <button onClick={fetchCoaching} className="btn secondary" style={{ fontSize: '13px' }}>Regenerate Coaching</button>
+                    </div>
+                )}
             </div>
 
             {/* Archived Resume Analysis if available */}

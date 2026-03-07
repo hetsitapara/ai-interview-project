@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import "../styles/interview.css";
 import "../styles/report.css";
-import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal } from "react-icons/fa";
+import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal, FaBrain } from "react-icons/fa";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 export default function Interview() {
     const [step, setStep] = useState('setup'); // setup -> analysis -> interview -> results
@@ -26,6 +29,24 @@ export default function Interview() {
     const [report, setReport] = useState(null);
     const [devMode, setDevMode] = useState(false);
     const [expandedResults, setExpandedResults] = useState({});
+    const [hint, setHint] = useState('');
+    const [hintLoading, setHintLoading] = useState(false);
+
+    const getHint = async () => {
+        const q = questions[currentQuestionIndex];
+        if (!q) return;
+        setHintLoading(true);
+        setHint('');
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post(`${API}/interview/hint`, { question: q.question }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setHint(res.data.hint);
+        } catch { setHint('Think about the core concepts related to this topic.'); }
+        finally { setHintLoading(false); }
+    };
+
 
     const toggleResultField = (idx, field) => {
         setExpandedResults(prev => ({
@@ -960,6 +981,24 @@ export default function Interview() {
                             </>
                         )}
                     </div>
+
+                    {/* AI Hint */}
+                    {q.type !== 'YesNo' && (
+                        <div style={{ margin: '0 0 16px 0' }}>
+                            <button
+                                onClick={getHint}
+                                disabled={hintLoading}
+                                style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', padding: '8px 18px', borderRadius: '30px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+                            >
+                                <FaLightbulb />{hintLoading ? 'Getting hint...' : '💡 Get Hint'}
+                            </button>
+                            {hint && (
+                                <div style={{ marginTop: '10px', padding: '12px 16px', background: 'rgba(251,191,36,0.07)', borderRadius: '10px', border: '1px solid rgba(251,191,36,0.2)', color: '#fde68a', fontSize: '14px', lineHeight: '1.6' }}>
+                                    <strong style={{ color: '#fbbf24' }}>💡 Hint:</strong> {hint}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     <div className="action-buttons">
                         <button className="btn secondary" onClick={handleFinishEarly} style={{ marginRight: 'auto' }}>

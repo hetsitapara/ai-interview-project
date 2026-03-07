@@ -21,6 +21,7 @@ import InterviewExperience from "./pages/InterviewExperience";
 import McqPractice from "./pages/McqPractice";
 import CodingTest from "./pages/CodingTest";
 import LandingPage from "./pages/LandingPage";
+import ResumeAdvisor from "./pages/ResumeAdvisor";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/mcq" element={<McqPractice />} />
             <Route path="/coding-test" element={<CodingTest />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/resume-advisor" element={<ResumeAdvisor />} />
           </Route>
 
           {/* Admin Routes (No Navbar from MainLayout) */}
