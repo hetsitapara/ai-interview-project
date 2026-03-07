@@ -62,9 +62,11 @@ JSON:`;
 
     try {
       const parsed = JSON.parse(text);
-      console.log(`✅ Ollama [${question.substring(0,30)}...] → ${parsed.type}`);
+      // Normalize to lowercase to match Mongoose enum ['correct','partial','incorrect','unknown','error','']
+      const type = (parsed.type || "partial").toLowerCase();
+      console.log(`✅ Ollama [${question.substring(0,30)}...] → ${type}`);
       return {
-        type: parsed.type || "partial",
+        type,
         refined_answer: parsed.refined_answer || userAnswer
       };
     } catch {
