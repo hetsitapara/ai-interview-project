@@ -126,7 +126,7 @@ router.post('/start', protect, async (req, res) => {
 });
 
 const { evaluateAnswer } = require('../services/answerEvaluator');
-const { generateAIOverview } = require('../utils/aiOverview');
+
 
 // @desc    Submit interview and get ML report
 // @route   POST /api/interview/submit
