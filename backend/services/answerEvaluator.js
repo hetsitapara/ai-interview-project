@@ -1,4 +1,7 @@
-const ollama = require("ollama").default;
+const { Ollama } = require("ollama");
+
+const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
+const ollama = new Ollama({ host: OLLAMA_HOST });
 
 // Keep the prompt short to reduce LLM processing time
 const BASE_PROMPT = `You are an AI interview evaluator. Improve or correct the candidate's answer.
@@ -87,4 +90,79 @@ JSON:`;
   }
 }
 
-module.exports = { evaluateAnswer };
+/**
+ * Evaluates multiple answers in smaller sub-batches for performance and stability.
+ */
+async function evaluateAnswersBatch(answers) {
+  if (!answers || answers.length === 0) return [];
+
+  const BATCH_SIZE = 5; // Smaller sub-batches to prevent Ollama timeouts
+  const finalResults = [];
+
+  for (let i = 0; i < answers.length; i += BATCH_SIZE) {
+    const chunk = answers.slice(i, i + BATCH_SIZE);
+    console.log(`[Ollama Batch] Processing chunk ${i / BATCH_SIZE + 1} (${chunk.length} items)...`);
+
+    const batchPrompt = `${BASE_PROMPT}
+
+Evaluate the following answers. Return a JSON array of objects.
+
+Answers to Evaluate:
+${chunk.map((a, j) => `[ID: ${j}]
+Question: ${a.questionText}
+Ideal: ${a.idealAnswer}
+User: ${a.userAnswer || "No answer"}`).join("\n\n")}
+
+JSON Format: [{"id": 0, "type": "...", "refined_answer": "..."}, ...]`;
+
+    try {
+      const response = await withTimeout(
+        ollama.chat({
+          model: OLLAMA_MODEL,
+          messages: [{ role: "user", content: batchPrompt }],
+          options: {
+            temperature: 0.1,
+            num_predict: chunk.length * 200, // Dynamic token limit based on chunk size
+            top_k: 10
+          }
+        }),
+        90000 // 90 second timeout for sub-batch
+      );
+
+      let text = response.message.content.trim();
+      text = text.replace(/```json|```/g, "").trim();
+      
+      const arrayMatch = text.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        text = arrayMatch[0];
+      }
+
+      const results = JSON.parse(text);
+      
+      // Map results from this chunk
+      chunk.forEach((a, j) => {
+        const evalResult = results.find(r => r.id === j) || {};
+        finalResults.push({
+          ...a,
+          refinedAnswer: evalResult.refined_answer || a.userAnswer,
+          evaluationType: (evalResult.type || "partial").toLowerCase()
+        });
+      });
+
+    } catch (error) {
+      console.warn(`⚠️ Ollama sub-batch failed (chunk ${i / BATCH_SIZE + 1}):`, error.message);
+      // Fallback for this chunk: return original answers
+      chunk.forEach(a => {
+        finalResults.push({
+          ...a,
+          refinedAnswer: a.userAnswer,
+          evaluationType: "error"
+        });
+      });
+    }
+  }
+
+  return finalResults;
+}
+
+module.exports = { evaluateAnswer, evaluateAnswersBatch };

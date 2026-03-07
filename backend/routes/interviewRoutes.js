@@ -125,7 +125,7 @@ router.post('/start', protect, async (req, res) => {
     }
 });
 
-const { evaluateAnswer } = require('../services/answerEvaluator');
+const { evaluateAnswer, evaluateAnswersBatch } = require('../services/answerEvaluator');
 
 
 // @desc    Submit interview and get ML report
@@ -140,130 +140,83 @@ router.post('/submit', protect, async (req, res) => {
             return res.status(400).json({ message: 'No answers submitted' });
         }
 
-        // --- OLLAMA ANSWER EVALUATION ---
-        // Run up to 3 evaluations concurrently to balance speed vs. Ollama load
-        console.log("[Ollama Evaluation] Evaluating", answers.length, "answers...");
-        
-        const evalWithLimit = async (items, limit) => {
-            const results = [];
-            for (let i = 0; i < items.length; i += limit) {
-                const batch = items.slice(i, i + limit);
-                const batchResults = await Promise.all(batch.map(async (a) => {
-                    const evaluation = await evaluateAnswer(a.questionText, a.idealAnswer, a.userAnswer);
-                    return {
-                        ...a,
-                        refinedAnswer: evaluation.refined_answer || a.userAnswer,
-                        evaluationType: evaluation.type || 'unknown'
-                    };
-                }));
-                results.push(...batchResults);
+        // --- OLLAMA AND ML EVALUATION (PARALLEL) ---
+        console.log("[Ollama Evaluation] Starting parallel evaluations...");
+
+        const pythonScriptPromise = new Promise((resolve, reject) => {
+            const scriptPath = path.join(__dirname, '../../ml/batch_evaluate.py');
+            let pythonPath;
+            if (process.platform === "win32") {
+                pythonPath = path.resolve(__dirname, '../../ml/venv/Scripts/python.exe');
+            } else {
+                pythonPath = path.resolve(__dirname, '../../ml/venv_mac/bin/python3');
             }
-            return results;
+
+            if (!fs.existsSync(pythonPath)) {
+                pythonPath = process.platform === "win32" ? 'python' : 'python3';
+            }
+
+            const pythonInput = answers.map(a => ({
+                question: a.questionText,
+                user_answer: a.userAnswer,
+                ideal_answer: a.idealAnswer || "",
+                timeTaken: a.timeTaken || 0
+            }));
+
+            const pythonProcess = spawn(pythonPath, [scriptPath]);
+            let dataString = '';
+            let errorString = '';
+
+            pythonProcess.stdin.write(JSON.stringify(pythonInput));
+            pythonProcess.stdin.end();
+
+            pythonProcess.stdout.on('data', (data) => { dataString += data.toString(); });
+            pythonProcess.stderr.on('data', (data) => { errorString += data.toString(); });
+
+            pythonProcess.on('close', (code) => {
+                if (code !== 0) {
+                    console.error(`Python script exited with code ${code}: ${errorString}`);
+                    return resolve(answers.map(a => ({
+                        final_score: 5,
+                        feedback: "Automated feedback unavailable.",
+                        similarity_score: 0.5
+                    })));
+                }
+                try {
+                    resolve(JSON.parse(dataString));
+                } catch (e) {
+                    console.error("Failed to parse ML output:", e);
+                    resolve(answers.map(a => ({ final_score: 5, feedback: "Error parsing ML report." })));
+                }
+            });
+        });
+
+        // Run Ollama Batch and Python script concurrently
+        const [refinedWithOllama, mlResults] = await Promise.all([
+            evaluateAnswersBatch(answers),
+            pythonScriptPromise
+        ]);
+
+        console.log("[Ollama Evaluation] Parallel evaluation completed.");
+        // --- EVALUATION END ---
+
+        // Construct interview record
+        const interviewData = {
+            user: req.user._id,
+            category,
+            topic,
+            difficulty,
+            resumeAnalysis,
+            questions: refinedWithOllama.map((ans, index) => ({
+                ...ans,
+                ...mlResults[index], // Merge ML results (scores, feedback)
+                aiOverview: "Evaluation completed."
+            })),
+            overallScore: mlResults.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (mlResults.length || 1),
+            detailedReport: mlResults
         };
 
-        const refinedAnswers = await evalWithLimit(answers, 3);
-        // --- OLLAMA EVALUATION END ---
-
-        // Prepare input for python script
-        const pythonInput = refinedAnswers.map(a => ({
-            question: a.questionText,
-            user_answer: a.userAnswer, // Accuracy MUST NOT be calculated using the refined answer
-            ideal_answer: a.idealAnswer || "",
-            refined_answer: a.refinedAnswer,
-            timeTaken: a.timeTaken || 0
-        }));
-
-        // Path to python script and executable
-        const scriptPath = path.join(__dirname, '../../ml/batch_evaluate.py');
-
-        let pythonPath;
-        if (process.platform === "win32") {
-            pythonPath = path.resolve(__dirname, '../../ml/venv/Scripts/python.exe');
-        } else {
-            // New Mac venv path
-            pythonPath = path.resolve(__dirname, '../../ml/venv_mac/bin/python3');
-        }
-
-        if (!fs.existsSync(pythonPath)) {
-            console.warn(`[Interview Submit] venv python not found at ${pythonPath}, falling back to system python`);
-            pythonPath = process.platform === "win32" ? 'python' : 'python3';
-        }
-
-        console.log(`[Interview Submit] Spawning: ${pythonPath} ${scriptPath}`);
-
-        // Spawn python process
-        const pythonProcess = spawn(pythonPath, [scriptPath]);
-
-        let dataString = '';
-        let errorString = '';
-
-        // Write data to stdin
-        pythonProcess.stdin.write(JSON.stringify(pythonInput));
-        pythonProcess.stdin.end();
-
-        pythonProcess.stdout.on('data', (data) => {
-            dataString += data.toString();
-        });
-
-        pythonProcess.stderr.on('data', (data) => {
-            errorString += data.toString();
-        });
-
-        pythonProcess.on('error', (err) => {
-            console.error("Failed to start python process:", err);
-            // Verify if we can continue or should fail? 
-            // We'll let the close handler manage the response with fallback
-        });
-
-        pythonProcess.on('close', async (code) => {
-            if (code !== 0) {
-                console.error(`Python script exited with code ${code}`);
-                console.error(`Python stderr: ${errorString}`);
-                console.warn("ML generation failed, proceeding with basic report");
-            }
-
-            try {
-                // Parse results from python
-                let results = [];
-                try {
-                    if (dataString.trim()) {
-                        results = JSON.parse(dataString);
-                    } else {
-                        throw new Error("Empty output from python script");
-                    }
-                } catch (e) {
-                    console.error("Failed to parse ML output, using fallback values", e);
-                    // Fallback Results
-                    results = answers.map(a => ({
-                        final_score: 5,
-                        feedback: "Automated feedback unavailable at this time.",
-                        similarity_score: 0.5,
-                        keyword_score: 0.5,
-                        idealAnswer: a.idealAnswer || "Reference answer not available."
-                    }));
-                }
-
-                // Construct interview record (Temporary with placeholders for AI Overview)
-                const interviewData = {
-                    user: req.user._id,
-                    category,
-                    topic,
-                    difficulty,
-                    resumeAnalysis,
-                    questions: refinedAnswers.map((ans, index) => ({
-                        ...ans,
-                        ...results[index] // Merge ML results (scores, feedback)
-                    })),
-                    overallScore: results.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (results.length || 1),
-                    detailedReport: results // Store raw report just in case
-                };
-
-                interviewData.questions = interviewData.questions.map(q => ({
-                    ...q,
-                    aiOverview: "Evaluation completed."
-                }));
-
-                const interview = await Interview.create(interviewData);
+        const interview = await Interview.create(interviewData);
 
                 // --- GAMIFICATION UPDATE START ---
                 const today = new Date().toISOString().split('T')[0];
@@ -307,12 +260,6 @@ router.post('/submit', protect, async (req, res) => {
                 // --- GAMIFICATION END ---
 
                 res.status(201).json(interview);
-
-            } catch (err) {
-                console.error('Error parsing python output:', err);
-                res.status(500).json({ message: 'Error processing report', output: dataString });
-            }
-        });
 
     } catch (error) {
         console.error('Error submitting interview:', error);
