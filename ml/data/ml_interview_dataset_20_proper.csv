@@ -1,0 +1,21 @@
+id,category,difficulty,topic,question,answer,source_type
+1,Machine Learning,Easy,Basics,What is Machine Learning?,Machine Learning is a subset of Artificial Intelligence that enables systems to learn from data and improve performance without being explicitly programmed.,Technical
+2,Machine Learning,Easy,Types,What are the main types of Machine Learning?,"The main types are supervised learning, unsupervised learning, and reinforcement learning, each differing in how models learn from data.",Technical
+3,Machine Learning,Easy,Supervised Learning,Explain supervised learning with an example.,"Supervised learning uses labeled data to train models. For example, predicting house prices using past labeled price data.",Technical
+4,Machine Learning,Easy,Unsupervised Learning,What is unsupervised learning?,"Unsupervised learning finds hidden patterns in unlabeled data, such as clustering customers based on behavior.",Technical
+5,Machine Learning,Easy,Features,What is a feature in Machine Learning?,A feature is an individual measurable property or characteristic of input data used for prediction.,Technical
+6,Machine Learning,Medium,Labels,What is a label in Machine Learning?,A label is the output variable that a model learns to predict in supervised learning.,Technical
+7,Machine Learning,Medium,Training,What is model training?,Model training is the process of teaching a machine learning model using data so it can make predictions.,Technical
+8,Machine Learning,Medium,Testing,What is model testing?,Testing evaluates the trained model on unseen data to measure its performance.,Technical
+9,Machine Learning,Medium,Overfitting,What is overfitting?,"Overfitting occurs when a model learns noise and details from training data, reducing performance on new data.",Technical
+10,Machine Learning,Medium,Underfitting,What is underfitting?,Underfitting happens when a model is too simple to capture underlying patterns in data.,Technical
+11,Machine Learning,Medium,Evaluation,What is accuracy in Machine Learning?,Accuracy is the ratio of correctly predicted instances to total predictions.,Technical
+12,Machine Learning,Medium,Evaluation,Explain precision and recall.,"Precision measures correctness of positive predictions, while recall measures how many actual positives are identified.",Technical
+13,Machine Learning,Medium,Evaluation,What is a confusion matrix?,A confusion matrix is a table used to evaluate classification models by comparing predicted and actual values.,Technical
+14,Machine Learning,Medium,Bias-Variance,Explain bias and variance.,"Bias is error due to simplifying assumptions, while variance is error due to sensitivity to training data.",Technical
+15,Machine Learning,Medium,Algorithms,What is Naive Bayes algorithm?,Naive Bayes is a probabilistic classification algorithm based on Bayes' theorem and feature independence assumption.,Technical
+16,Machine Learning,Medium,Algorithms,What is KNN algorithm?,K-Nearest Neighbors is a lazy learning algorithm that classifies data based on nearest neighbors.,Technical
+17,Machine Learning,Medium,Scaling,Why is feature scaling important?,Feature scaling ensures that all features contribute equally to model training.,Technical
+18,Machine Learning,Medium,Validation,What is cross-validation?,Cross-validation is a technique to evaluate model performance by splitting data into multiple training and validation sets.,Technical
+19,Machine Learning,Medium,Clustering,What is clustering?,Clustering groups similar data points together without using labeled outputs.,Technical
+20,Machine Learning,Medium,Applications,Mention some applications of Machine Learning.,"Applications include recommendation systems, spam detection, image recognition, and medical diagnosis.",Technical

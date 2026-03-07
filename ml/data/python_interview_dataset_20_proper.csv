@@ -1,0 +1,21 @@
+id,category,difficulty,topic,question,answer,source_type
+1,Python,Easy,Basics,What is Python and what are its main features?,"Python is a high-level, interpreted programming language known for its simple syntax and readability. Its main features include dynamic typing, automatic memory management, extensive standard libraries, support for multiple programming paradigms, and strong community support.",Technical
+2,Python,Easy,Execution Model,Is Python compiled or interpreted? Explain.,"Python is primarily an interpreted language. The source code is first compiled into bytecode, which is then executed by the Python Virtual Machine (PVM). This makes Python portable and easy to debug.",Technical
+3,Python,Easy,Data Types,Explain different data types in Python.,"Python supports numeric types like int and float, sequence types like list and tuple, mapping types like dictionary, set types, and boolean data types. These data types help manage different kinds of data.",Technical
+4,Python,Easy,Lists,What is a list in Python?,"A list is an ordered and mutable collection of elements. Lists allow duplicate values and can store different data types, making them one of the most versatile data structures in Python.",Technical
+5,Python,Easy,Tuples,What is a tuple and how is it different from a list?,"A tuple is an ordered but immutable collection of elements. Unlike lists, tuples cannot be modified after creation, which makes them faster and safer for fixed data.",Technical
+6,Python,Medium,Dictionaries,Explain dictionaries in Python.,"Dictionaries store data in key-value pairs. They are unordered, mutable, and optimized for fast lookups using keys.",Technical
+7,Python,Medium,Functions,What is a function in Python?,A function is a reusable block of code designed to perform a specific task. Functions improve code modularity and readability.,Technical
+8,Python,Medium,Lambda,What is a lambda function?,"A lambda function is an anonymous, single-expression function defined using the lambda keyword. It is mainly used for short, simple operations.",Technical
+9,Python,Medium,OOP,Explain object-oriented programming in Python.,"Python supports OOP concepts like classes, objects, inheritance, polymorphism, and encapsulation, allowing developers to build reusable and scalable applications.",Technical
+10,Python,Medium,Classes,What is a class in Python?,A class is a blueprint for creating objects. It defines attributes and methods that represent the behavior of objects.,Technical
+11,Python,Medium,Self Keyword,What is the self keyword in Python?,The self keyword represents the current instance of a class and allows access to instance variables and methods.,Technical
+12,Python,Medium,Constructors,What is __init__ method in Python?,__init__ is a special constructor method that initializes object attributes when an object is created.,Technical
+13,Python,Medium,Exception Handling,Explain exception handling in Python.,"Exception handling is done using try, except, else, and finally blocks to manage runtime errors and prevent program crashes.",Technical
+14,Python,Medium,Modules,What is a module in Python?,A module is a file containing Python code such as functions and classes that can be reused in other programs.,Technical
+15,Python,Medium,Packages,What is a package in Python?,A package is a collection of modules organized in directories to manage large applications efficiently.,Technical
+16,Python,Medium,File Handling,Explain file handling in Python.,"Python provides built-in functions to read and write files using open(), read(), write(), and close() methods.",Technical
+17,Python,Medium,Memory Management,How does Python manage memory?,Python uses automatic memory management with reference counting and garbage collection to free unused memory.,Technical
+18,Python,Medium,Decorators,What are decorators in Python?,Decorators are functions that modify the behavior of other functions without changing their code.,Technical
+19,Python,Medium,Multithreading,Explain multithreading in Python.,Multithreading allows concurrent execution of threads. Python uses the Global Interpreter Lock (GIL) to manage thread execution.,Technical
+20,Python,Medium,Libraries,What is NumPy and why is it used?,"NumPy is a numerical computing library used for array operations, mathematical functions, and scientific computing.",Technical

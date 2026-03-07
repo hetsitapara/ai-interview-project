@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables (NEVER commit secrets)
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Python virtual environments
+ml/venv/
+ml/venv_mac/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+
+# Temporary / debug files
+backend/diagnose_gemini.js
+backend/robust_diagnose.js
+backend/debugModels.js
+backend/debugV1.js
+backend/testAI.js
+backend/test_*.js
+backend/verify_*.js
+backend/users.json
+backend/temp/
+
+# Uploads / user data
+uploads/
+backend/uploads/
