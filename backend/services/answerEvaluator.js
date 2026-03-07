@@ -4,15 +4,17 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
 const ollama = new Ollama({ host: OLLAMA_HOST });
 
 // Keep the prompt short to reduce LLM processing time
-const BASE_PROMPT = `You are an AI interview evaluator. Improve or correct the candidate's answer.
+const BASE_PROMPT = `You are a senior technical interviewer. Evaluate the candidate's answer with extreme precision.
 
 Rules:
-- PARTIAL: Keep the user's idea, fix grammar, add keywords, improve clarity.
-- CORRECT: Keep almost identical, only fix minor grammar.
-- INCORRECT: Provide the ideal answer instead.
+1. Provide a "score" from 0 to 10 based on technical accuracy and depth.
+2. Provide a "refined_answer" which is the ideal professional version.
+3. Provide a "rationale" explaining why the score was given.
+4. List "keywords_found" that are technically relevant.
+5. "type" should be: correct (8-10), partial (4-7), or incorrect (0-3).
 
 Return ONLY valid JSON (no extra text):
-{"type":"correct|partial|incorrect","refined_answer":"final answer here"}`;
+{"score": 8, "type": "correct", "refined_answer": "...", "rationale": "...", "keywords_found": ["...", "..."]}`;
 
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
 
@@ -145,7 +147,10 @@ JSON Format: [{"id": 0, "type": "...", "refined_answer": "..."}, ...]`;
         finalResults.push({
           ...a,
           refinedAnswer: evalResult.refined_answer || a.userAnswer,
-          evaluationType: (evalResult.type || "partial").toLowerCase()
+          evaluationType: (evalResult.type || "partial").toLowerCase(),
+          aiScore: evalResult.score !== undefined ? evalResult.score : null,
+          aiRationale: evalResult.rationale || "",
+          aiKeywords: evalResult.keywords_found || []
         });
       });
 

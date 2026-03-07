@@ -39,9 +39,8 @@ async function askLlama(prompt, maxTokens = 512) {
  * @param {string[]} skills - Skills extracted by Python parser
  */
 async function analyzeResume(resumeText, skills = []) {
-  const prompt = `You are a senior HR expert and ATS resume specialist.
-
-Analyze the following resume and provide structured feedback.
+  const prompt = `You are a senior technical recruiter and career coach.
+Analyze the following resume and provide deep technical feedback.
 
 Resume Text:
 ${resumeText.substring(0, 3000)}
@@ -51,12 +50,17 @@ Detected Skills: ${skills.join(", ")}
 Return ONLY valid JSON:
 {
   "ats_score": <number 0-100>,
+  "impact_score": <number 0-100>,
   "strengths": ["...", "..."],
   "weaknesses": ["...", "..."],
   "missing_sections": ["...", "..."],
-  "improvement_tips": ["...", "...", "..."],
+  "improvement_tips": ["...", "..."],
   "suggested_skills": ["...", "..."],
-  "overall_verdict": "one sentence summary"
+  "project_ideas": [
+    { "title": "Project Name", "description": "Short technical description", "tech_stack": ["...", "..."] }
+  ],
+  "interview_strategy": "A 2-3 sentence strategic advice for this candidate",
+  "overall_verdict": "One sentence summary"
 }`;
 
   try {

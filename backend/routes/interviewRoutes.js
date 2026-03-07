@@ -207,14 +207,34 @@ router.post('/submit', protect, async (req, res) => {
             topic,
             difficulty,
             resumeAnalysis,
-            questions: refinedWithOllama.map((ans, index) => ({
-                ...ans,
-                ...mlResults[index], // Merge ML results (scores, feedback)
-                aiOverview: "Evaluation completed."
-            })),
-            overallScore: mlResults.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (mlResults.length || 1),
+            questions: refinedWithOllama.map((ans, index) => {
+                const ml = mlResults[index] || {};
+                const ai = ans || {};
+                
+                // Final Score logic: Weigh AI score (0-10) and ML accuracy (0-1)
+                // If AI score exists, use it as 70% weight.
+                const mlScoreConverted = (ml.accuracy_score || 0) * 10;
+                let finalQuestionScore = mlScoreConverted;
+                
+                if (ai.aiScore !== null && ai.aiScore !== undefined) {
+                    finalQuestionScore = (ai.aiScore * 0.7) + (mlScoreConverted * 0.3);
+                }
+
+                return {
+                    ...ans,
+                    ...ml,
+                    final_score: Math.round(finalQuestionScore * 10) / 10, // Round to 1 decimal
+                    explanation: ai.aiRationale || ml.explanation || "Good attempt.",
+                    ai_keywords: ai.aiKeywords || [],
+                    aiOverview: "Evaluation completed."
+                };
+            }),
+            overallScore: 0, // Calculated below
             detailedReport: mlResults
         };
+
+        // Calculate overall session score
+        interviewData.overallScore = interviewData.questions.reduce((acc, curr) => acc + (curr.final_score || 0), 0) / (interviewData.questions.length || 1);
 
         const interview = await Interview.create(interviewData);
 

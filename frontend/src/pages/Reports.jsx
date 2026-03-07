@@ -375,10 +375,10 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                             {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                         </div>
 
-                        {q.refinedAnswer && q.refinedAnswer !== q.userAnswer && (
+                        {q.refinedAnswer && q.refinedAnswer !== q.userAnswer && q.refinedAnswer !== q.idealAnswer && (
                             <div className="qa-answer" style={{ marginBottom: '20px', padding: '15px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
                                 <span style={{ color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                    ✨ Improved Answer ({q.evaluationType})
+                                    ✨ PRO VERSION / IMPROVED ANSWER
                                 </span>
                                 <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>"{q.refinedAnswer}"</p>
                             </div>
@@ -393,10 +393,7 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
 
                         <div className="metrics-badges" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '15px', marginBottom: '20px' }}>
                             <span className="badge score" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '0.75rem', color: '#8b5cf6', fontWeight: '700' }}>
-                                Accuracy: {Math.round((q.accuracy_score || q.final_score / 10 || 0) * 100)}%
-                            </span>
-                            <span className="badge time" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.1)', fontSize: '0.75rem', color: '#10b981', fontWeight: '700' }}>
-                                <FaClock /> {q.timeTaken ? `${q.timeTaken}s` : '0s'}
+                                Accuracy: {Math.round((q.accuracy_score || 0) * 100)}%
                             </span>
                             <span className="badge similarity" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', fontSize: '0.75rem', color: '#38bdf8', fontWeight: '700' }}>
                                 Confidence: {Math.round((q.confidence_score || 0) * 100)}%
@@ -409,17 +406,12 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                             <span className={`badge eval ${q.evaluation === 'Excellent' ? 'positive' : q.evaluation === 'Good' ? 'neutral' : 'negative'}`} style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', fontSize: '0.75rem', color: '#fff', fontWeight: '700' }}>
                                 {q.evaluation || 'Partial'}
                             </span>
-                            {q.cheating_flag && (
-                                <span className="badge cheating" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.2)', fontSize: '0.75rem', color: '#f87171', fontWeight: '800' }}>
-                                    ⚠️ SUSPICIOUS ACTIVITY
-                                </span>
-                            )}
                         </div>
 
                         {q.explanation && (
                             <div className="qa-overview" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.1)', marginBottom: '15px' }}>
                                 <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4ade80', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <FaLightbulb /> AI EVALUATION
+                                    <FaLightbulb /> AI SCORING RATIONALE
                                 </div>
                                 <p style={{ margin: 0, fontSize: '0.85rem', color: '#bbf7d0', lineHeight: '1.5' }}>
                                     {q.explanation}

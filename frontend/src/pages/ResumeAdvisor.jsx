@@ -114,12 +114,32 @@ export default function ResumeAdvisor() {
         {advice && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-            {/* ATS Score */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '20px', padding: '30px', border: `1px solid ${atsColor}40`, textAlign: 'center' }}>
-              <p style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>ATS Compatibility Score</p>
-              <div style={{ fontSize: '5rem', fontWeight: '900', color: atsColor, lineHeight: 1 }}>{advice.ats_score}<span style={{ fontSize: '2rem' }}>/100</span></div>
-              <p style={{ color: '#94a3b8', marginTop: '12px', fontSize: '15px' }}>{advice.overall_verdict}</p>
+            {/* Scores Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '20px', padding: '30px', border: `1px solid ${atsColor}40`, textAlign: 'center' }}>
+                <p style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>ATS Compatibility</p>
+                <div style={{ fontSize: '4rem', fontWeight: '900', color: atsColor, lineHeight: 1 }}>{advice.ats_score}<span style={{ fontSize: '1.5rem' }}>/100</span></div>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '20px', padding: '30px', border: `1px solid #38bdf840`, textAlign: 'center' }}>
+                  <p style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>Impact Score</p>
+                  <div style={{ fontSize: '4rem', fontWeight: '900', color: '#38bdf8', lineHeight: 1 }}>{advice.impact_score || 0}<span style={{ fontSize: '1.5rem' }}>/100</span></div>
+              </div>
             </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '20px', padding: '24px', border: '1px solid var(--glass-border)' }}>
+                <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', textAlign: 'center' }}>{advice.overall_verdict}</p>
+            </div>
+
+            {/* Interview Strategy */}
+            {advice.interview_strategy && (
+              <div style={{ background: 'rgba(139, 92, 246, 0.05)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                  <FaBrain style={{ color: '#a78bfa' }} />
+                  <span style={{ color: '#a78bfa', fontWeight: '700', fontSize: '13px', textTransform: 'uppercase' }}>Interview Strategy</span>
+                </div>
+                <p style={{ color: '#e2e8f0', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>{advice.interview_strategy}</p>
+              </div>
+            )}
 
             {/* Grid: Strengths + Weaknesses */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -142,6 +162,29 @@ export default function ResumeAdvisor() {
                 ))}
               </div>
             </div>
+
+            {/* Project Ideas */}
+            {advice.project_ideas?.length > 0 && (
+              <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '20px', padding: '30px', border: '1px solid var(--glass-border)' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                  <FaLightbulb style={{ color: '#fbbf24' }} />
+                  <span style={{ color: '#fff', fontWeight: '700', fontSize: '18px' }}>Recommended Projects to Build Skills</span>
+                </div>
+                <div style={{ display: 'grid', gap: '20px' }}>
+                  {advice.project_ideas.map((project, i) => (
+                    <div key={i} style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <h4 style={{ color: '#fff', margin: '0 0 8px 0', fontSize: '16px' }}>{project.title}</h4>
+                      <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '12px', lineHeight: '1.5' }}>{project.description}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {project.tech_stack?.map((tech, ti) => (
+                          <span key={ti} style={{ padding: '4px 10px', borderRadius: '6px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', fontSize: '11px', fontWeight: '600' }}>{tech}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Improvement Tips */}
             <div style={{ background: 'rgba(251,191,36,0.05)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(251,191,36,0.15)' }}>
