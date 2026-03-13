@@ -5,6 +5,7 @@ import "../styles/report.css";
 import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal, FaBrain } from "react-icons/fa";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import DeepAnalysis from '../components/DeepAnalysis';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
@@ -29,6 +30,8 @@ export default function Interview() {
     const [report, setReport] = useState(null);
     const [devMode, setDevMode] = useState(false);
     const [expandedResults, setExpandedResults] = useState({});
+    const [expandedAI, setExpandedAI] = useState({}); // per-question AI answer toggle
+    const [expandedDB, setExpandedDB] = useState({}); // per-question DB answer toggle
     const [hint, setHint] = useState('');
     const [hintLoading, setHintLoading] = useState(false);
 
@@ -1101,8 +1104,8 @@ export default function Interview() {
                             <div key={idx} className="qa-card" style={{ padding: '32px', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', borderLeft: `6px solid ${q.final_score >= 7 ? '#2ed573' : q.final_score >= 4 ? '#facc15' : '#ff4757'}`, borderTop: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', alignItems: 'center' }}>
                                     <div className="qa-question" style={{ fontSize: '20px', fontWeight: '700', color: '#fff' }}>Scenario {idx + 1}: {q.questionText}</div>
-                                    <span style={{ padding: '8px 20px', borderRadius: '12px', background: q.evaluation === 'Excellent' ? 'rgba(46, 213, 115, 0.2)' : 'rgba(255, 71, 87, 0.2)', color: q.evaluation === 'Excellent' ? '#2ed573' : '#ff4757', fontWeight: '700' }}>
-                                        {q.evaluation || 'Partial'}
+                                    <span style={{ padding: '8px 20px', borderRadius: '12px', background: q.final_score >= 7 ? 'rgba(46, 213, 115, 0.2)' : 'rgba(255, 165, 2, 0.2)', color: q.final_score >= 7 ? '#2ed573' : '#ffa502', fontWeight: '800', fontSize: '18px' }}>
+                                        {q.final_score}/10
                                     </span>
                                 </div>
 
@@ -1142,22 +1145,71 @@ export default function Interview() {
                                     {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                                 </div>
 
-                                {q.refinedAnswer && q.refinedAnswer !== q.userAnswer && (
-                                    <div className="qa-answer" style={{ marginBottom: '20px', padding: '20px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '16px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                                        <span style={{ color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            ✨ AI Improved Answer ({q.evaluationType})
+                                {/* Toggle buttons row */}
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                                    {(q.aiImprovedAnswer || q.aiAdvice) && (
+                                        <button
+                                            onClick={() => setExpandedAI(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '8px',
+                                                padding: '9px 18px', borderRadius: '10px', cursor: 'pointer',
+                                                background: expandedAI[idx] ? 'rgba(139, 92, 246, 0.25)' : 'rgba(139, 92, 246, 0.08)',
+                                                border: '1px solid rgba(139, 92, 246, 0.4)',
+                                                color: '#a78bfa', fontWeight: '700', fontSize: '12px',
+                                                transition: 'all 0.2s ease',
+                                                textTransform: 'uppercase', letterSpacing: '0.5px'
+                                            }}
+                                        >
+                                            🤖 AI Generated Answer {expandedAI[idx] ? '▲' : '▼'}
+                                        </button>
+                                    )}
+                                    {q.idealAnswer && (
+                                        <button
+                                            onClick={() => setExpandedDB(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                                            style={{
+                                                display: 'flex', alignItems: 'center', gap: '8px',
+                                                padding: '9px 18px', borderRadius: '10px', cursor: 'pointer',
+                                                background: expandedDB[idx] ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.06)',
+                                                border: '1px solid rgba(16, 185, 129, 0.35)',
+                                                color: '#34d399', fontWeight: '700', fontSize: '12px',
+                                                transition: 'all 0.2s ease',
+                                                textTransform: 'uppercase', letterSpacing: '0.5px'
+                                            }}
+                                        >
+                                            📚 Database Answer {expandedDB[idx] ? '▲' : '▼'}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* AI Generated Answer Panel */}
+                                {expandedAI[idx] && (q.aiImprovedAnswer || q.aiAdvice) && (
+                                    <div style={{ marginBottom: '16px', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(139, 92, 246, 0.3)', animation: 'fadeIn 0.25s ease' }}>
+                                        {q.aiImprovedAnswer && (
+                                            <div style={{ padding: '20px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1))' }}>
+                                                <span style={{ color: '#a78bfa', fontWeight: '700', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', textTransform: 'uppercase' }}>
+                                                    🤖 AI GENERATED ANSWER
+                                                </span>
+                                                <p style={{ margin: 0, color: '#e2e8f0', fontSize: '14px', lineHeight: '1.75' }}>{q.aiImprovedAnswer}</p>
+                                            </div>
+                                        )}
+                                        {q.aiAdvice && (
+                                            <div style={{ padding: '18px', background: 'rgba(99, 102, 241, 0.05)', borderTop: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                                                <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '11px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>💡 ADVICE / ENHANCEMENTS</span>
+                                                <p style={{ margin: 0, color: '#a5b4fc', fontSize: '13px', lineHeight: '1.6' }}>{q.aiAdvice}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Database Answer Panel */}
+                                {expandedDB[idx] && q.idealAnswer && (
+                                    <div style={{ marginBottom: '16px', padding: '20px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.25)', animation: 'fadeIn 0.25s ease' }}>
+                                        <span style={{ color: '#34d399', fontWeight: '700', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', textTransform: 'uppercase' }}>
+                                            📚 DATABASE / REFERENCE ANSWER
                                         </span>
-                                        <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>"{q.refinedAnswer}"</p>
+                                        <p style={{ margin: 0, color: '#a7f3d0', fontSize: '14px', lineHeight: '1.75' }}>{q.idealAnswer}</p>
                                     </div>
                                 )}
-
-                                {q.idealAnswer && (
-                                    <div className="qa-answer" style={{ padding: '24px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '24px' }}>
-                                        <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '12px', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>SUGGESTION / IDEAL ANSWER</span>
-                                        {q.idealAnswer}
-                                    </div>
-                                )}
-
                                 <div className="metrics-badges" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '15px' }}>
                                     <span className="badge score" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '12px', color: 'var(--primary)', fontWeight: '700', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
                                         Accuracy: {Math.round((q.accuracy_score || 0) * 100)}%
@@ -1165,9 +1217,7 @@ export default function Interview() {
                                     <span className="badge time" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(16, 185, 129, 0.1)', fontSize: '12px', color: '#10b981', fontWeight: '700', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
                                         <FaClock style={{ marginRight: '6px' }} /> {q.timeTaken ? `${q.timeTaken}s` : '0s'}
                                     </span>
-                                    <span className="badge similarity" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.1)', fontSize: '12px', color: '#38bdf8', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-                                        Confidence: {Math.round((q.confidence_score || 0) * 100)}%
-                                    </span>
+
                                     <span className="badge tone" style={{ padding: '6px 14px', borderRadius: '10px', background: 'rgba(236, 72, 153, 0.1)', fontSize: '12px', color: '#ec4899', fontWeight: '700', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
                                         Keywords: {Math.round((q.keyword_score || 0) * 100)}%
                                     </span>
@@ -1178,14 +1228,6 @@ export default function Interview() {
                                     )}
                                 </div>
 
-                                {q.refinedAnswer && q.refinedAnswer !== q.userAnswer && (
-                                    <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                                        <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary)', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                            ✨ Improved Answer
-                                        </div>
-                                        <p style={{ margin: 0, color: '#e2e8f0', fontSize: '14px', lineHeight: '1.6' }}>"{q.refinedAnswer}"</p>
-                                    </div>
-                                )}
 
                                 <div style={{ marginBottom: '20px', marginTop: '20px' }}>
                                     {q.explanation && (
@@ -1214,9 +1256,12 @@ export default function Interview() {
                         ))}
                     </div>
 
-                    <div className="action-buttons" style={{ marginTop: '60px', justifyContent: 'center', gap: '20px' }}>
+                    <div className="action-buttons" style={{ marginTop: '60px', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
                         <button className="btn primary" onClick={() => startInterview()} style={{ padding: '16px 32px', borderRadius: '14px' }}>
                             <FaRedo style={{ marginRight: '8px' }} /> Retake Session
+                        </button>
+                        <button className="btn primary" onClick={() => setStep('deep_analysis')} style={{ padding: '16px 32px', borderRadius: '14px', background: 'var(--accent)' }}>
+                            <FaBrain style={{ marginRight: '8px' }} /> Deep Analysis
                         </button>
                         <button className="btn secondary" onClick={downloadReport} style={{ padding: '16px 32px', borderRadius: '14px' }}>
                             <FaChartLine style={{ marginRight: '8px' }} /> Export PDF
@@ -1331,6 +1376,7 @@ export default function Interview() {
             {step === "interview" && renderInterview()}
             {step === "loading" && renderLoading()}
             {step === "results" && renderResults()}
+            {step === "deep_analysis" && <DeepAnalysis report={report} onBack={() => setStep("results")} />}
         </div>
     );
 }

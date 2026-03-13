@@ -24,18 +24,34 @@ const interviewSchema = mongoose.Schema({
     },
     questions: [{
         questionId: {
-            type: String, // Changed from ObjectId to support CSV-based string IDs
+            type: String,
             required: true
         },
         questionText: String,
+        category: String,
+        topic: String,
         userAnswer: String,
         idealAnswer: String,
-        timeTaken: Number, // in seconds
+        timeTaken: Number,           // in seconds
         similarity_score: Number,
-        keyword_score: Number,
+        accuracy_score: Number,      // 0–1, from AI
+        confidence_score: Number,    // 0–1, from ML
+        keyword_score: Number,       // 0–1, from AI
         final_score: Number,
         feedback: String,
+        explanation: String,         // AI rationale text
+        evaluation: String,          // Excellent / Good / Partial / Poor
+        grammar_issues: [String],
+        cheating_flag: Boolean,
         aiOverview: {
+            type: String,
+            default: ''
+        },
+        aiAdvice: {
+            type: String,
+            default: ''
+        },
+        aiImprovedAnswer: {
             type: String,
             default: ''
         },

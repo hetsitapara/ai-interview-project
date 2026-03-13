@@ -68,6 +68,11 @@ export default function Navbar() {
                                 </NavLink>
                             </li>
                             <li>
+                                <NavLink to="/roadmap" className="nav-link">
+                                    Roadmap
+                                </NavLink>
+                            </li>
+                            <li>
                                 <NavLink to="/reports" className="nav-link">
                                     Reports
                                 </NavLink>

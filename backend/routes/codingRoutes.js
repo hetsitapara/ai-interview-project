@@ -270,4 +270,70 @@ router.get('/submissions/:questionId', protect, async (req, res) => {
     }
 });
 
+// @desc    AI Code Analysis using Ollama/llama3
+// @route   POST /api/coding/analyze
+// @access  Private
+router.post('/analyze', protect, async (req, res) => {
+    const { code, language, questionTitle } = req.body;
+    if (!code || code.trim().length < 10) {
+        return res.status(400).json({ message: 'No code provided' });
+    }
+    try {
+        const { Ollama } = require('ollama');
+        const ollama = new Ollama({ host: process.env.OLLAMA_HOST || 'http://127.0.0.1:11434' });
+        const model = process.env.OLLAMA_MODEL || 'llama3';
+
+        const prompt = `You are a senior software engineer performing a technical code review. Analyze the following ${language} code${questionTitle ? ` for the problem: "${questionTitle}"` : ''}.
+
+Code:
+\`\`\`${language}
+${code}
+\`\`\`
+
+Analyze it thoroughly and return ONLY valid JSON with these exact fields:
+{
+  "summary": "One encouraging sentence about the solution",
+  "overall_rating": 8,
+  "time_complexity": "O(n)",
+  "space_complexity": "O(n)",
+  "current_approach": "Hash Map",
+  "suggested_approach": "Two Pointers",
+  "key_idea": "Brief explanation of the key algorithmic idea",
+  "consider": "A thought-provoking question to make them think of an optimization",
+  "efficiency_suggestion": "Specific suggestion to improve time or space complexity",
+  "readability": 4,
+  "structure": 4,
+  "efficiency_score": 3,
+  "best_practices": 4,
+  "style_suggestion": "Specific code style improvement suggestion",
+  "improvements": ["Improvement point 1", "Improvement point 2", "Improvement point 3"]
+}
+
+Rules:
+- overall_rating is 0-10 (be fair and accurate)
+- readability, structure, efficiency_score, best_practices are all 0-5 star ratings
+- time_complexity and space_complexity must be in standard Big-O notation like O(n), O(n log n), O(n²), O(1), O(log n)
+- improvements must be 2-4 specific, actionable items
+- Return ONLY the JSON. No extra text.`;
+
+        const response = await ollama.chat({
+            model,
+            messages: [{ role: 'user', content: prompt }],
+            options: { temperature: 0.2, num_predict: 600 }
+        });
+
+        let text = response.message.content.trim();
+        text = text.replace(/```json|```/g, '').trim();
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) return res.status(500).json({ message: 'Could not parse analysis' });
+
+        const analysis = JSON.parse(match[0]);
+        console.log(`[Ollama] Code analysis complete. Score: ${analysis.overall_rating}/10`);
+        res.json(analysis);
+    } catch (error) {
+        console.error('[CodeAnalysis] Error:', error.message);
+        res.status(500).json({ message: 'Analysis failed: ' + error.message });
+    }
+});
+
 module.exports = router;

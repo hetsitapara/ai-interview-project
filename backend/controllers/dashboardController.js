@@ -10,43 +10,115 @@ const getDashboardStats = async (req, res) => {
         // 1. Total Interviews
         const totalInterviews = await Interview.countDocuments({ user: userId });
 
-        // 2. Average Overall Score
-        const interviews = await Interview.find({ user: userId }).select('overallScore category createdAt');
+        // 2. Fetch all interviews for processing
+        const interviews = await Interview.find({ user: userId })
+            .select('overallScore category createdAt')
+            .sort({ createdAt: -1 });
 
-        let totalScore = 0;
-        interviews.forEach(i => totalScore += (i.overallScore || 0));
-        const avgScore = totalInterviews > 0 ? (totalScore / totalInterviews).toFixed(1) : 0;
+        // 3. XP and Level Calculation
+        let totalXP = 0;
+        interviews.forEach(i => {
+            // Base 100 XP + (Score * 20)
+            totalXP += 100 + ((i.overallScore || 0) * 20);
+        });
+        
+        // Round to 2 decimals
+        totalXP = Math.round(totalXP * 100) / 100;
+        
+        const currentLevel = Math.floor(totalXP / 1000) + 1;
+        const xpInLevel = Math.round((totalXP % 1000) * 100) / 100;
 
-        // 3. Category Breakdown (Average score per category)
-        const categoryStats = {}; // { "HR": { total: 0, count: 0 }, ... }
+        // 4. Daily Streak Calculation
+        let streak = 0;
+        if (interviews.length > 0) {
+            const today = new Date().setHours(0, 0, 0, 0);
+            let checkDate = today;
+            let currentIdx = 0;
 
+            // Check if played today or yesterday to start counting
+            const lastSessionDate = new Date(interviews[0].createdAt).setHours(0, 0, 0, 0);
+            if (lastSessionDate === today || lastSessionDate === today - 86400000) {
+                while (currentIdx < interviews.length) {
+                    const sessionDate = new Date(interviews[currentIdx].createdAt).setHours(0, 0, 0, 0);
+                    if (sessionDate === checkDate) {
+                        streak++;
+                        checkDate -= 86400000;
+                        // Skip other sessions on the same day
+                        while (currentIdx < interviews.length && new Date(interviews[currentIdx].createdAt).setHours(0, 0, 0, 0) === sessionDate) {
+                            currentIdx++;
+                        }
+                    } else if (sessionDate < checkDate) {
+                        break; // Streak broken
+                    } else {
+                        currentIdx++;
+                    }
+                }
+            }
+        }
+
+        // 5. Heatmap Analysis (Peak & Sharpest hours)
+        const hourStats = {}; // { hour: { count, totalScore } }
+        interviews.forEach(i => {
+            const hour = new Date(i.createdAt).getHours();
+            if (!hourStats[hour]) hourStats[hour] = { count: 0, totalScore: 0 };
+            hourStats[hour].count++;
+            hourStats[hour].totalScore += (i.overallScore || 0);
+        });
+
+        let peakHour = 'N/A';
+        let maxCount = 0;
+        let sharpestHour = 'N/A';
+        let maxAvg = 0;
+
+        Object.keys(hourStats).forEach(h => {
+            if (hourStats[h].count > maxCount) {
+                maxCount = hourStats[h].count;
+                peakHour = `${h}:00 - ${parseInt(h)+1}:00`;
+            }
+            const avg = hourStats[h].totalScore / hourStats[h].count;
+            if (avg > maxAvg) {
+                maxAvg = avg;
+                sharpestHour = `${h}:00 - ${parseInt(h)+1}:00`;
+            }
+        });
+
+        // 6. Readiness Score (Weighted)
+        // More weight to recent sessions (last 5)
+        const recentWeights = [0.4, 0.25, 0.15, 0.1, 0.1];
+        let readiness = 0;
+        if (interviews.length > 0) {
+            const lastSessions = interviews.slice(0, 5);
+            let totalWeight = 0;
+            lastSessions.forEach((s, idx) => {
+                readiness += (s.overallScore || 0) * recentWeights[idx];
+                totalWeight += recentWeights[idx];
+            });
+            readiness = (readiness / totalWeight) * 10; // Scaling to 100%
+        }
+
+        // 7. Category Breakdown
+        const categoryStats = {};
         interviews.forEach(interview => {
             const cat = interview.category || 'General';
-            if (!categoryStats[cat]) {
-                categoryStats[cat] = { total: 0, count: 0 };
-            }
+            if (!categoryStats[cat]) categoryStats[cat] = { total: 0, count: 0 };
             categoryStats[cat].total += (interview.overallScore || 0);
             categoryStats[cat].count += 1;
         });
 
-        // Format for frontend (e.g., labels and data for charts or progress bars)
         const skillProgress = Object.keys(categoryStats).map(cat => ({
             label: cat,
-            percent: Math.round((categoryStats[cat].total / categoryStats[cat].count) * 10) // Score is out of 10, so * 10 for percentage
+            percent: Math.round((categoryStats[cat].total / categoryStats[cat].count) * 10)
         }));
-
-        // 4. Recent Activity (Last 3)
-        // We can just return the last few interviews
-        const recentInterviews = await Interview.find({ user: userId })
-            .sort({ createdAt: -1 })
-            .limit(3)
-            .select('category overallScore createdAt');
 
         res.json({
             totalInterviews,
-            averageScore: avgScore,
-            skillProgress, // For Skill Progress bars
-            recentInterviews // For potential recent activity feed
+            averageScore: totalInterviews > 0 ? (interviews.reduce((a,b)=>a+(b.overallScore||0),0)/totalInterviews).toFixed(1) : 0,
+            skillProgress,
+            recentInterviews: interviews.slice(0, 3),
+            xp: { totalXP, currentLevel, xpInLevel, nextLevelXP: 1000 },
+            streak,
+            heatmap: { peakHour, sharpestHour, activeSessions: totalInterviews },
+            readiness: Math.round(readiness)
         });
 
     } catch (error) {

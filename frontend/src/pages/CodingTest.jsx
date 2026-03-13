@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Editor from "@monaco-editor/react";
-import { Play, Send, RotateCcw, CheckCircle, AlertCircle, Clock, Code2, FileText, History, List, ChevronDown, ChevronUp } from "lucide-react";
+import { Play, Send, RotateCcw, CheckCircle, AlertCircle, Clock, Code2, FileText, History, List, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import "../styles/interview.css";
+import CodeAnalysis from "../components/CodeAnalysis";
 
 export default function CodingTest() {
   // --- STATE ---
@@ -355,7 +356,7 @@ export default function CodingTest() {
             <button
               onClick={() => setActiveTab('description')}
               style={{
-                padding: '12px 20px',
+                padding: '12px 16px',
                 background: 'transparent',
                 border: 'none',
                 borderBottom: activeTab === 'description' ? '2px solid #818cf8' : '2px solid transparent',
@@ -375,7 +376,7 @@ export default function CodingTest() {
               onClick={() => setActiveTab('history')}
               disabled={isPlayground}
               style={{
-                padding: '12px 20px',
+                padding: '12px 16px',
                 background: 'transparent',
                 border: 'none',
                 borderBottom: activeTab === 'history' ? '2px solid #818cf8' : '2px solid transparent',
@@ -391,6 +392,26 @@ export default function CodingTest() {
               }}
             >
               <History size={14} /> Submissions
+            </button>
+            <button
+              onClick={() => setActiveTab('analysis')}
+              style={{
+                padding: '12px 16px',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeTab === 'analysis' ? '2px solid #a78bfa' : '2px solid transparent',
+                color: activeTab === 'analysis' ? '#a78bfa' : '#94a3b8',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'color 0.2s',
+                background: activeTab === 'analysis' ? 'rgba(167,139,250,0.05)' : 'transparent'
+              }}
+            >
+              <Zap size={14} /> AI Analysis
             </button>
           </div>
 
@@ -542,6 +563,16 @@ export default function CodingTest() {
                     No submissions recorded yet for this problem.
                   </div>
                 )}
+              </div>
+            )}
+            {activeTab === 'analysis' && (
+              <div style={{ flex: 1, height: '100%', overflow: 'auto' }}>
+                <CodeAnalysis
+                  code={code}
+                  language={language}
+                  question={selectedQuestion}
+                  isVisible={true}
+                />
               </div>
             )}
           </div>

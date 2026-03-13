@@ -1,222 +1,186 @@
-/* ================= DASHBOARD PAGE ================= */
+/* ========== DASHBOARD SPECIFIC STYLES ========== */
+
 .dashboard-container {
   min-height: 100vh;
-  padding: 120px 40px 60px;
-  /* Reduced side padding */
+  padding: 120px 0 60px;
+  background: transparent;
 }
 
 .dashboard-wrapper {
-  max-width: 1600px;
-  /* Wider container pushes things further out */
-  margin: 0 auto;
-  width: 100%;
+  animation: fadeIn 0.8s ease-out;
 }
 
-/* ================= HEADER ================= */
-.dashboard-container h1 {
-  color: var(--text-light);
-  margin-bottom: 40px;
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -1px;
+/* Gauge Circle Animation */
+@keyframes dash {
+  from { stroke-dashoffset: 440; }
+  to { stroke-dashoffset: var(--dashoffset); }
 }
 
-/* ================= CARD GRID ================= */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 32px;
-  margin-bottom: 48px;
+.score-circle-svg {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
 }
 
-/* ================= DASHBOARD CARD ================= */
-.dashboard-card {
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: var(--glass-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.score-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 12;
+}
+
+.score-circle-progress {
+  fill: none;
+  stroke: url(#scoreGradient);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  animation: dash 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+
+/* XP Bar Gradient Animation */
+.xp-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #a78bfa, #c084fc);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite, grow 1s ease-out forwards;
+  border-radius: 10px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+@keyframes grow {
+  from { width: 0; }
+}
+
+/* Heatmap & Streak Hover Effects */
+.streak-bar {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.streak-bar.active {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.widget-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.widget-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.dashboard-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 32px;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-8px);
+  border-color: var(--primary);
+  background: rgba(139, 92, 246, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
-.dashboard-card h3 {
-  color: var(--text-light);
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 12px;
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background: var(--primary);
+  transition: height 0.4s ease;
 }
 
-.dashboard-card p {
-  color: var(--text-muted);
-  font-size: 15px;
-  line-height: 1.6;
-  flex-grow: 1;
-  /* Push button to bottom */
-  margin-bottom: 24px;
+.dashboard-card:hover::before {
+  height: 100%;
 }
 
-/* Button inside card */
-.dashboard-card button {
-  padding: 12px;
-  width: 100%;
-  border-radius: 12px;
-  border: none;
-  background: rgba(255, 255, 255, 0.05);
-  /* Subtle default bg */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-light);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Loader */
+.neural-sync {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 100px 0;
 }
 
-.dashboard-card button:hover {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border-color: transparent;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+.spin-orbit {
+  width: 60px;
+  height: 60px;
+  border: 3px solid transparent;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-/* ================= LOWER SECTION ================= */
-.lower-section {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 48px;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-@media (max-width: 1024px) {
-  .lower-section {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ================= PROGRESS BOX ================= */
-.progress-box {
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: var(--glass-blur);
-}
-
-.progress-box h3 {
-  color: var(--text-light);
-  margin-bottom: 24px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-/* ================= PROGRESS BAR ================= */
+/* Domain Proficiency / ProgressBar */
 .progress-item {
-  margin-bottom: 20px;
-}
-
-.progress-item:last-child {
-  margin-bottom: 0;
+  margin-bottom: 24px;
 }
 
 .progress-item-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.progress-item span {
-  color: var(--text-muted);
+.progress-label {
   font-size: 14px;
-  font-weight: 500;
-}
-
-.progress-bar {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.progress-bar div {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  border-radius: 20px;
-  position: relative;
-}
-
-/* Add a glow to the progress bar */
-.progress-bar div::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transform: translateX(-100%);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* ================= SCORE BOX ================= */
-.score-box {
-  padding: 32px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: var(--glass-blur);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.score-box h3 {
-  color: var(--text-light);
-  margin-bottom: 24px;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.score-circle {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  border: 12px solid rgba(255, 255, 255, 0.1);
-  border-top-color: var(--accent);
-  /* Accent color for the active part */
-  border-right-color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-light);
-  font-size: 36px;
   font-weight: 700;
-  margin: 0 auto 16px;
-  transform: rotate(-45deg);
-  /* To angle the active part */
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.2);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 75%;
 }
 
-.score-circle-inner {
-  transform: rotate(45deg);
-  /* Counter-rotate text */
+.progress-percent {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 0.5px;
 }
 
-.score-box p {
-  color: var(--text-muted);
-  font-size: 15px;
-  font-weight: 500;
+.progress-bar-container {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #a78bfa);
+  border-radius: 10px;
+  animation: grow 1s ease-out forwards;
 }

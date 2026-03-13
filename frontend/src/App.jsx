@@ -22,6 +22,7 @@ import McqPractice from "./pages/McqPractice";
 import CodingTest from "./pages/CodingTest";
 import LandingPage from "./pages/LandingPage";
 import ResumeAdvisor from "./pages/ResumeAdvisor";
+import RoadmapGenerator from "./pages/RoadmapGenerator";
 
 export default function App() {
   return (
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/coding-test" element={<CodingTest />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/resume-advisor" element={<ResumeAdvisor />} />
+            <Route path="/roadmap" element={<RoadmapGenerator />} />
           </Route>
 
           {/* Admin Routes (No Navbar from MainLayout) */}

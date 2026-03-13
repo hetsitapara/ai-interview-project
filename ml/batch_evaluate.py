@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from textblob import TextBlob
 
 # Initialize Sentence Transformer model
-model_name = 'all-MiniLM-L6-v2'
+model_name = 'paraphrase-MiniLM-L3-v2'
 model = SentenceTransformer(model_name)
 
 def check_grammar(text):

@@ -30,6 +30,8 @@ app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 app.use('/api/experiences', require('./routes/experienceRoutes'));
 app.use('/api/resume', require('./routes/resumeRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
+app.use('/api/stats', require('./routes/statsRoutes'));
+app.use('/api/roadmap', require('./routes/roadmapRoutes'));
 
 // Error Handler (Basic)
 app.use((err, req, res, next) => {

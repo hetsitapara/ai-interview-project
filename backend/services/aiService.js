@@ -212,10 +212,35 @@ Answer:`;
   }
 }
 
+// ─────────────────────────────────────────────
+// 6. CAREER TIP GENERATOR
+// ─────────────────────────────────────────────
+/**
+ * Generates a personalized career tip based on interview history.
+ * @param {string} historySummary - Summary of categories and average scores
+ */
+async function generateCareerTip(historySummary) {
+  const prompt = `You are a career mentor. Based on this candidate's interview history summary:
+"${historySummary}"
+
+Provide a short, powerful, and practical career tip (max 25 words).
+The tip should be encouraging and focus on long-term growth or a specific interview technique.
+
+Tip:`;
+
+  try {
+    return await askLlama(prompt, 100);
+  } catch (e) {
+    console.error("❌ Career tip error:", e.message);
+    return "Candidates who review their reports for 10+ minutes perform 30% better in real technical interviews.";
+  }
+}
+
 module.exports = {
   analyzeResume,
   generateCoaching,
   generateHint,
   generateStudyPlan,
-  generateModelAnswer
+  generateModelAnswer,
+  generateCareerTip
 };

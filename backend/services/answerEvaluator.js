@@ -4,17 +4,18 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
 const ollama = new Ollama({ host: OLLAMA_HOST });
 
 // Keep the prompt short to reduce LLM processing time
-const BASE_PROMPT = `You are a senior technical interviewer. Evaluate the candidate's answer with extreme precision.
+const BASE_PROMPT = `You are a strict but fair technical interviewer. Evaluate the candidate's answer based on your own knowledge.
 
 Rules:
-1. Provide a "score" from 0 to 10 based on technical accuracy and depth.
-2. Provide a "refined_answer" which is the ideal professional version.
-3. Provide a "rationale" explaining why the score was given.
-4. List "keywords_found" that are technically relevant.
-5. "type" should be: correct (8-10), partial (4-7), or incorrect (0-3).
+1. Provide a "score" from 0.0 to 10.0 based purely on technical accuracy. If the answer is gibberish, irrelevant, or totally incorrect, you MUST give a score of 0.
+2. Provide an "improved_answer" containing the perfect, professional version of how the question should have been answered.
+3. Provide short "advice" explaining how to improve.
+4. Provide a "rationale" explaining why the score was given.
+5. Provide an "accuracy" percentage (0 to 100) on how technically correct they are.
+6. Provide a "keywords_score" percentage (0 to 100) based on their use of relevant technical terms.
 
 Return ONLY valid JSON (no extra text):
-{"score": 8, "type": "correct", "refined_answer": "...", "rationale": "...", "keywords_found": ["...", "..."]}`;
+{"score": 8.0, "improved_answer": "...", "advice": "...", "rationale": "...", "accuracy": 85, "keywords_score": 80}`;
 
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
 
@@ -35,8 +36,7 @@ async function evaluateAnswer(question, idealAnswer, userAnswer) {
   const prompt = `${BASE_PROMPT}
 
 Q: ${question}
-Ideal: ${idealAnswer}
-User: ${userAnswer || "No answer"}
+User Answer: ${userAnswer || "No answer"}
 
 JSON:`;
 
@@ -67,16 +67,18 @@ JSON:`;
 
     try {
       const parsed = JSON.parse(text);
-      // Normalize to lowercase to match Mongoose enum ['correct','partial','incorrect','unknown','error','']
-      const type = (parsed.type || "partial").toLowerCase();
-      console.log(`✅ Ollama [${question.substring(0,30)}...] → ${type}`);
+      console.log(`✅ Ollama [${question.substring(0,30)}...] → score: ${parsed.score}`);
       return {
-        type,
-        refined_answer: parsed.refined_answer || userAnswer
+        score: parsed.score !== undefined ? parsed.score : null,
+        advice: parsed.advice || "",
+        rationale: parsed.rationale || "",
+        accuracy: parsed.accuracy || 0,
+        keywords_score: parsed.keywords_score || 0,
+        improved_answer: parsed.improved_answer || ""
       };
     } catch {
-      // If can't parse, return raw text as refined answer
-      return { type: "partial", refined_answer: text };
+      // If can't parse, return raw text as advice
+      return { advice: text };
     }
 
   } catch (error) {
@@ -92,79 +94,42 @@ JSON:`;
   }
 }
 
-/**
- * Evaluates multiple answers in smaller sub-batches for performance and stability.
- */
 async function evaluateAnswersBatch(answers) {
   if (!answers || answers.length === 0) return [];
+  console.log(`[Ollama] Processing ${answers.length} items sequentially...`);
 
-  const BATCH_SIZE = 5; // Smaller sub-batches to prevent Ollama timeouts
   const finalResults = [];
 
-  for (let i = 0; i < answers.length; i += BATCH_SIZE) {
-    const chunk = answers.slice(i, i + BATCH_SIZE);
-    console.log(`[Ollama Batch] Processing chunk ${i / BATCH_SIZE + 1} (${chunk.length} items)...`);
-
-    const batchPrompt = `${BASE_PROMPT}
-
-Evaluate the following answers. Return a JSON array of objects.
-
-Answers to Evaluate:
-${chunk.map((a, j) => `[ID: ${j}]
-Question: ${a.questionText}
-Ideal: ${a.idealAnswer}
-User: ${a.userAnswer || "No answer"}`).join("\n\n")}
-
-JSON Format: [{"id": 0, "type": "...", "refined_answer": "..."}, ...]`;
-
-    try {
-      const response = await withTimeout(
-        ollama.chat({
-          model: OLLAMA_MODEL,
-          messages: [{ role: "user", content: batchPrompt }],
-          options: {
-            temperature: 0.1,
-            num_predict: chunk.length * 200, // Dynamic token limit based on chunk size
-            top_k: 10
-          }
-        }),
-        90000 // 90 second timeout for sub-batch
-      );
-
-      let text = response.message.content.trim();
-      text = text.replace(/```json|```/g, "").trim();
-      
-      const arrayMatch = text.match(/\[[\s\S]*\]/);
-      if (arrayMatch) {
-        text = arrayMatch[0];
-      }
-
-      const results = JSON.parse(text);
-      
-      // Map results from this chunk
-      chunk.forEach((a, j) => {
-        const evalResult = results.find(r => r.id === j) || {};
+  for (let i = 0; i < answers.length; i++) {
+    const a = answers[i];
+    console.log(`[Ollama] Generating AI answer for question ${i + 1}/${answers.length}`);
+    
+    // Short-circuit: if the user skipped the question, strictly give 0 and do not waste LLM time
+    if (!a.userAnswer || a.userAnswer.trim() === "") {
+        console.log(`✅ Ollama [${a.questionText.substring(0,30)}...] → SKIPPED (Score: 0)`);
         finalResults.push({
           ...a,
-          refinedAnswer: evalResult.refined_answer || a.userAnswer,
-          evaluationType: (evalResult.type || "partial").toLowerCase(),
-          aiScore: evalResult.score !== undefined ? evalResult.score : null,
-          aiRationale: evalResult.rationale || "",
-          aiKeywords: evalResult.keywords_found || []
+          aiAdvice: "You did not provide an answer. In a real interview, it's better to talk through your thought process than remain completely silent.",
+          aiScore: 0,
+          aiRationale: "The question was skipped.",
+          aiAccuracy: 0,
+          aiKeywordsScore: 0,
+          aiImprovedAnswer: ""
         });
-      });
-
-    } catch (error) {
-      console.warn(`⚠️ Ollama sub-batch failed (chunk ${i / BATCH_SIZE + 1}):`, error.message);
-      // Fallback for this chunk: return original answers
-      chunk.forEach(a => {
-        finalResults.push({
-          ...a,
-          refinedAnswer: a.userAnswer,
-          evaluationType: "error"
-        });
-      });
+        continue;
     }
+
+    const evalResult = await evaluateAnswer(a.questionText, a.idealAnswer, a.userAnswer);
+    
+    finalResults.push({
+      ...a,
+      aiAdvice: evalResult.advice || "",
+      aiScore: evalResult.score !== undefined ? evalResult.score : null,
+      aiRationale: evalResult.rationale || "",
+      aiAccuracy: evalResult.accuracy || 0,
+      aiKeywordsScore: evalResult.keywords_score || 0,
+      aiImprovedAnswer: evalResult.improved_answer || ""
+    });
   }
 
   return finalResults;

@@ -8,6 +8,7 @@
   --text-light: #f3f4f6;
   --text-muted: #9ca3af;
   --card-hover: rgba(255, 255, 255, 0.1);
+  --glass-accent: rgba(139, 92, 246, 0.1);
 }
 
 .report-page {
@@ -49,15 +50,23 @@ h2 {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes growUp {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to { transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+  100% { box-shadow: 0 0 5px rgba(139, 92, 246, 0.2); }
 }
 
 /* ========== BUTTONS ========== */

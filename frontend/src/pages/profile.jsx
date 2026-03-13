@@ -240,7 +240,7 @@ export default function Profile() {
                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Day Streak</div>
               </div>
               <div className="stat-badge" style={{ flex: 1, background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4ade80' }}>⚡ {profile.stats?.totalScore || 0}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4ade80' }}>⚡ {(profile.stats?.totalScore || 0).toFixed(2)}</div>
                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '5px' }}>Total XP</div>
               </div>
               <div className="stat-badge" style={{ flex: 1, background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>

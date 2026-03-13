@@ -11,6 +11,8 @@ export default function Reports() {
     const [loading, setLoading] = useState(true);
     const [coaching, setCoaching] = useState('');
     const [coachingLoading, setCoachingLoading] = useState(false);
+    const [stats, setStats] = useState({ averageScore: 0, totalSessions: 0, topCategory: 'N/A', recentTrend: [] });
+    const [dailyTip, setDailyTip] = useState('Loading your daily career insight...');
 
     const fetchCoaching = async (report) => {
         setCoachingLoading(true);
@@ -49,7 +51,23 @@ export default function Reports() {
                 setLoading(false);
             }
         };
+
+        const fetchStats = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const [statsRes, tipRes] = await Promise.all([
+                    axios.get(`${API}/stats/summary`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API}/stats/tip`, { headers: { Authorization: `Bearer ${token}` } })
+                ]);
+                setStats(statsRes.data);
+                setDailyTip(tipRes.data.tip);
+            } catch (err) {
+                console.error("Failed to load stats", err);
+            }
+        };
+
         fetchHistory();
+        fetchStats();
     }, []);
 
     const handleViewReport = async (id) => {
@@ -99,37 +117,109 @@ export default function Reports() {
                     {/* Reports Sidebar */}
                     <aside className="sidebar-panel">
                         <div className="widget-card">
-                            <h4>📊 Performance Trend</h4>
-                            <div style={{ height: '60px', display: 'flex', alignItems: 'flex-end', gap: '4px', marginTop: '12px' }}>
-                                {[40, 60, 45, 80, 55, 90, 85].map((h, i) => (
-                                    <div key={i} style={{ flex: 1, height: `${h}%`, background: 'var(--primary)', borderRadius: '2px', opacity: 0.5 + (h / 200) }}></div>
-                                ))}
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <FaChartLine style={{ color: 'var(--primary)' }} /> Performance Trend
+                            </h4>
+                            <div style={{ height: '80px', display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '20px', padding: '0 5px' }}>
+                                {stats.recentTrend.length > 0 ? stats.recentTrend.map((h, i) => (
+                                    <div 
+                                        key={i} 
+                                        title={`Score: ${h}/10`}
+                                        style={{ 
+                                            flex: 1, 
+                                            height: `${(h / 10) * 100}%`, 
+                                            background: 'linear-gradient(to top, var(--primary), #a78bfa)', 
+                                            borderRadius: '4px 4px 0 0',
+                                            transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                            animation: `growUp 0.8s ease-out ${i * 0.1}s both`
+                                        }}
+                                    ></div>
+                                )) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '11px', border: '1px dashed var(--glass-border)', borderRadius: '8px' }}>
+                                        No trend data yet
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="widget-card">
-                            <h4>🏆 Achievemnts</h4>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '12px' }}>
-                                {['🌟', '🔥', '🎓', '🚀'].map(icon => (
-                                    <div key={icon} style={{ padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', textAlign: 'center', fontSize: '20px', border: '1px solid var(--glass-border)' }}>
-                                        {icon}
+                            <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <FaCheckCircle style={{ color: '#4ade80' }} /> Achievements
+                            </h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
+                                {[
+                                    { icon: '🌟', label: 'Pro', active: stats.averageScore >= 8 },
+                                    { icon: '🔥', label: 'Active', active: stats.totalSessions >= 5 },
+                                    { icon: '🎓', label: 'Expert', active: stats.totalSessions >= 10 },
+                                    { icon: '🚀', label: 'Fast', active: history.length > 0 }
+                                ].map((ach, i) => (
+                                    <div 
+                                        key={i} 
+                                        style={{ 
+                                            padding: '12px 8px', 
+                                            background: ach.active ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255,255,255,0.01)', 
+                                            borderRadius: '12px', 
+                                            textAlign: 'center', 
+                                            border: `1px solid ${ach.active ? 'rgba(139, 92, 246, 0.3)' : 'var(--glass-border)'}`,
+                                            opacity: ach.active ? 1 : 0.3,
+                                            transform: ach.active ? 'scale(1)' : 'scale(0.95)',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                    >
+                                        <div style={{ fontSize: '22px', marginBottom: '4px' }}>{ach.icon}</div>
+                                        <div style={{ fontSize: '10px', fontWeight: '700', color: ach.active ? 'var(--primary)' : 'var(--text-muted)', textTransform: 'uppercase' }}>{ach.label}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="widget-card" style={{ background: 'rgba(74, 222, 128, 0.05)', border: '1px solid rgba(74, 222, 128, 0.2)' }}>
-                            <h4 style={{ color: '#4ade80' }}>💡 Career Tip</h4>
-                            <p>Candidates who review their reports for 10+ minutes perform 30% better in real technical interviews.</p>
+                        <div className="widget-card" style={{ 
+                            background: 'linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(34, 197, 94, 0.08))', 
+                            border: '1px solid rgba(74, 222, 128, 0.2)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'absolute', top: '-15px', right: '-15px', fontSize: '60px', color: 'rgba(74, 222, 128, 0.05)', transform: 'rotate(15deg)' }}>
+                                <FaLightbulb />
+                            </div>
+                            <h4 style={{ color: '#4ade80', display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}>
+                                <FaLightbulb /> Career Insight
+                            </h4>
+                            <p style={{ position: 'relative', fontSize: '14px', lineHeight: '1.6', color: '#e2e8f0', fontStyle: 'italic', marginTop: '12px' }}>
+                                "{dailyTip}"
+                            </p>
                         </div>
                     </aside>
 
                     {/* Reports Main area */}
                     <main className="content-main">
-                        <header style={{ marginBottom: '8px' }}>
-                            <h2 style={{ fontSize: '32px', fontWeight: '700', fontFamily: 'var(--font-heading)' }}><FaChartLine style={{ marginRight: '15px' }} />Session History</h2>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '18px' }}>Deep dive into your AI-analyzed interview performance logs.</p>
+                        <header style={{ marginBottom: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '8px' }}>
+                                <div style={{ padding: '12px', borderRadius: '16px', background: 'rgba(139, 92, 246, 0.1)', color: 'var(--primary)' }}>
+                                    <FaChartLine size={24} />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '32px', fontWeight: '800', fontFamily: 'var(--font-heading)', margin: 0 }}>Session History</h2>
+                                    <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Deep dive into your AI-analyzed interview performance logs.</p>
+                                </div>
+                            </div>
                         </header>
+
+                        {/* Quick Stats Summary */}
+                        <div className="stats-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
+                            <div className="stat-card" style={{ background: 'rgba(139, 92, 246, 0.03)', border: '1px solid var(--glass-border)', padding: '24px', borderRadius: '24px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Average Mastery</div>
+                                <div style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>{stats.averageScore}<span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>/10</span></div>
+                            </div>
+                            <div className="stat-card" style={{ background: 'rgba(74, 222, 128, 0.03)', border: '1px solid var(--glass-border)', padding: '24px', borderRadius: '24px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '11px', fontWeight: '700', color: '#4ade80', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Total Sessions</div>
+                                <div style={{ fontSize: '32px', fontWeight: '800', color: '#fff' }}>{stats.totalSessions}</div>
+                            </div>
+                            <div className="stat-card" style={{ background: 'rgba(244, 63, 94, 0.03)', border: '1px solid var(--glass-border)', padding: '24px', borderRadius: '24px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '11px', fontWeight: '700', color: '#f43f5e', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Top Domain</div>
+                                <div style={{ fontSize: '20px', fontWeight: '800', color: '#fff', marginTop: '10px' }}>{stats.topCategory}</div>
+                            </div>
+                        </div>
 
                         {history.length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '100px 40px', background: 'var(--glass-bg)', borderRadius: '32px', border: '1px solid var(--glass-border)', color: '#9ca3af' }}>
@@ -163,7 +253,7 @@ export default function Reports() {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const navigate = window.confirm("Retake this exact session settings?");
-                                                        if (navigate) window.location.href = `/interview?category=${item.category}&difficulty=${item.difficulty}`;
+                                                        if (navigate) window.location.href = `/interview?retryId=${item._id}`;
                                                     }}
                                                     style={{
                                                         background: 'rgba(139, 92, 246, 0.1)',
@@ -222,7 +312,7 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '15px' }}>
                     <div className="badge positive" style={{ fontSize: '1.2rem', padding: '10px 20px' }}>
-                        Final Score: {report.overallScore.toFixed(1)}/10
+                        Final Score: {report.overallScore ? report.overallScore.toFixed(1) : '0.0'}/10
                     </div>
                     <button
                         className="btn primary"
@@ -314,7 +404,7 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
             <div className="stats-row">
                 <div className="stat-card">
                     <div className="stat-title">Detailed Score</div>
-                    <div className="stat-value">{report.overallScore.toFixed(1)}</div>
+                    <div className="stat-value">{report.overallScore ? report.overallScore.toFixed(1) : '0.0'}</div>
                     <div style={{ color: '#9ca3af', fontSize: '0.8rem' }}>Out of 10.0</div>
                 </div>
                 <div className="stat-card">
@@ -375,19 +465,67 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                             {q.userAnswer ? `"${q.userAnswer}"` : <span style={{ fontStyle: 'italic' }}>You skipped this</span>}
                         </div>
 
-                        {q.refinedAnswer && q.refinedAnswer !== q.userAnswer && q.refinedAnswer !== q.idealAnswer && (
-                            <div className="qa-answer" style={{ marginBottom: '20px', padding: '15px', background: 'rgba(139, 92, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                                <span style={{ color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
-                                    ✨ PRO VERSION / IMPROVED ANSWER
-                                </span>
-                                <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.9rem', lineHeight: '1.6' }}>"{q.refinedAnswer}"</p>
+                        {/* Toggle buttons row */}
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
+                            {(q.aiImprovedAnswer || q.aiAdvice) && (
+                                <button
+                                    onClick={() => toggleField(idx, 'ai')}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '7px',
+                                        padding: '8px 16px', borderRadius: '9px', cursor: 'pointer',
+                                        background: expandedResults[`${idx}_ai`] ? 'rgba(139, 92, 246, 0.25)' : 'rgba(139, 92, 246, 0.08)',
+                                        border: '1px solid rgba(139, 92, 246, 0.4)',
+                                        color: '#a78bfa', fontWeight: '700', fontSize: '11px',
+                                        transition: 'all 0.2s ease', textTransform: 'uppercase'
+                                    }}
+                                >
+                                    🤖 AI Generated Answer {expandedResults[`${idx}_ai`] ? '▲' : '▼'}
+                                </button>
+                            )}
+                            {q.idealAnswer && (
+                                <button
+                                    onClick={() => toggleField(idx, 'db')}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: '7px',
+                                        padding: '8px 16px', borderRadius: '9px', cursor: 'pointer',
+                                        background: expandedResults[`${idx}_db`] ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.06)',
+                                        border: '1px solid rgba(16, 185, 129, 0.35)',
+                                        color: '#34d399', fontWeight: '700', fontSize: '11px',
+                                        transition: 'all 0.2s ease', textTransform: 'uppercase'
+                                    }}
+                                >
+                                    📚 Database Answer {expandedResults[`${idx}_db`] ? '▲' : '▼'}
+                                </button>
+                            )}
+                        </div>
+
+                        {/* AI Generated Answer Panel */}
+                        {expandedResults[`${idx}_ai`] && (q.aiImprovedAnswer || q.aiAdvice) && (
+                            <div style={{ marginBottom: '14px', borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(139, 92, 246, 0.3)', animation: 'fadeIn 0.25s ease' }}>
+                                {q.aiImprovedAnswer && (
+                                    <div style={{ padding: '18px', background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1))' }}>
+                                        <span style={{ color: '#a78bfa', fontWeight: '700', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                            🤖 AI GENERATED ANSWER
+                                        </span>
+                                        <p style={{ margin: 0, color: '#e2e8f0', fontSize: '13px', lineHeight: '1.7' }}>{q.aiImprovedAnswer}</p>
+                                    </div>
+                                )}
+                                {q.aiAdvice && (
+                                    <div style={{ padding: '16px', background: 'rgba(99, 102, 241, 0.05)', borderTop: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                                        <span style={{ color: '#818cf8', fontWeight: '700', fontSize: '11px', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>💡 ADVICE / ENHANCEMENTS</span>
+                                        <p style={{ margin: 0, color: '#a5b4fc', fontSize: '12px', lineHeight: '1.6' }}>{q.aiAdvice}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {q.idealAnswer && (
-                            <div className="qa-answer" style={{ padding: '20px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '16px', border: '1px solid rgba(99, 102, 241, 0.1)', color: '#a5b4fc', marginBottom: '20px' }}>
-                                <span style={{ color: '#818cf8', fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>SUGGESTION / IDEAL ANSWER</span>
-                                {q.idealAnswer}
+                        {/* Database Answer Panel */}
+                        {expandedResults[`${idx}_db`] && q.idealAnswer && (
+                            <div style={{ marginBottom: '14px', padding: '18px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.25)', animation: 'fadeIn 0.25s ease' }}>
+                                <span style={{ color: '#34d399', fontWeight: '700', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', textTransform: 'uppercase' }}>
+                                    📚 DATABASE / REFERENCE ANSWER
+                                </span>
+                                <p style={{ margin: 0, color: '#a7f3d0', fontSize: '13px', lineHeight: '1.75' }}>{q.idealAnswer}</p>
                             </div>
                         )}
 
@@ -395,16 +533,14 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                             <span className="badge score" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(139, 92, 246, 0.1)', fontSize: '0.75rem', color: '#8b5cf6', fontWeight: '700' }}>
                                 Accuracy: {Math.round((q.accuracy_score || 0) * 100)}%
                             </span>
-                            <span className="badge similarity" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.1)', fontSize: '0.75rem', color: '#38bdf8', fontWeight: '700' }}>
-                                Confidence: {Math.round((q.confidence_score || 0) * 100)}%
-                            </span>
+
                             {q.keyword_score !== undefined && (
                                 <span className="badge tone" style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(236, 72, 153, 0.1)', fontSize: '0.75rem', color: '#ec4899', fontWeight: '700' }}>
                                     Keywords: {Math.round((q.keyword_score || 0) * 100)}%
                                 </span>
                             )}
-                            <span className={`badge eval ${q.evaluation === 'Excellent' ? 'positive' : q.evaluation === 'Good' ? 'neutral' : 'negative'}`} style={{ padding: '4px 10px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.05)', fontSize: '0.75rem', color: '#fff', fontWeight: '700' }}>
-                                {q.evaluation || 'Partial'}
+                            <span className={`badge eval`} style={{ padding: '4px 10px', borderRadius: '8px', background: q.final_score >= 7 ? 'rgba(74, 222, 128, 0.1)' : 'rgba(255, 165, 2, 0.1)', fontSize: '0.8rem', color: q.final_score >= 7 ? '#4ade80' : '#ffa502', fontWeight: '800' }}>
+                                {q.final_score}/10
                             </span>
                         </div>
 
@@ -419,11 +555,11 @@ function ReportDetail({ report, coaching, coachingLoading, fetchCoaching }) {
                             </div>
                         )}
 
-                        {q.grammar && q.grammar.issues && q.grammar.issues.length > 0 && (
+                        {q.grammar_issues && q.grammar_issues.length > 0 && (
                             <div className="feedback-section" style={{ marginTop: '15px' }}>
                                 <div className="feedback-title" style={{ fontSize: '0.8rem', color: '#f87171' }}><FaExclamationTriangle /> Grammar Feedback</div>
                                 <ul style={{ margin: 0, paddingLeft: '20px', color: '#ffbdc3', fontSize: '0.85rem' }}>
-                                    {q.grammar.issues.map((issue, i) => <li key={i}>{issue}</li>)}
+                                    {q.grammar_issues.map((issue, i) => <li key={i}>{issue}</li>)}
                                 </ul>
                             </div>
                         )}

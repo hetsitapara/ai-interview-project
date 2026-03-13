@@ -211,13 +211,12 @@ router.post('/submit', protect, async (req, res) => {
                 const ml = mlResults[index] || {};
                 const ai = ans || {};
                 
-                // Final Score logic: Weigh AI score (0-10) and ML accuracy (0-1)
-                // If AI score exists, use it as 70% weight.
+                // Final Score logic: purely use AI score as requested
                 const mlScoreConverted = (ml.accuracy_score || 0) * 10;
                 let finalQuestionScore = mlScoreConverted;
                 
                 if (ai.aiScore !== null && ai.aiScore !== undefined) {
-                    finalQuestionScore = (ai.aiScore * 0.7) + (mlScoreConverted * 0.3);
+                    finalQuestionScore = ai.aiScore;
                 }
 
                 return {
@@ -225,7 +224,10 @@ router.post('/submit', protect, async (req, res) => {
                     ...ml,
                     final_score: Math.round(finalQuestionScore * 10) / 10, // Round to 1 decimal
                     explanation: ai.aiRationale || ml.explanation || "Good attempt.",
-                    ai_keywords: ai.aiKeywords || [],
+                    accuracy_score: ai.aiAccuracy !== undefined ? (ai.aiAccuracy / 100) : ml.accuracy_score,
+                    keyword_score: ai.aiKeywordsScore !== undefined ? (ai.aiKeywordsScore / 100) : ml.keyword_score,
+                    aiAdvice: ai.aiAdvice || "",
+                    aiImprovedAnswer: ai.aiImprovedAnswer || "",
                     aiOverview: "Evaluation completed."
                 };
             }),
