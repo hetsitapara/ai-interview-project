@@ -1,0 +1,21 @@
+id,category,difficulty,topic,question,answer,source_type
+1,Operating System,Easy,Basics,What is an Operating System and what are its main functions?,"An Operating System (OS) is system software that acts as an interface between users and computer hardware. Its main functions include process management, memory management, file system management, device management, and security.",Technical
+2,Operating System,Easy,Process,What is a process in an operating system?,"A process is a program in execution. It includes the program code, current activity, program counter, registers, and allocated resources.",Technical
+3,Operating System,Easy,Thread,What is a thread?,A thread is the smallest unit of execution within a process. Threads share the same memory space but execute independently.,Technical
+4,Operating System,Easy,Process vs Thread,Differentiate between process and thread.,"A process has its own memory space, while threads share memory. Threads are lightweight and faster to create than processes.",Technical
+5,Operating System,Easy,Scheduling,What is CPU scheduling?,CPU scheduling is the process of selecting which process gets the CPU for execution when multiple processes are ready.,Technical
+6,Operating System,Medium,Scheduling Algorithms,Explain different CPU scheduling algorithms.,"Common CPU scheduling algorithms include FCFS, SJF, Priority Scheduling, and Round Robin. Each algorithm differs in efficiency and fairness.",Technical
+7,Operating System,Medium,Deadlock,What is deadlock in an operating system?,Deadlock is a situation where a set of processes are blocked because each process is holding a resource and waiting for another.,Technical
+8,Operating System,Medium,Deadlock,What are the necessary conditions for deadlock?,"The four conditions are mutual exclusion, hold and wait, no preemption, and circular wait.",Technical
+9,Operating System,Medium,Memory Management,What is memory management?,Memory management handles allocation and deallocation of memory space to processes to ensure efficient utilization.,Technical
+10,Operating System,Medium,Paging,Explain paging.,Paging is a memory management technique where memory is divided into fixed-size pages to reduce fragmentation.,Technical
+11,Operating System,Medium,Segmentation,What is segmentation?,"Segmentation divides memory into variable-sized segments based on logical divisions like code, stack, and data.",Technical
+12,Operating System,Medium,Virtual Memory,What is virtual memory?,"Virtual memory allows the system to use disk storage as an extension of RAM, enabling execution of large programs.",Technical
+13,Operating System,Medium,Synchronization,What is process synchronization?,Process synchronization ensures orderly execution of processes accessing shared resources to prevent data inconsistency.,Technical
+14,Operating System,Medium,Semaphore,What is a semaphore?,A semaphore is a synchronization tool used to control access to shared resources in concurrent systems.,Technical
+15,Operating System,Medium,Mutex,What is a mutex?,A mutex is a locking mechanism that ensures mutual exclusion by allowing only one thread to access a resource at a time.,Technical
+16,Operating System,Medium,Context Switching,Explain context switching.,Context switching is the process of saving and restoring the state of a CPU so that execution can resume from the same point later.,Technical
+17,Operating System,Medium,Kernel,What is a kernel?,The kernel is the core component of an operating system responsible for managing system resources and hardware communication.,Technical
+18,Operating System,Medium,Kernel Types,Explain types of kernels.,"Types of kernels include monolithic, microkernel, hybrid, and exokernel, each with different design philosophies.",Technical
+19,Operating System,Medium,File System,What is a file system?,"A file system organizes and stores files on storage devices, managing access permissions and data retrieval.",Technical
+20,Operating System,Medium,Thrashing,What is thrashing?,"Thrashing occurs when the system spends more time paging than executing processes, severely degrading performance.",Technical

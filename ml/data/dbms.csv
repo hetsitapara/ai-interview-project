@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+DBMS,Easy,DBMS Basics,What is DBMS?,"A DBMS is software that manages databases by storing, retrieving, and organizing data efficiently.",technical
+DBMS,Easy,DBMS Basics,What is a database?,A database is an organized collection of related data stored electronically.,technical
+DBMS,Easy,DBMS Basics,Advantages of DBMS,"Reduced redundancy, improved consistency, data security, and concurrent access.",technical
+DBMS,Easy,Data Models,What is a data model?,"A data model defines how data is structured, stored, and accessed.",technical
+DBMS,Easy,Data Models,Types of data models,"Hierarchical, Network, Relational, Object-oriented.",technical
+DBMS,Easy,Tables,What is a table?,A table stores data in rows and columns.,technical
+DBMS,Easy,Keys,What is a primary key?,A primary key uniquely identifies each record in a table.,technical
+DBMS,Easy,Keys,What is a foreign key?,A foreign key creates a relationship between two tables.,technical
+DBMS,Easy,SQL Basics,What is SQL?,SQL is a language used to query and manage relational databases.,technical
+DBMS,Easy,SQL Basics,What is a query?,A query is a request to retrieve or manipulate data.,technical
+DBMS,Easy,Views,What is a view?,A view is a virtual table created from a SQL query.,technical
+DBMS,Easy,Indexes,What is an index?,An index improves data retrieval speed.,technical
+DBMS,Easy,Transactions,What is a transaction?,A transaction is a logical unit of database operations.,technical
+DBMS,Easy,Transactions,What are ACID properties?,"Atomicity, Consistency, Isolation, Durability.",technical
+DBMS,Easy,Data Integrity,What is data integrity?,Ensures accuracy and consistency of data.,technical
+DBMS,Medium,Keys,What are candidate keys?,Candidate keys are minimal sets of attributes that uniquely identify records.,technical
+DBMS,Medium,Keys,What is a composite key?,A key formed using multiple columns.,technical
+DBMS,Medium,SQL Joins,What are joins?,Joins combine rows from multiple tables based on conditions.,technical
+DBMS,Medium,SQL Joins,Types of joins,"Inner, Left, Right, Full joins.",technical
+DBMS,Medium,SQL Clauses,WHERE vs HAVING,WHERE filters rows; HAVING filters groups.,technical
+DBMS,Medium,SQL Clauses,What is GROUP BY?,Groups rows for aggregation.,technical
+DBMS,Medium,SQL Functions,What are aggregate functions?,"COUNT, SUM, AVG, MIN, MAX.",technical
+DBMS,Medium,Subqueries,What is a subquery?,A query nested inside another query.,technical
+DBMS,Medium,Normalization,What is normalization?,Process of reducing data redundancy.,technical
+DBMS,Medium,Normalization,Explain 1NF,Eliminates repeating groups.,technical
+DBMS,Medium,Normalization,Explain 2NF,Removes partial dependencies.,technical
+DBMS,Medium,Normalization,Explain 3NF,Removes transitive dependencies.,technical
+DBMS,Medium,Normalization,What is BCNF?,A stronger form of 3NF.,technical
+DBMS,Medium,Stored Programs,What is a stored procedure?,Precompiled SQL code stored in database.,technical
+DBMS,Medium,Stored Programs,What is a trigger?,Automatically executes on database events.,technical
+DBMS,Medium,Constraints,What are constraints?,Rules enforced on data values.,technical
+DBMS,Medium,Constraints,Types of constraints,"NOT NULL, UNIQUE, CHECK, DEFAULT.",technical
+DBMS,Medium,Indexes,Clustered vs non-clustered index,Clustered defines physical order; non-clustered uses pointers.,technical
+DBMS,Medium,Transactions,What is commit and rollback?,Commit saves changes; rollback reverts them.,technical
+DBMS,Medium,Concurrency,What is concurrency control?,Manages simultaneous access to data.,technical
+DBMS,Hard,Isolation Levels,Explain isolation levels,"Read Uncommitted, Read Committed, Repeatable Read, Serializable.",technical
+DBMS,Hard,Concurrency,What is a deadlock?,Transactions waiting indefinitely for resources.,technical
+DBMS,Hard,Concurrency,Deadlock prevention techniques,"Avoiding circular wait, preemption, ordering.",technical
+DBMS,Hard,Concurrency,What is phantom read?,New rows appear during repeated query execution.,technical
+DBMS,Hard,MVCC,What is MVCC?,Maintains multiple versions of data for concurrency.,technical
+DBMS,Hard,Query Processing,What is query optimization?,Choosing the most efficient execution plan.,technical
+DBMS,Hard,Indexes,B-tree vs B+ tree,B+ tree stores data only at leaves.,technical
+DBMS,Hard,Distributed DB,What is replication?,Copying data across multiple servers.,technical
+DBMS,Hard,Distributed DB,What is sharding?,Horizontal partitioning of data.,technical
+DBMS,Hard,Distributed DB,Explain CAP theorem,"Consistency, Availability, Partition tolerance.",technical
+DBMS,Hard,Distributed DB,What is two-phase commit?,Ensures atomic distributed transactions.,technical
+DBMS,Hard,Data Warehousing,What is data warehousing?,Stores historical data for analytics.,technical
+DBMS,Hard,OLTP vs OLAP,Difference between OLTP and OLAP,OLTP handles transactions; OLAP supports analysis.,technical
+DBMS,Hard,Security,How is database security ensured?,"Authentication, authorization, encryption.",technical
+DBMS,Hard,Backup & Recovery,What is backup and recovery?,Protects data against loss or failure.,technical

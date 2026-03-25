@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+DSA,Easy,Array Basics,What is an array?,A linear data structure that stores elements in contiguous memory locations.,technical
+DSA,Easy,Array Indexing,What is array indexing?,Accessing elements using index positions starting from 0.,technical
+DSA,Easy,Array Advantages,Advantages of arrays,Fast random access and simple memory structure.,technical
+DSA,Easy,String Basics,What is a string?,A sequence of characters stored as a single data type.,technical
+DSA,Easy,String Immutability,Why are strings immutable?,Immutability improves security and performance.,technical
+DSA,Easy,Linear Search,What is linear search?,Sequentially checking each element until found.,technical
+DSA,Easy,Linear Search Complexity,Time complexity of linear search,O(n).,technical
+DSA,Easy,Sorting Concept,What is sorting?,Arranging elements in ascending or descending order.,technical
+DSA,Easy,Basic Sorting Algorithms,Name basic sorting algorithms,"Bubble sort, selection sort, insertion sort.",technical
+DSA,Easy,Stack Definition,What is a stack?,LIFO data structure used for temporary storage.,technical
+DSA,Easy,Queue Definition,What is a queue?,FIFO data structure for ordered processing.,technical
+DSA,Easy,Time Complexity Basics,What is time complexity?,Measure of algorithm execution time.,technical
+DSA,Easy,Space Complexity Basics,What is space complexity?,Measure of memory usage by an algorithm.,technical
+DSA,Easy,Linked List Basics,What is a linked list?,A collection of nodes connected using pointers.,technical
+DSA,Easy,Linked List Types,Types of linked lists,"Singly, doubly, and circular linked lists.",technical
+DSA,Medium,Kadane Algorithm,What is Kadane’s algorithm?,Algorithm to find maximum subarray sum.,technical
+DSA,Medium,Binary Search Algorithm,What is binary search?,Search algorithm for sorted arrays.,technical
+DSA,Medium,Binary Search Complexity,Time complexity of binary search,O(log n).,technical
+DSA,Medium,Floyd Cycle Detection,How to detect loop in linked list?,Using Floyd’s cycle detection algorithm.,technical
+DSA,Medium,Stack Applications,Applications of stack,"Expression evaluation, recursion, undo operations.",technical
+DSA,Medium,Circular Queue,What is a circular queue?,Queue where last position connects to first.,technical
+DSA,Medium,Recursion Concept,What is recursion?,Function calling itself to solve subproblems.,technical
+DSA,Medium,Recursion Base Case,Why is base case important in recursion?,Prevents infinite recursion.,technical
+DSA,Medium,Merge Sort Algorithm,What is merge sort?,Divide-and-conquer sorting algorithm.,technical
+DSA,Medium,Quick Sort Algorithm,What is quick sort?,Partition-based sorting algorithm.,technical
+DSA,Medium,Hash Function,What is hashing?,Mapping data to fixed-size values.,technical
+DSA,Medium,Hash Collision Handling,How are hash collisions handled?,Using chaining or open addressing.,technical
+DSA,Medium,Binary Tree Definition,What is a binary tree?,Tree where each node has at most two children.,technical
+DSA,Medium,Tree Traversals,Types of tree traversals,"Inorder, preorder, postorder.",technical
+DSA,Medium,Binary Search Tree,What is a BST?,Binary tree with ordered node values.,technical
+DSA,Medium,Breadth First Search,What is BFS?,Graph traversal using queue.,technical
+DSA,Medium,Depth First Search,What is DFS?,Graph traversal using stack or recursion.,technical
+DSA,Medium,Greedy Strategy,What is greedy algorithm?,Chooses locally optimal solution.,technical
+DSA,Medium,Dynamic Programming Concept,What is dynamic programming?,Solving overlapping subproblems efficiently.,technical
+DSA,Medium,DP Approaches,Top-down vs bottom-up DP,Memoization vs tabulation.,technical
+DSA,Hard,Longest Common Subsequence,What is LCS problem?,Finding longest subsequence common to two strings.,technical
+DSA,Hard,0/1 Knapsack Problem,Explain 0/1 knapsack,DP-based optimization problem.,technical
+DSA,Hard,Dijkstra Algorithm,What is Dijkstra’s algorithm?,Shortest path algorithm for weighted graphs.,technical
+DSA,Hard,Bellman-Ford Algorithm,What is Bellman-Ford algorithm?,Shortest path algorithm handling negative weights.,technical
+DSA,Hard,Cycle Detection in Graphs,How to detect cycle in graph?,Using DFS or Union-Find.,technical
+DSA,Hard,Topological Sort,What is topological sorting?,Linear ordering of DAG vertices.,technical
+DSA,Hard,AVL Trees,What is an AVL tree?,Self-balancing binary search tree.,technical
+DSA,Hard,Red-Black Trees,What is a red-black tree?,Balanced BST with color properties.,technical
+DSA,Hard,Trie Data Structure,What is a trie?,Prefix tree for string storage.,technical
+DSA,Hard,Heap Data Structure,What is a heap?,Complete binary tree with heap property.,technical
+DSA,Hard,Heap Sort Algorithm,What is heap sort?,Sorting algorithm using heap.,technical
+DSA,Hard,Backtracking Technique,What is backtracking?,Exploring all solutions recursively.,technical
+DSA,Hard,N-Queens Problem,Explain N-Queens problem,Backtracking problem to place queens safely.,technical
+DSA,Hard,KMP Algorithm,What is KMP algorithm?,Efficient string pattern matching algorithm.,technical
+DSA,Hard,Master Theorem,What is Master Theorem?,Solves recurrence relations in divide-and-conquer.,technical

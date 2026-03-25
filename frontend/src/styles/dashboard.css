@@ -1,0 +1,214 @@
+/* ========== DASHBOARD SPECIFIC STYLES ========== */
+
+.dashboard-container {
+  min-height: 100vh;
+  padding: 120px 0 60px;
+  background: transparent;
+}
+
+.dashboard-wrapper {
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Gauge Circle Animation */
+@keyframes dash {
+  from { stroke-dashoffset: 440; }
+  to { stroke-dashoffset: var(--dashoffset); }
+}
+
+.score-circle-svg {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
+}
+
+.score-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 12;
+}
+
+.score-circle-progress {
+  fill: none;
+  stroke: url(#scoreGradient);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  animation: dash 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* XP Bar Gradient Animation */
+.xp-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #a78bfa, #c084fc);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite, grow 1s ease-out forwards;
+  border-radius: 10px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+@keyframes grow {
+  from { width: 0; }
+}
+
+/* Heatmap & Streak Hover Effects */
+.streak-bar {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.streak-bar.active {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.widget-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.widget-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.dashboard-card {
+  background: var(--premium-glass-bg);
+  border: 1px solid var(--premium-glass-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.bento-card-half {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1);
+}
+
+.dashboard-card .hero-rocket-icon {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 0;
+  background: var(--primary);
+  transition: height 0.4s ease;
+}
+
+.dashboard-card:hover::before {
+  height: 100%;
+}
+
+/* Loader */
+.neural-sync {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 100px 0;
+}
+
+.spin-orbit {
+  width: 60px;
+  height: 60px;
+  border: 3px solid transparent;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Domain Proficiency / ProgressBar */
+.progress-item {
+  margin-bottom: 24px;
+}
+
+.progress-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 75%;
+}
+
+.progress-percent {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #a78bfa);
+  border-radius: 10px;
+  animation: grow 1s ease-out forwards;
+}
+
+/* Custom Grid for Dashboard lower section */
+.lower-section-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 40px;
+}
+
+@media (max-width: 1024px) {
+  .lower-section-grid {
+    grid-template-columns: 1fr;
+  }
+}

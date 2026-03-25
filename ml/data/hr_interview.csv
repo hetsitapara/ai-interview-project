@@ -1,0 +1,21 @@
+id,category,difficulty,topic,question,answer,source_type
+1,HR,Easy,Introduction,Tell me about yourself.,"This is usually an opening question where the candidate should briefly introduce their educational background, skills, projects or experience, and career goals in a structured and confident manner.",HR
+2,HR,Easy,Motivation,Why do you want this job?,"Interviewers ask this to understand your motivation. A good answer connects your skills, interests, and career goals with the role and the company.",HR
+3,HR,Easy,Company Knowledge,What do you know about our company?,"This question checks whether you have researched the company. A strong answer mentions the company’s domain, values, products, and recent achievements.",HR
+4,HR,Easy,Strengths,What are your strengths?,"You should highlight strengths relevant to the job role, such as problem-solving, teamwork, communication skills, or technical abilities, with brief examples.",HR
+5,HR,Easy,Weaknesses,What are your weaknesses?,A good answer honestly mentions a weakness while also explaining how you are working to improve it.,HR
+6,HR,Medium,Career Goals,Where do you see yourself in five years?,"Interviewers ask this to understand your long-term goals. The answer should show ambition, learning mindset, and alignment with the organization.",HR
+7,HR,Medium,Teamwork,Are you a team player?,This question evaluates collaboration skills. You should explain how you work effectively in teams and handle differences constructively.,HR
+8,HR,Medium,Pressure,How do you handle stress and pressure?,"A good response explains coping strategies such as time management, prioritization, and staying calm under pressure.",HR
+9,HR,Medium,Problem Solving,Describe a challenging situation and how you handled it.,Interviewers assess problem-solving and decision-making skills. Your answer should follow a situation-action-result structure.,HR
+10,HR,Medium,Failure,How do you handle failure?,This question evaluates resilience. A strong answer focuses on learning from mistakes and improving future performance.,HR
+11,HR,Medium,Leadership,Have you ever taken a leadership role?,The interviewer wants to know about leadership qualities. Describe a situation where you guided or motivated others.,HR
+12,HR,Medium,Conflict,How do you handle conflicts at work?,"A good answer explains calm communication, understanding different perspectives, and resolving issues professionally.",HR
+13,HR,Medium,Time Management,How do you manage your time and prioritize tasks?,"This checks organizational skills. The answer should include planning, setting priorities, and meeting deadlines.",HR
+14,HR,Medium,Adaptability,How do you adapt to new environments or technologies?,Interviewers look for flexibility and willingness to learn. Explain how you embrace change and upskill yourself.,HR
+15,HR,Medium,Motivation,What motivates you at work?,"A strong answer mentions growth, learning opportunities, meaningful work, and achieving goals.",HR
+16,HR,Medium,Salary,What are your salary expectations?,"This question checks expectations. A professional answer is realistic, flexible, and based on market standards.",HR
+17,HR,Medium,Ethics,Have you ever faced an ethical dilemma?,"The interviewer assesses integrity. A good response highlights honesty, responsibility, and ethical decision-making.",HR
+18,HR,Medium,Feedback,How do you handle feedback and criticism?,This question evaluates openness to improvement. A good answer shows willingness to learn from feedback.,HR
+19,HR,Medium,Availability,When can you join our organization?,This helps HR plan onboarding. The answer should clearly state availability and notice period if any.,HR
+20,HR,Medium,Closing,Do you have any questions for us?,"This question tests interest in the role. A good answer includes thoughtful questions about growth, team, or company culture.",HR

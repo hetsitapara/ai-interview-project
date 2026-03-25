@@ -1,0 +1,51 @@
+category,difficulty,topic,question,answer,source_type
+ML,Easy,Introduction to ML,What is machine learning?,Machine learning enables systems to learn patterns from data without explicit programming.,technical
+ML,Easy,Introduction to ML,Types of machine learning,"Supervised, unsupervised, and reinforcement learning.",technical
+ML,Easy,Supervised Learning,What is supervised learning?,Learning using labeled training data.,technical
+ML,Easy,Unsupervised Learning,What is unsupervised learning?,Learning patterns from unlabeled data.,technical
+ML,Easy,Reinforcement Learning,What is reinforcement learning?,Learning through rewards and penalties.,technical
+ML,Easy,Datasets,What is a dataset?,A collection of data used for training and testing models.,technical
+ML,Easy,Datasets,What is training data?,Data used to train the model.,technical
+ML,Easy,Datasets,What is testing data?,Data used to evaluate model performance.,technical
+ML,Easy,ML Models,What is a model?,A mathematical representation learned from data.,technical
+ML,Easy,Predictions,What is prediction?,Estimating output for unseen data.,technical
+ML,Easy,Classification,What is classification?,Assigning labels to data points.,technical
+ML,Easy,Regression,What is regression?,Predicting continuous values.,technical
+ML,Easy,Model Evaluation,What is accuracy?,Ratio of correct predictions to total predictions.,technical
+ML,Easy,Overfitting & Underfitting,What is overfitting?,Model performs well on training data but poorly on new data.,technical
+ML,Easy,Overfitting & Underfitting,What is underfitting?,Model fails to capture underlying patterns.,technical
+ML,Medium,Linear Regression,What is linear regression?,Models linear relationship between variables.,technical
+ML,Medium,Linear Regression,Assumptions of linear regression,"Linearity, independence, homoscedasticity, normality.",technical
+ML,Medium,Logistic Regression,What is logistic regression?,Classification using sigmoid function.,technical
+ML,Medium,KNN Algorithm,What is KNN?,Classifies data using nearest neighbors.,technical
+ML,Medium,Decision Trees,What is a decision tree?,Model that splits data using conditions.,technical
+ML,Medium,Random Forest,What is random forest?,Ensemble of decision trees.,technical
+ML,Medium,Naive Bayes,What is Naive Bayes?,Probabilistic classifier based on Bayes theorem.,technical
+ML,Medium,Support Vector Machines,What is SVM?,Classifier that finds optimal separating hyperplane.,technical
+ML,Medium,Confusion Matrix,What is confusion matrix?,"Table showing TP, FP, TN, FN.",technical
+ML,Medium,Evaluation Metrics,Precision vs recall,Precision measures correctness; recall measures completeness.,technical
+ML,Medium,Evaluation Metrics,What is F1-score?,Harmonic mean of precision and recall.,technical
+ML,Medium,Cross Validation,What is cross-validation?,Evaluating model using multiple splits.,technical
+ML,Medium,Gradient Descent,What is gradient descent?,Algorithm to minimize loss function.,technical
+ML,Medium,Feature Scaling,What is feature scaling?,Normalizing feature ranges.,technical
+ML,Medium,Normalization,What is normalization?,Scaling features to 0–1 range.,technical
+ML,Medium,Standardization,What is standardization?,Scaling features to mean 0 and std 1.,technical
+ML,Medium,PCA,What is PCA?,Technique to reduce feature dimensions.,technical
+ML,Medium,Clustering,What is clustering?,Grouping similar data points.,technical
+ML,Medium,K-Means Clustering,What is K-means?,Partition-based clustering algorithm.,technical
+ML,Medium,Bias-Variance Tradeoff,What is bias-variance tradeoff?,Balance between model complexity and generalization.,technical
+ML,Hard,Gradient Descent Variants,Batch vs stochastic gradient descent,Batch uses full data; stochastic uses single samples.,technical
+ML,Hard,Regularization,What is regularization?,Technique to prevent overfitting.,technical
+ML,Hard,Regularization,Difference between L1 and L2,L1 enforces sparsity; L2 smooths weights.,technical
+ML,Hard,Ensemble Methods,What is ensemble learning?,Combining multiple models for better performance.,technical
+ML,Hard,Bagging & Boosting,Bagging vs boosting,Bagging reduces variance; boosting reduces bias.,technical
+ML,Hard,Boosting Algorithms,What is XGBoost?,Optimized gradient boosting algorithm.,technical
+ML,Hard,Neural Networks,What is a neural network?,Model inspired by biological neurons.,technical
+ML,Hard,Backpropagation,What is backpropagation?,Algorithm to update weights using gradients.,technical
+ML,Hard,Vanishing Gradients,What is vanishing gradient problem?,Gradients diminish in deep networks.,technical
+ML,Hard,Convolutional Neural Networks,What is CNN?,Neural network for image data.,technical
+ML,Hard,Recurrent Neural Networks,What is RNN?,Neural network for sequential data.,technical
+ML,Hard,LSTM Networks,What is LSTM?,RNN variant handling long-term dependencies.,technical
+ML,Hard,Attention Mechanism,What is attention mechanism?,Allows model to focus on important inputs.,technical
+ML,Hard,Transfer Learning,What is transfer learning?,Using pretrained models for new tasks.,technical
+ML,Hard,ML Deployment,Challenges in ML deployment,"Scalability, data drift, monitoring.",technical
