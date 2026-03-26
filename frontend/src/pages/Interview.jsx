@@ -886,182 +886,202 @@ export default function Interview() {
     const renderInterview = () => {
         if (!questions.length) return <div>Loading questions...</div>;
         const q = questions[currentQuestionIndex];
+        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        const isLast = currentQuestionIndex === questions.length - 1;
+        const isYesNo = q.type === 'YesNo';
 
         return (
-            <div className="interview-container">
-                <div className="glass-panel-premium" style={{ padding: '48px', width: '100%' }}>
-                    <div className="interview-header">
-                        <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
-                        <span className="badge" style={{
-                            marginLeft: '10px',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            background: 'rgba(255,255,255,0.1)',
-                            fontSize: '0.8em',
-                            color: '#cbd5e1'
-                        }}>
-                            {q.type === 'YesNo' ? 'Rapid Fire' : 'Descriptive'}
-                        </span>
-                        <span style={{ marginLeft: 'auto' }}>{formatTime(timer)}</span>
-                    </div>
+            <div className="interview-container" style={{ gap: 0 }}>
+                <style>{`
+                    @keyframes ivFadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+                    @keyframes ivPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 70%{box-shadow:0 0 0 10px rgba(239,68,68,0)} }
+                    @keyframes ivWave { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+                    .iv-textarea:focus { border-color:rgba(99,102,241,0.7)!important; background:rgba(99,102,241,0.06)!important; box-shadow:0 0 0 4px rgba(99,102,241,0.12)!important; outline:none; }
+                    .iv-textarea::placeholder { color:#374151; }
+                    .iv-hint-btn:hover { background:rgba(251,191,36,0.2)!important; }
+                    .iv-btn-end:hover   { background:rgba(255,255,255,0.1)!important; border-color:rgba(255,255,255,0.2)!important; }
+                    .iv-btn-next:hover  { transform:translateY(-2px); box-shadow:0 12px 32px rgba(99,102,241,0.55)!important; }
+                    .iv-yes-btn:hover, .iv-no-btn:hover { transform:scale(1.05); }
+                    .iv-wave-bar { display:inline-block; width:3px; height:14px; background:#ef4444; border-radius:2px; animation:ivWave 0.6s ease-in-out infinite; }
+                `}</style>
 
-                    <div className="progress-track">
-                        <div
-                            className="progress-fill"
-                            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-                        ></div>
+                {/* ── TOP STAT BAR ── */}
+                <div style={{ display:'flex', alignItems:'center', gap:'0', background:'rgba(6,6,18,0.7)', backdropFilter:'blur(20px)', borderRadius:'24px 24px 0 0', border:'1px solid rgba(255,255,255,0.07)', borderBottom:'1px solid rgba(255,255,255,0.05)', padding:'16px 32px', flexWrap:'wrap', rowGap:'12px' }}>
+                    {/* Progress dots */}
+                    <div style={{ display:'flex', alignItems:'center', gap:'6px', flex:1 }}>
+                        {questions.map((_, i) => (
+                            <div key={i} style={{ width: i <= currentQuestionIndex ? '28px' : '8px', height:'8px', borderRadius:'4px', background: i < currentQuestionIndex ? '#4ade80' : i === currentQuestionIndex ? 'linear-gradient(90deg,#6366f1,#a78bfa)' : 'rgba(255,255,255,0.1)', transition:'all 0.4s cubic-bezier(0.16,1,0.3,1)', boxShadow: i === currentQuestionIndex ? '0 0 10px rgba(99,102,241,0.6)' : 'none' }} />
+                        ))}
                     </div>
+                    {/* Question count */}
+                    <span style={{ fontSize:'13px', fontWeight:'700', color:'rgba(255,255,255,0.5)', whiteSpace:'nowrap', marginRight:'24px' }}>
+                        Q <span style={{ color:'#fff' }}>{currentQuestionIndex + 1}</span> / {questions.length}
+                    </span>
+                    {/* Type badge */}
+                    <span style={{ padding:'4px 12px', borderRadius:'20px', fontSize:'11px', fontWeight:'800', letterSpacing:'1px', textTransform:'uppercase', background: isYesNo ? 'rgba(251,191,36,0.12)' : 'rgba(99,102,241,0.12)', color: isYesNo ? '#fbbf24' : '#a78bfa', border:`1px solid ${isYesNo ? 'rgba(251,191,36,0.25)' : 'rgba(99,102,241,0.25)'}`, marginRight:'20px' }}>
+                        {isYesNo ? '⚡ Rapid Fire' : '📝 Descriptive'}
+                    </span>
+                    {/* Timer */}
+                    <div style={{ display:'flex', alignItems:'center', gap:'8px', background:'rgba(99,102,241,0.1)', border:'1px solid rgba(99,102,241,0.2)', borderRadius:'50px', padding:'6px 16px' }}>
+                        <FaClock style={{ color:'#818cf8', fontSize:'12px' }} />
+                        <span style={{ fontSize:'15px', fontWeight:'800', color:'#c7d2fe', fontVariantNumeric:'tabular-nums', letterSpacing:'0.5px' }}>{formatTime(timer)}</span>
+                    </div>
+                </div>
 
-                    <div className="question-box">
-                        <p><strong>Question:</strong> {q.question}</p>
-                        <div className="question-tags" style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {/* ── PROGRESS FILL ── */}
+                <div style={{ height:'3px', background:'rgba(255,255,255,0.05)', overflow:'hidden' }}>
+                    <div style={{ height:'100%', width:`${progress}%`, background:'linear-gradient(90deg,#6366f1,#a78bfa,#ec4899)', transition:'width 0.5s cubic-bezier(0.16,1,0.3,1)', boxShadow:'0 0 12px rgba(99,102,241,0.5)' }} />
+                </div>
+
+                {/* ── MAIN TWO-COLUMN BODY ── */}
+                <div style={{ display:'grid', gridTemplateColumns: isYesNo ? '1fr' : '1fr 1.2fr', gap:'0', background:'rgba(8,8,20,0.75)', backdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.06)', borderTop:'none', borderBottom:'none', animation:'ivFadeUp 0.4s ease both' }}>
+
+                    {/* ── LEFT: Question Panel ── */}
+                    <div style={{ padding:'36px', borderRight: isYesNo ? 'none' : '1px solid rgba(255,255,255,0.05)', display:'flex', flexDirection:'column', gap:'24px' }}>
+
+                        {/* Question number label */}
+                        <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+                            <div style={{ width:'36px', height:'36px', borderRadius:'12px', background:'linear-gradient(135deg,#6366f1,#4f46e5)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', fontWeight:'900', color:'#fff', boxShadow:'0 4px 14px rgba(99,102,241,0.4)', flexShrink:0 }}>
+                                {currentQuestionIndex + 1}
+                            </div>
+                            <div>
+                                <div style={{ fontSize:'11px', fontWeight:'800', color:'#6366f1', textTransform:'uppercase', letterSpacing:'1.5px' }}>Current Question</div>
+                                <div style={{ fontSize:'12px', color:'#374151', marginTop:'1px' }}>{Math.round(progress)}% complete</div>
+                            </div>
+                        </div>
+
+                        {/* Question text */}
+                        <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'20px', padding:'28px', flex: isYesNo ? 0 : 1 }}>
+                            <p style={{ color:'#f1f5f9', fontSize:'18px', fontWeight:'600', lineHeight:'1.7', margin:0, letterSpacing:'-0.1px' }}>
+                                {q.question}
+                            </p>
+                        </div>
+
+                        {/* Tags */}
+                        <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
                             {q.category && (
-                                <span className="subject-tag category" style={{ 
-                                    background: 'rgba(99, 102, 241, 0.15)', 
-                                    color: '#818cf8', 
-                                    padding: '4px 10px', 
-                                    borderRadius: '6px', 
-                                    fontSize: '11px', 
-                                    fontWeight: '700',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px',
-                                    border: '1px solid rgba(99, 102, 241, 0.2)'
-                                }}>
-                                    {q.category}
+                                <span style={{ padding:'5px 14px', borderRadius:'20px', fontSize:'11px', fontWeight:'800', background:'rgba(99,102,241,0.12)', color:'#818cf8', border:'1px solid rgba(99,102,241,0.2)', letterSpacing:'0.5px', textTransform:'uppercase' }}>
+                                    # {q.category}
                                 </span>
                             )}
                             {q.topic && (
-                                <span className="subject-tag topic" style={{ 
-                                    background: 'rgba(16, 185, 129, 0.15)', 
-                                    color: '#34d399', 
-                                    padding: '4px 10px', 
-                                    borderRadius: '6px', 
-                                    fontSize: '11px', 
-                                    fontWeight: '700',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px',
-                                    border: '1px solid rgba(16, 185, 129, 0.2)'
-                                }}>
+                                <span style={{ padding:'5px 14px', borderRadius:'20px', fontSize:'11px', fontWeight:'800', background:'rgba(16,185,129,0.12)', color:'#34d399', border:'1px solid rgba(16,185,129,0.2)', letterSpacing:'0.5px', textTransform:'uppercase' }}>
                                     {q.topic}
                                 </span>
                             )}
                         </div>
+
+                        {/* Hint / Debug */}
+                        {!isYesNo && (
+                            <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+                                <button className="iv-hint-btn" onClick={getHint} disabled={hintLoading}
+                                    style={{ background:'rgba(251,191,36,0.08)', border:'1px solid rgba(251,191,36,0.2)', color:'#fbbf24', padding:'10px 18px', borderRadius:'50px', cursor:'pointer', fontSize:'13px', fontWeight:'700', display:'flex', alignItems:'center', gap:'8px', width:'fit-content', transition:'all 0.2s ease' }}>
+                                    <FaLightbulb />{hintLoading ? 'Fetching hint...' : '💡 Get AI Hint'}
+                                </button>
+                                {hint && (
+                                    <div style={{ padding:'16px 20px', background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.18)', borderLeft:'3px solid #fbbf24', borderRadius:'14px', color:'#fde68a', fontSize:'14px', lineHeight:'1.7', animation:'ivFadeUp 0.3s ease' }}>
+                                        <strong style={{ color:'#fbbf24', display:'block', marginBottom:'4px', fontSize:'11px', letterSpacing:'1px', textTransform:'uppercase' }}>💡 Hint</strong>
+                                        {hint}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Debug */}
+                        {devMode && (
+                            <div style={{ padding:'20px', background:'rgba(56,189,248,0.06)', border:'1px solid rgba(56,189,248,0.15)', borderLeft:'3px solid #38bdf8', borderRadius:'14px', animation:'ivFadeUp 0.3s ease' }}>
+                                <div style={{ color:'#38bdf8', fontWeight:'800', fontSize:'11px', marginBottom:'10px', textTransform:'uppercase', letterSpacing:'1px', display:'flex', alignItems:'center', gap:'6px' }}>
+                                    <FaSpellCheck /> Debug · Ideal Answer
+                                </div>
+                                <p style={{ margin:'0 0 12px', lineHeight:'1.6', color:'#bae6fd', fontSize:'14px' }}>{q.answer}</p>
+                                <button onClick={() => setCurrentAnswer(q.answer)}
+                                    style={{ background:'rgba(56,189,248,0.15)', border:'1px solid rgba(56,189,248,0.3)', color:'#7dd3fc', padding:'7px 14px', borderRadius:'8px', fontSize:'12px', fontWeight:'700', cursor:'pointer', display:'flex', alignItems:'center', gap:'6px' }}>
+                                    <FaTerminal style={{ fontSize:'10px' }} /> Auto-fill
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    {devMode && (
-                        <div className="dev-answer-box" style={{ 
-                            marginBottom: '24px', 
-                            padding: '24px', 
-                            background: 'rgba(56, 189, 248, 0.08)', 
-                            border: '1px solid rgba(56, 189, 248, 0.2)', 
-                            borderLeft: '4px solid #38bdf8',
-                            borderRadius: '16px',
-                            fontSize: '14px',
-                            color: '#e2e8f0',
-                            animation: 'slideIn 0.3s ease'
-                        }}>
-                            <div style={{ color: '#38bdf8', fontWeight: '800', fontSize: '11px', marginBottom: '12px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '1px' }}>
-                                <FaSpellCheck /> DEBUG MODE: IDEAL ANSWER
-                            </div>
-                            <p style={{ margin: 0, lineHeight: '1.6', color: '#bae6fd', fontSize: '15px' }}>
-                                {q.answer}
-                            </p>
-                            <button 
-                                onClick={() => {
-                                    const ans = q.answer;
-                                    setCurrentAnswer(ans);
-                                }}
-                                style={{ 
-                                    marginTop: '16px', 
-                                    background: 'rgba(56, 189, 248, 0.2)', 
-                                    border: '1px solid rgba(56, 189, 248, 0.3)', 
-                                    color: '#fff', 
-                                    padding: '8px 16px', 
-                                    borderRadius: '8px', 
-                                    fontSize: '12px', 
-                                    fontWeight: '700', 
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <FaTerminal style={{ fontSize: '10px' }} /> AUTO-FILL RESPONSE
-                            </button>
-                        </div>
-                    )}
-
-                    <div className="answer-box">
-                        {q.type === 'YesNo' ? (
-                            <div className="yes-no-buttons" style={{ display: 'flex', gap: '20px', justifyContent: 'center', height: '200px', alignItems: 'center' }}>
-                                <button
-                                    className={`btn ${currentAnswer === 'Yes' ? 'primary' : 'secondary'}`}
-                                    onClick={() => setCurrentAnswer('Yes')}
-                                    style={{ width: '120px', fontSize: '1.2rem', padding: '15px' }}
-                                >
-                                    YES
-                                </button>
-                                <button
-                                    className={`btn ${currentAnswer === 'No' ? 'primary' : 'secondary'}`}
-                                    onClick={() => setCurrentAnswer('No')}
-                                    style={{ width: '120px', fontSize: '1.2rem', padding: '15px' }}
-                                >
-                                    NO
-                                </button>
+                    {/* ── RIGHT: Answer Panel ── */}
+                    <div style={{ padding:'36px', display:'flex', flexDirection:'column', gap:'20px' }}>
+                        {isYesNo ? (
+                            <div style={{ display:'flex', gap:'20px', justifyContent:'center', alignItems:'center', flex:1, minHeight:'200px' }}>
+                                {['Yes','No'].map(opt => (
+                                    <button key={opt} className={opt === 'Yes' ? 'iv-yes-btn' : 'iv-no-btn'}
+                                        onClick={() => setCurrentAnswer(opt)}
+                                        style={{ width:'140px', height:'80px', borderRadius:'20px', fontSize:'20px', fontWeight:'900', cursor:'pointer', border:'2px solid', transition:'all 0.25s cubic-bezier(0.16,1,0.3,1)', background: currentAnswer === opt ? (opt==='Yes' ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)') : 'rgba(255,255,255,0.04)', borderColor: currentAnswer === opt ? (opt==='Yes' ? '#4ade80' : '#f87171') : 'rgba(255,255,255,0.1)', color: currentAnswer === opt ? (opt==='Yes' ? '#4ade80' : '#f87171') : '#64748b', boxShadow: currentAnswer === opt ? `0 8px 24px rgba(${opt==='Yes'?'74,222,128':'248,113,113'},0.3)` : 'none' }}>
+                                        {opt === 'Yes' ? '✓ YES' : '✗ NO'}
+                                    </button>
+                                ))}
                             </div>
                         ) : (
                             <>
-                                <textarea
-                                    placeholder="Type or speak your answer here..."
-                                    value={currentAnswer}
-                                    onChange={(e) => setCurrentAnswer(e.target.value)}
-                                />
-                                <div
-                                    className={`mic-icon ${isListening ? "active" : ""}`}
-                                    onClick={toggleMic}
-                                    title={isListening ? "Stop listening" : "Start listening"}
-                                >
-                                    {isListening ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                                    )}
+                                {/* Answer label row */}
+                                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                                    <div style={{ fontSize:'11px', fontWeight:'800', color:'#374151', textTransform:'uppercase', letterSpacing:'2px' }}>Your Answer</div>
+                                    <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                                        {isListening && (
+                                            <div style={{ display:'flex', alignItems:'center', gap:'4px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'50px', padding:'4px 12px' }}>
+                                                {[1,2,3,4].map(i => (
+                                                    <span key={i} className="iv-wave-bar" style={{ animationDelay:`${i*0.1}s`, height:`${8+i*3}px` }} />
+                                                ))}
+                                                <span style={{ color:'#f87171', fontSize:'11px', fontWeight:'700', marginLeft:'4px' }}>Recording</span>
+                                            </div>
+                                        )}
+                                        <span style={{ fontSize:'12px', color:'#374151', fontVariantNumeric:'tabular-nums' }}>
+                                            {currentAnswer.length} chars
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Textarea */}
+                                <div style={{ position:'relative', flex:1, display:'flex', flexDirection:'column' }}>
+                                    <textarea
+                                        className="iv-textarea"
+                                        placeholder="Type your answer here, or click the microphone to speak..."
+                                        value={currentAnswer}
+                                        onChange={(e) => setCurrentAnswer(e.target.value)}
+                                        style={{ flex:1, width:'100%', minHeight:'260px', padding:'20px 20px 68px 20px', borderRadius:'20px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', resize:'none', fontSize:'15px', color:'#e2e8f0', lineHeight:'1.75', fontFamily:'Outfit, sans-serif', transition:'all 0.3s ease', boxSizing:'border-box' }}
+                                    />
+                                    {/* Mic button inside textarea */}
+                                    <div className={`mic-icon ${isListening ? "active" : ""}`} onClick={toggleMic} title={isListening ? "Stop" : "Speak"}
+                                        style={{ position:'absolute', right:'16px', bottom:'16px', width:'46px', height:'46px', borderRadius:'50%', background: isListening ? 'rgba(239,68,68,0.25)' : 'rgba(99,102,241,0.15)', border:`2px solid ${isListening ? 'rgba(239,68,68,0.5)' : 'rgba(99,102,241,0.3)'}`, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', transition:'all 0.3s ease', animation: isListening ? 'ivPulse 1.5s infinite' : 'none' }}>
+                                        {isListening ? (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                                        )}
+                                    </div>
                                 </div>
                             </>
                         )}
                     </div>
+                </div>
 
-                    {/* AI Hint */}
-                    {q.type !== 'YesNo' && (
-                        <div style={{ margin: '0 0 16px 0' }}>
-                            <button
-                                onClick={getHint}
-                                disabled={hintLoading}
-                                style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#fbbf24', padding: '8px 18px', borderRadius: '30px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
-                            >
-                                <FaLightbulb />{hintLoading ? 'Getting hint...' : '💡 Get Hint'}
-                            </button>
-                            {hint && (
-                                <div style={{ marginTop: '10px', padding: '12px 16px', background: 'rgba(251,191,36,0.07)', borderRadius: '10px', border: '1px solid rgba(251,191,36,0.2)', color: '#fde68a', fontSize: '14px', lineHeight: '1.6' }}>
-                                    <strong style={{ color: '#fbbf24' }}>💡 Hint:</strong> {hint}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                {/* ── ACTION FOOTER ── */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(6,6,18,0.7)', backdropFilter:'blur(20px)', borderRadius:'0 0 24px 24px', border:'1px solid rgba(255,255,255,0.07)', borderTop:'1px solid rgba(255,255,255,0.05)', padding:'20px 32px', gap:'16px' }}>
+                    <button className="iv-btn-end" onClick={handleFinishEarly}
+                        style={{ padding:'12px 24px', borderRadius:'50px', background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.6)', fontSize:'14px', fontWeight:'700', cursor:'pointer', display:'flex', alignItems:'center', gap:'8px', transition:'all 0.2s ease' }}>
+                        ✕ End Session
+                    </button>
 
-                    <div className="action-buttons">
-                        <button className="btn-premium-secondary" onClick={handleFinishEarly} style={{ marginRight: 'auto' }}>
-                            End Session
-                        </button>
-                        <button className="btn-premium-primary" onClick={handleNextQuestion}>
-                            {currentQuestionIndex === questions.length - 1 ? "Finish & Submit" : "Next Question"}
-                        </button>
+                    {/* Center: question navigation dots */}
+                    <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
+                        {questions.map((_,i) => (
+                            <div key={i} style={{ width:'6px', height:'6px', borderRadius:'50%', background: i === currentQuestionIndex ? '#6366f1' : i < currentQuestionIndex ? '#4ade80' : 'rgba(255,255,255,0.15)', transition:'all 0.3s ease' }} />
+                        ))}
                     </div>
+
+                    <button className="iv-btn-next" onClick={handleNextQuestion}
+                        style={{ padding:'12px 32px', borderRadius:'50px', background:'linear-gradient(135deg,#6366f1,#4f46e5)', border:'none', color:'#fff', fontSize:'15px', fontWeight:'800', cursor:'pointer', display:'flex', alignItems:'center', gap:'10px', boxShadow:'0 6px 20px rgba(99,102,241,0.4)', transition:'all 0.25s cubic-bezier(0.16,1,0.3,1)', letterSpacing:'-0.2px' }}>
+                        {isLast ? '🏁 Finish & Submit' : 'Next Question →'}
+                    </button>
                 </div>
             </div>
         );
     };
+
+
 
     const renderLoading = () => (
         <div className="interview-container">
