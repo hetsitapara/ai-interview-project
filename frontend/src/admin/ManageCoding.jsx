@@ -12,6 +12,7 @@ export default function ManageCoding() {
         title: '',
         difficulty: 'Easy',
         description: '',
+        imageUrl: '',
         constraints: '',
         examples: [{ input: '', output: '', explanation: '' }],
         testCases: [{ input: '', expectedOutput: '', isPublic: true }],
@@ -96,6 +97,7 @@ export default function ManageCoding() {
             title: '',
             difficulty: 'Easy',
             description: '',
+            imageUrl: '',
             constraints: '',
             examples: [{ input: '', output: '', explanation: '' }],
             testCases: [{ input: '', expectedOutput: '', isPublic: true }],
@@ -165,6 +167,16 @@ export default function ManageCoding() {
                                 style={{ height: '180px' }}
                                 placeholder="Describe the problem, input/output formats..."
                                 required 
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Image URL <span style={{ fontSize: '11px', textTransform: 'none', color: 'var(--admin-text-secondary)' }}>(Optional - e.g., for graphs/trees)</span></label>
+                            <input 
+                                type="url"
+                                value={form.imageUrl || ''} 
+                                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                                placeholder="https://example.com/image.png"
                             />
                         </div>
 
@@ -293,9 +305,9 @@ export default function ManageCoding() {
                                             </td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: '8px', fontSize: '11px', fontWeight: '700' }}>
-                                                    <span style={{ color: 'var(--admin-text-secondary)' }}>{q.examples.length} EXAMPLES</span>
+                                                    <span style={{ color: 'var(--admin-text-secondary)' }}>{q.examples?.length ?? '–'} EXAMPLES</span>
                                                     <span style={{ color: 'var(--admin-border)' }}>|</span>
-                                                    <span style={{ color: 'var(--admin-text-secondary)' }}>{q.testCases.length} TESTS</span>
+                                                    <span style={{ color: 'var(--admin-text-secondary)' }}>{q.testCases?.length ?? '–'} TESTS</span>
                                                 </div>
                                             </td>
                                             <td style={{ textAlign: 'right' }}>

@@ -4,93 +4,275 @@ const CodingQuestion = require('./models/CodingQuestion');
 
 dotenv.config({ path: './backend/.env' });
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/sdp-project';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sdp-project';
 
 const questions = [
-    // 1. Array / Hash Table
+    // 1. Array / Hash Table (No Image)
     {
         title: "Two Sum",
         description: "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
+        imageUrl: "",
         difficulty: "Easy",
         tags: ["Array", "Hash Table"],
         inputFormat: "First line: comma-separated integers (nums)\nSecond line: integer (target)",
         outputFormat: "Comma-separated indices (e.g., 0,1)",
         constraints: "2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9\nOnly one valid answer exists.",
         examples: [
-            { input: "2,7,11,15\n9", output: "[0, 1]", explanation: "nums[0] + nums[1] == 9, so we return [0, 1]." },
-            { input: "3,2,4\n6", output: "[1, 2]", explanation: "nums[1] + nums[2] == 6." }
+            { input: "2,7,11,15\n9", output: "[0, 1]", explanation: "nums[0] + nums[1] == 9, so we return [0, 1]." }
         ],
         testCases: [
             { input: "2,7,11,15\n9", expectedOutput: "[0, 1]", isPublic: true },
-            { input: "3,2,4\n6", expectedOutput: "[1, 2]", isPublic: true }
+            { input: "3,2,4\n6", expectedOutput: "[1, 2]", isPublic: true },
+            { input: "3,3\n6", expectedOutput: "[0, 1]", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums = input[0].split(',').map(Number);\nconst target = Number(input[1]);\n\nfunction twoSum(nums, target) {\n    // Write your code here\n}\n\nconsole.log(twoSum(nums, target));`
-        }
+        starterCode: { javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums = input[0].split(',').map(Number);\nconst target = Number(input[1]);\n\nfunction twoSum(nums, target) {\n    // Write your code here\n}\n\nconsole.log(twoSum(nums, target));` }
     },
-    // 2. Math
+    // 2. Graph with Image
+    {
+        title: "Number of Islands",
+        description: "Given an `m x n` 2D binary grid `grid` which represents a map of '1's (land) and '0's (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.",
+        imageUrl: "/images/coding-test/number_of_islands.png",
+        difficulty: "Medium",
+        tags: ["Graph", "DFS", "BFS", "Matrix"],
+        inputFormat: "JSON string representing 2D array grid",
+        outputFormat: "Integer (number of islands)",
+        constraints: "1 <= m, n <= 300\ngrid[i][j] is '0' or '1'.",
+        examples: [
+            { input: '[["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]', output: "3", explanation: "Three distinct islands." }
+        ],
+        testCases: [
+            { input: '[["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]', expectedOutput: "3", isPublic: true },
+            { input: '[["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]', expectedOutput: "1", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst grid = JSON.parse(fs.readFileSync(0, 'utf-8').trim());\n\nfunction numIslands(grid) {\n    // Write your code here\n}\n\nconsole.log(numIslands(grid));` }
+    },
+    // 3. Tree with Image
+    {
+        title: "Binary Tree Level Order Traversal",
+        description: "Given an adjacency list representing a binary tree where index 0 is root, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).",
+        imageUrl: "/images/coding-test/binary_tree_level.png",
+        difficulty: "Medium",
+        tags: ["Tree", "BFS", "Binary Tree"],
+        inputFormat: "JSON array representation of a tree (e.g. [3,9,20,null,null,15,7])",
+        outputFormat: "JSON 2D Array of integers",
+        constraints: "0 <= number of nodes <= 2000",
+        examples: [
+            { input: "[3,9,20,null,null,15,7]", output: "[[3],[9,20],[15,7]]", explanation: "Level 1: [3], Level 2: [9,20], Level 3: [15,7]" }
+        ],
+        testCases: [
+            { input: "[3,9,20,null,null,15,7]", expectedOutput: "[[3],[9,20],[15,7]]", isPublic: true },
+            { input: "[1]", expectedOutput: "[[1]]", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst input = JSON.parse(fs.readFileSync(0, 'utf-8').trim());\n\nfunction levelOrder(arr) {\n    // Parse array into tree if needed, or compute directly\n    // Write code\n}\n\nconsole.log(JSON.stringify(levelOrder(input)));` }
+    },
+    // 4. Matrix with Image
+    {
+        title: "Rotate Image",
+        description: "You are given an n x n 2D matrix representing an image, rotate the image by 90 degrees (clockwise).\n\nYou have to rotate the image in-place, which means you have to modify the input 2D matrix directly. DO NOT allocate another 2D matrix and do the rotation.",
+        imageUrl: "/images/coding-test/rotate_image.png",
+        difficulty: "Medium",
+        tags: ["Array", "Math", "Matrix"],
+        inputFormat: "JSON string representing 2D array grid",
+        outputFormat: "JSON string of rotated grid",
+        constraints: "1 <= n <= 20\nmatrix[i][j] is an integer",
+        examples: [
+            { input: "[[1,2,3],[4,5,6],[7,8,9]]", output: "[[7,4,1],[8,5,2],[9,6,3]]", explanation: "The array is rotated 90 degrees clockwise." }
+        ],
+        testCases: [
+            { input: "[[1,2,3],[4,5,6],[7,8,9]]", expectedOutput: "[[7,4,1],[8,5,2],[9,6,3]]", isPublic: true },
+            { input: "[[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]", expectedOutput: "[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst matrix = JSON.parse(fs.readFileSync(0, 'utf-8').trim());\n\nfunction rotate(matrix) {\n    // Write your code here\n    return matrix;\n}\n\nconsole.log(JSON.stringify(rotate(matrix)));` }
+    },
+    // 5. Grid/Backtracking with Image
+    {
+        title: "Word Search",
+        description: "Given an `m x n` grid of characters `board` and a string `word`, return `true` if `word` exists in the grid.\n\nThe word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.",
+        imageUrl: "/images/coding-test/word_search.png",
+        difficulty: "Medium",
+        tags: ["Array", "Backtracking", "Matrix"],
+        inputFormat: "Line 1: JSON grid of characters\nLine 2: string (word)",
+        outputFormat: "true or false",
+        constraints: "1 <= m, n <= 6\n1 <= word.length <= 15",
+        examples: [
+            { input: '[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]\nABCCED', output: "true", explanation: "The word 'ABCCED' can be found in the grid." }
+        ],
+        testCases: [
+            { input: '[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]\nABCCED', expectedOutput: "true", isPublic: true },
+            { input: '[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]\nSEE', expectedOutput: "true", isPublic: true },
+            { input: '[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]\nABCB', expectedOutput: "false", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst board = JSON.parse(input[0]);\nconst word = input[1];\n\nfunction exist(board, word) {\n    // Write your code here\n}\n\nconsole.log(exist(board, word));` }
+    },
+    // 6. N-Queens with Image
+    {
+        title: "N-Queens",
+        description: "The n-queens puzzle is the problem of placing `n` queens on an `n x n` chessboard such that no two queens attack each other.\n\nGiven an integer `n`, return the number of distinct solutions to the n-queens puzzle.",
+        imageUrl: "/images/coding-test/n_queens.png",
+        difficulty: "Hard",
+        tags: ["Backtracking", "Array"],
+        inputFormat: "Integer n",
+        outputFormat: "Integer (number of distinct solutions)",
+        constraints: "1 <= n <= 9",
+        examples: [
+            { input: "4", output: "2", explanation: "There are two distinct solutions to the 4-queens puzzle." }
+        ],
+        testCases: [
+            { input: "4", expectedOutput: "2", isPublic: true },
+            { input: "1", expectedOutput: "1", isPublic: true },
+            { input: "8", expectedOutput: "92", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst n = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction totalNQueens(n) {\n    // Write your code here\n}\n\nconsole.log(totalNQueens(n));` }
+    },
+    // 7. Course Schedule with Image
+    {
+        title: "Course Schedule",
+        description: "There are a total of `numCourses` courses you have to take, labeled from `0` to `numCourses - 1`. You are given an array `prerequisites` where `prerequisites[i] = [a, b]` indicates that you must take course `b` first if you want to take course `a`.\n\nReturn `true` if you can finish all courses. Otherwise, return `false`.",
+        imageUrl: "/images/coding-test/course_schedule.png",
+        difficulty: "Medium",
+        tags: ["Graph", "Topological Sort", "BFS", "DFS"],
+        inputFormat: "Line 1: numCourses\nLine 2: JSON representing prerequisites",
+        outputFormat: "true or false",
+        constraints: "1 <= numCourses <= 2000\n0 <= prerequisites.length <= 5000",
+        examples: [
+            { input: "2\n[[1,0]]", output: "true", explanation: "Take course 0, then course 1." },
+            { input: "2\n[[1,0],[0,1]]", output: "false", explanation: "Cyclic dependency." }
+        ],
+        testCases: [
+            { input: "2\n[[1,0]]", expectedOutput: "true", isPublic: true },
+            { input: "2\n[[1,0],[0,1]]", expectedOutput: "false", isPublic: true },
+            { input: "4\n[[1,0],[2,1],[3,2]]", expectedOutput: "true", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst numCourses = Number(input[0]);\nconst prerequisites = JSON.parse(input[1]);\n\nfunction canFinish(numCourses, prerequisites) {\n    // Write your code here\n}\n\nconsole.log(canFinish(numCourses, prerequisites));` }
+    },
+    // 8. Unique Paths with Image
+    {
+        title: "Unique Paths",
+        description: "There is a robot on an `m x n` grid. The robot is initially located at the top-left corner (i.e., `grid[0][0]`). The robot tries to move to the bottom-right corner (i.e., `grid[m - 1][n - 1]`). The robot can only move either down or right at any point in time.\n\nGiven the two integers `m` and `n`, return the number of possible unique paths that the robot can take to reach the bottom-right corner.",
+        imageUrl: "/images/coding-test/unique_paths.png",
+        difficulty: "Medium",
+        tags: ["Math", "Dynamic Programming", "Combinatorics"],
+        inputFormat: "Line 1: m\nLine 2: n",
+        outputFormat: "Integer (number of ways)",
+        constraints: "1 <= m, n <= 100",
+        examples: [
+            { input: "3\n7", output: "28", explanation: "From a 3x7 grid there are 28 unique paths." },
+            { input: "3\n2", output: "3", explanation: "From the top-left corner, there are a total of 3 ways to reach the bottom-right corner." }
+        ],
+        testCases: [
+            { input: "3\n7", expectedOutput: "28", isPublic: true },
+            { input: "3\n2", expectedOutput: "3", isPublic: true },
+            { input: "10\n10", expectedOutput: "48620", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst m = Number(input[0]);\nconst n = Number(input[1]);\n\nfunction uniquePaths(m, n) {\n    // Write your code here\n}\n\nconsole.log(uniquePaths(m, n));` }
+    },
+    // 9. LCA of a Binary Tree with Image
+    {
+        title: "Lowest Common Ancestor",
+        description: "Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.\n\nAccording to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants (where we allow a node to be a descendant of itself).”",
+        imageUrl: "/images/coding-test/lowest_common_ancestor.png",
+        difficulty: "Medium",
+        tags: ["Tree", "DFS", "Binary Tree"],
+        inputFormat: "Line 1: Array representation of tree\nLine 2: p\nLine 3: q",
+        outputFormat: "Integer (Value of the LCA node)",
+        constraints: "The number of nodes in the tree is in the range [2, 10^5].\nAll Node.val are unique.",
+        examples: [
+            { input: "[3,5,1,6,2,0,8,null,null,7,4]\n5\n1", output: "3", explanation: "The LCA of nodes 5 and 1 is 3." }
+        ],
+        testCases: [
+            { input: "[3,5,1,6,2,0,8,null,null,7,4]\n5\n1", expectedOutput: "3", isPublic: true },
+            { input: "[3,5,1,6,2,0,8,null,null,7,4]\n5\n4", expectedOutput: "5", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst treeArr = JSON.parse(input[0]);\nconst p = Number(input[1]);\nconst q = Number(input[2]);\n\nfunction lowestCommonAncestor(root, p, q) {\n    // Parse array into tree if needed\n    // Write code\n}\n\nconsole.log(lowestCommonAncestor(treeArr, p, q));` }
+    },
+    // 10. Linked List (No Image)
+    {
+        title: "Reverse Linked List Array",
+        description: "Given a an array representing a linked list, return the reversed list (as an array output).",
+        imageUrl: "",
+        difficulty: "Easy",
+        tags: ["Linked List"],
+        inputFormat: "Comma separated numbers",
+        outputFormat: "Comma separated numbers",
+        constraints: "0 <= nodes <= 5000",
+        examples: [
+            { input: "1,2,3,4,5", output: "5,4,3,2,1" },
+            { input: "1,2", output: "2,1" }
+        ],
+        testCases: [
+            { input: "1,2,3,4,5", expectedOutput: "5,4,3,2,1", isPublic: true },
+            { input: "10,20,30", expectedOutput: "30,20,10", isPublic: false }
+        ],
+        starterCode: { javascript: `const fs = require('fs');\nconst inp = fs.readFileSync(0, 'utf-8').trim().split(',');\n// Write code reversing array\nconsole.log(inp.reverse().join(','));` }
+    },
+    // 11. Math (No Image)
     {
         title: "Palindrome Number",
         description: "Given an integer `x`, return `true` if `x` is a palindrome, and `false` otherwise.",
+        imageUrl: "",
         difficulty: "Easy",
         tags: ["Math"],
         inputFormat: "A single integer x",
         outputFormat: "true or false",
         constraints: "-2^31 <= x <= 2^31 - 1",
         examples: [
-            { input: "121", output: "true", explanation: "121 reads as 121 from left to right and from right to left." },
-            { input: "-121", output: "false", explanation: "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome." }
+            { input: "121", output: "true" },
+            { input: "-121", output: "false" }
         ],
         testCases: [
             { input: "121", expectedOutput: "true", isPublic: true },
-            { input: "-121", expectedOutput: "false", isPublic: true }
+            { input: "-121", expectedOutput: "false", isPublic: true },
+            { input: "10", expectedOutput: "false", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst x = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction isPalindrome(x) {\n    // Write your code here\n}\n\nconsole.log(isPalindrome(x));`
-        }
+        starterCode: { javascript: `const fs = require('fs');\nconst x = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction isPalindrome(x) {\n    // Write your code here\n}\n\nconsole.log(isPalindrome(x));` }
     },
-    // 3. String
+    // 12. Dynamic Programming
     {
-        title: "Reverse String",
-        description: "Write a function that reverses a string. The input string is given as an array of characters.",
+        title: "Climbing Stairs",
+        description: "You are climbing a staircase. It takes `n` steps to reach the top.\n\nEach time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+        imageUrl: "",
         difficulty: "Easy",
-        tags: ["String"],
-        inputFormat: "A single string s",
-        outputFormat: "Reversed string",
-        constraints: "1 <= s.length <= 100",
+        tags: ["DP", "Memoization"],
+        inputFormat: "Integer n",
+        outputFormat: "Integer (count of ways)",
+        constraints: "1 <= n <= 45",
         examples: [
-            { input: "hello", output: "olleh" }
+            { input: "2", output: "2", explanation: "1 step + 1 step OR 2 steps" },
+            { input: "3", output: "3", explanation: "1+1+1 OR 1+2 OR 2+1" }
         ],
         testCases: [
-            { input: "hello", expectedOutput: "olleh", isPublic: true }
+            { input: "2", expectedOutput: "2", isPublic: true },
+            { input: "3", expectedOutput: "3", isPublic: true },
+            { input: "5", expectedOutput: "8", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\n\nfunction reverseString(s) {\n    return s.split('').reverse().join('');\n}\n\nconsole.log(reverseString(s));`
-        }
+        starterCode: { javascript: `const fs = require('fs');\nconst n = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction climbStairs(n) {\n    // Write your code here\n}\n\nconsole.log(climbStairs(n));` }
     },
-    // 4. Graph / Tree
+    // 13. Sliding Window
     {
-        title: "Find Center of Star Graph",
-        description: "There is an undirected star graph consisting of `n` nodes labeled from `1` to `n`. A star graph is a graph where there is one center node and exactly `n - 1` edges that connect the center node with every other node.\n\nYou are given a 2D integer array `edges` where each `edges[i] = [ui, vi]` indicates that there is an edge between the nodes `ui` and `vi`. Return the center of the given star graph.",
+        title: "Best Time to Buy and Sell Stock",
+        description: "You are given an array `prices` where `prices[i]` is the price of a given stock on the `ith` day.\n\nYou want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.\n\nReturn the maximum profit you can achieve. If you cannot achieve any profit, return 0.",
+        imageUrl: "",
         difficulty: "Easy",
-        tags: ["Graph"],
-        inputFormat: "JSON string representing 2D array of edges (e.g., [[1,2],[2,3],[4,2]])",
-        outputFormat: "An integer representing the center node",
-        constraints: "3 <= n <= 10^5",
+        tags: ["Array", "Dynamic Programming", "Sliding Window"],
+        inputFormat: "Comma separated nums",
+        outputFormat: "Integer (maximum profit)",
+        constraints: "1 <= prices.length <= 10^5\n0 <= prices[i] <= 10^4",
         examples: [
-            { input: "[[1,2],[2,3],[4,2]]", output: "2", explanation: "Node 2 is connected to 1, 3, and 4." }
+            { input: "7,1,5,3,6,4", output: "5", explanation: "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5." },
+            { input: "7,6,4,3,1", output: "0", explanation: "In this case, no transactions are done and the max profit = 0." }
         ],
         testCases: [
-            { input: "[[1,2],[2,3],[4,2]]", expectedOutput: "2", isPublic: true }
+            { input: "7,1,5,3,6,4", expectedOutput: "5", isPublic: true },
+            { input: "7,6,4,3,1", expectedOutput: "0", isPublic: true },
+            { input: "2,4,1,2", expectedOutput: "2", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst edges = JSON.parse(fs.readFileSync(0, 'utf-8').trim());\n\nfunction findCenter(edges) {\n    // Write your code here\n}\n\nconsole.log(findCenter(edges));`
-        }
+        starterCode: { javascript: `const fs = require('fs');\nconst prices = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n\nfunction maxProfit(prices) {\n    // Write your code here\n}\n\nconsole.log(maxProfit(prices));` }
     },
-    // 5. Stack
+    // 14. Stack
     {
         title: "Valid Parentheses",
         description: "Given a string `s` containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.",
+        imageUrl: "",
         difficulty: "Easy",
         tags: ["Stack", "String"],
         inputFormat: "A single string s",
@@ -103,96 +285,16 @@ const questions = [
         ],
         testCases: [
             { input: "()", expectedOutput: "true", isPublic: true },
-            { input: "(]", expectedOutput: "false", isPublic: true }
+            { input: "(]", expectedOutput: "false", isPublic: true },
+            { input: "([)]", expectedOutput: "false", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\n\nfunction isValid(s) {\n    // Write your code here\n}\n\nconsole.log(isValid(s));`
-        }
+        starterCode: { javascript: `const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\n\nfunction isValid(s) {\n    // Write your code here\n}\n\nconsole.log(isValid(s));` }
     },
-    // 6. DP
-    {
-        title: "Climbing Stairs",
-        description: "You are climbing a staircase. It takes `n` steps to reach the top.\n\nEach time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
-        difficulty: "Easy",
-        tags: ["DP", "Memoization"],
-        inputFormat: "Integer n",
-        outputFormat: "Integer (count of ways)",
-        constraints: "1 <= n <= 45",
-        examples: [
-            { input: "2", output: "2", explanation: "1 step + 1 step OR 2 steps" },
-            { input: "3", output: "3", explanation: "1+1+1 OR 1+2 OR 2+1" }
-        ],
-        testCases: [
-            { input: "2", expectedOutput: "2", isPublic: true },
-            { input: "3", expectedOutput: "3", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst n = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction climbStairs(n) {\n    // Write your code here\n}\n\nconsole.log(climbStairs(n));`
-        }
-    },
-    // 7. Graph
-    {
-        title: "Find the Town Judge",
-        description: "In a town, there are `n` people labeled from `1` to `n`. There is a rumor that one of these people is secretly the town judge.\n\nIf the town judge exists, then:\n1. The town judge trusts nobody.\n2. Everybody (except the town judge) trusts the town judge.\n3. There is exactly one person that satisfies properties 1 and 2.\n\nYou are given an array `trust` where `trust[i] = [a, b]` representing that the person labeled `a` trusts the person labeled `b`.",
-        difficulty: "Easy",
-        tags: ["Graph"],
-        inputFormat: "First line: n\nSecond line: JSON string of trust array",
-        outputFormat: "ID of the judge or -1",
-        constraints: "1 <= n <= 1000",
-        examples: [
-            { input: "2\n[[1,2]]", output: "2" },
-            { input: "3\n[[1,3],[2,3]]", output: "3" }
-        ],
-        testCases: [
-            { input: "2\n[[1,2]]", expectedOutput: "2", isPublic: true },
-            { input: "3\n[[1,3],[2,3]]", expectedOutput: "3", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst n = Number(input[0]);\nconst trust = JSON.parse(input[1]);\n\nfunction findJudge(n, trust) {\n    // Write your code here\n}\n\nconsole.log(findJudge(n, trust));`
-        }
-    },
-    // 8. Sorting / Array
-    {
-        title: "Merge Sorted Array",
-        description: "You are given two integer arrays `nums1` and `nums2`, sorted in non-decreasing order. Merge `nums2` into `nums1` as one sorted array.",
-        difficulty: "Easy",
-        tags: ["Array", "Sorting"],
-        inputFormat: "Line 1: nums1 (comma separated)\nLine 2: nums2 (comma separated)",
-        outputFormat: "Merged sorted array (comma separated)",
-        constraints: "nums1.length, nums2.length >= 0",
-        examples: [
-            { input: "1,2,3\n2,5,6", output: "1,2,2,3,5,6" }
-        ],
-        testCases: [
-            { input: "1,2,3\n2,5,6", expectedOutput: "1,2,2,3,5,6", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums1 = input[0] ? input[0].split(',').map(Number) : [];\nconst nums2 = input[1] ? input[1].split(',').map(Number) : [];\n\nfunction merge(nums1, nums2) {\n    return [...nums1, ...nums2].sort((a,b) => a-b);\n}\n\nconsole.log(merge(nums1, nums2).join(','));`
-        }
-    },
-    // 9. Matrix / Graph
-    {
-        title: "Flood Fill",
-        description: "An image is represented by an `m x n` integer grid `image` where `image[i][j]` represents the pixel value of the image.\n\nYou are also given three integers `sr`, `sc`, and `newColor`. You should perform a flood fill on the image starting from the pixel `image[sr][sc]`.\n\nTo perform a flood fill, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color), and so on. Replace the color of all of the aforementioned pixels with `newColor`.",
-        difficulty: "Easy",
-        tags: ["Graph", "Matrix", "DFS/BFS"],
-        inputFormat: "Line 1: JSON grid (image)\nLine 2: sr\nLine 3: sc\nLine 4: newColor",
-        outputFormat: "JSON grid",
-        constraints: "m == image.length, n == image[i].length",
-        examples: [
-            { input: "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2", output: "[[2,2,2],[2,2,0],[2,0,1]]", explanation: "From the center of the image with position (1, 1), all pixels connected by a path of the same color as the starting pixel (i.e., the blue pixels) are colored with the new color." }
-        ],
-        testCases: [
-            { input: "[[1,1,1],[1,1,0],[1,0,1]]\n1\n1\n2", expectedOutput: "[[2,2,2],[2,2,0],[2,0,1]]", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst input = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst image = JSON.parse(input[0]);\nconst sr = Number(input[1]);\nconst sc = Number(input[2]);\nconst color = Number(input[3]);\n\nfunction floodFill(image, sr, sc, newColor) {\n    // Write code\n}\n\nconsole.log(JSON.stringify(floodFill(image, sr, sc, color)));`
-        }
-    },
-    // 10. Bits
+    // 15. Single Number (Bit Manipulation)
     {
         title: "Single Number",
         description: "Given a non-empty array of integers `nums`, every element appears twice except for one. Find that single one.\n\nYou must implement a solution with a linear runtime complexity and use only constant extra space.",
+        imageUrl: "",
         difficulty: "Easy",
         tags: ["Bit Manipulation"],
         inputFormat: "Comma separated nums",
@@ -204,261 +306,10 @@ const questions = [
         ],
         testCases: [
             { input: "2,2,1", expectedOutput: "1", isPublic: true },
-            { input: "4,1,2,1,2", expectedOutput: "4", isPublic: true }
+            { input: "4,1,2,1,2", expectedOutput: "4", isPublic: true },
+            { input: "1,1,3,3,5", expectedOutput: "5", isPublic: false }
         ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n\nfunction singleNumber(nums) {\n    // Write code\n}\n\nconsole.log(singleNumber(nums));`
-        }
-    },
-    // 11. Array
-    {
-        title: "Maximum Subarray",
-        description: "Given an integer array `nums`, find the subarray with the largest sum, and return its sum.",
-        difficulty: "Medium",
-        tags: ["Array", "DP"],
-        inputFormat: "Comma separated nums",
-        outputFormat: "Integer sum",
-        constraints: "-10^4 <= nums[i] <= 10^4",
-        examples: [
-            { input: "-2,1,-3,4,-1,2,1,-5,4", output: "6", explanation: "[4,-1,2,1] has the largest sum = 6." }
-        ],
-        testCases: [
-            { input: "-2,1,-3,4,-1,2,1,-5,4", expectedOutput: "6", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n\nfunction maxSubArray(nums) {\n    // Write your code here\n}\n\nconsole.log(maxSubArray(nums));`
-        }
-    },
-    // 12. String
-    {
-        title: "Valid Anagram",
-        description: "Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.\n\nAn Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.",
-        difficulty: "Easy",
-        tags: ["String", "Hash Table"],
-        inputFormat: "Line 1: s\nLine 2: t",
-        outputFormat: "true or false",
-        constraints: "1 <= s.length, t.length <= 5 * 10^4",
-        examples: [
-            { input: "anagram\nnagaram", output: "true" },
-            { input: "rat\ncar", output: "false" }
-        ],
-        testCases: [
-            { input: "anagram\nnagaram", expectedOutput: "true", isPublic: true },
-            { input: "rat\ncar", expectedOutput: "false", isPublic: true }
-        ],
-        starterCode: {
-            javascript: `const fs = require('fs');\nconst [s, t] = fs.readFileSync(0, 'utf-8').trim().split('\\n');\n\nfunction isAnagram(s, t) {\n    // Write code\n}\n\nconsole.log(isAnagram(s, t));`
-        }
-    },
-    // 13. Math
-    {
-        title: "Fizz Buzz",
-        description: "Given an integer `n`, return a string array `answer` (1-indexed) where `answer[i] == \"FizzBuzz\"` if i is divisible by 3 and 5, `\"Fizz\"` if by 3, `\"Buzz\"` if by 5, and `i` otherwise.",
-        difficulty: "Easy",
-        tags: ["Math"],
-        inputFormat: "Integer n",
-        outputFormat: "Comma separated strings",
-        constraints: "1 <= n <= 10^4",
-        examples: [
-            { input: "3", output: "1,2,Fizz" },
-            { input: "5", output: "1,2,Fizz,4,Buzz" }
-        ],
-        testCases: [
-            { input: "3", expectedOutput: "1,2,Fizz", isPublic: true },
-            { input: "5", expectedOutput: "1,2,Fizz,4,Buzz", isPublic: true }
-        ],
-        starterCode: { javascript: `const fs = require('fs');\nconst n = Number(fs.readFileSync(0, 'utf-8').trim());\n\nfunction fizzBuzz(n) {\n    // Write code\n}\n\nconsole.log(fizzBuzz(n).join(','));` }
-    },
-    // 14. Binary Search
-    {
-        title: "Binary Search",
-        description: "Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, then return its index. Otherwise, return `-1`.",
-        difficulty: "Easy",
-        tags: ["Binary Search"],
-        inputFormat: "Line 1: comma separated nums\nLine 2: target",
-        outputFormat: "Target index or -1",
-        constraints: "1 <= nums.length <= 10^4",
-        examples: [
-            { input: "-1,0,3,5,9,12\n9", output: "4", explanation: "9 exists in nums and its index is 4" }
-        ],
-        testCases: [
-            { input: "-1,0,3,5,9,12\n9", expectedOutput: "4", isPublic: true }
-        ],
-        starterCode: { javascript: `const fs = require('fs');\nconst lines = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums = lines[0].split(',').map(Number);\nconst target = Number(lines[1]);\n// Write code` }
-    },
-    // 15. Array
-    {
-        title: "Missing Number",
-        description: "Given an array `nums` containing `n` distinct numbers in the range `[0, n]`, return the only number in the range that is missing from the array.",
-        difficulty: "Easy",
-        tags: ["Array", "Math"],
-        inputFormat: "Comma separated nums",
-        outputFormat: "Missing Number",
-        constraints: "n == nums.length, 1 <= n <= 10^4",
-        examples: [
-            { input: "3,0,1", output: "2", explanation: "n = 3 since there are 3 numbers, so all numbers are in the range [0,3]. 2 is the missing number in the range since it does not appear in nums." },
-            { input: "0,1", output: "2", explanation: "n = 2 since there are 2 numbers, so all numbers are in the range [0,2]. 2 is the missing number." }
-        ],
-        testCases: [
-            { input: "3,0,1", expectedOutput: "2", isPublic: true },
-            { input: "0,1", expectedOutput: "2", isPublic: true }
-        ],
-        starterCode: { javascript: `const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n// Write code` }
-    },
-    // New 10 Questions
-    {
-        title: "Valid Perfect Square",
-        description: "Given a positive integer `num`, return `true` if `num` is a perfect square or `false` otherwise.\n\nA perfect square is an integer that is the square of an integer. In other words, it is the product of some integer with itself.",
-        difficulty: "Easy",
-        tags: ["Math"],
-        inputFormat: "Single Integer num",
-        outputFormat: "true or false",
-        constraints: "1 <= num <= 2^31 - 1",
-        examples: [
-            { input: "16", output: "true", explanation: "4 * 4 = 16" },
-            { input: "14", output: "false", explanation: "No integer squares to 14" }
-        ],
-        testCases: [{ input: "16", expectedOutput: "true", isPublic: true }, { input: "14", expectedOutput: "false", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst num = Number(fs.readFileSync(0, 'utf-8'));\n// Write code` }
-    },
-    {
-        title: "Move Zeroes",
-        description: "Given an integer array `nums`, move all `0`'s to the end of it while maintaining the relative order of the non-zero elements.\n\nNote that you must do this in-place without making a copy of the array.",
-        difficulty: "Easy",
-        tags: ["Array"],
-        inputFormat: "Comma separated nums",
-        outputFormat: "Comma separated nums (modified)",
-        constraints: "1 <= nums.length <= 10^4",
-        examples: [
-            { input: "0,1,0,3,12", output: "1,3,12,0,0" }
-        ],
-        testCases: [{ input: "0,1,0,3,12", expectedOutput: "1,3,12,0,0", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n// Write code\nconsole.log(nums.join(','));` }
-    },
-    {
-        title: "Intersection of Two Arrays",
-        description: "Given two integer arrays `nums1` and `nums2`, return an array of their intersection. Each element in the result must be unique and you may return the result in any order.",
-        difficulty: "Easy",
-        tags: ["Array", "Hash Table"],
-        inputFormat: "Line 1: nums1\nLine 2: nums2",
-        outputFormat: "Intersection array",
-        constraints: "1 <= nums1.length, nums2.length <= 1000",
-        examples: [
-            { input: "1,2,2,1\n2,2", output: "2" },
-            { input: "4,9,5\n9,4,9,8,4", output: "4,9" }
-        ],
-        testCases: [{ input: "1,2,2,1\n2,2", expectedOutput: "2", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst inp = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums1 = inp[0].split(',').map(Number);\nconst nums2 = inp[1].split(',').map(Number);\n// Write code` }
-    },
-    {
-        title: "Defanging an IP Address",
-        description: "Given a valid (IPv4) IP `address`, return a defanged version of that IP address.\n\nA defanged IP address replaces every period \".\" with \"[.]\".",
-        difficulty: "Easy",
-        tags: ["String", "WebDev"],
-        inputFormat: "String address",
-        outputFormat: "Defanged String",
-        constraints: "address is a valid IPv4 address",
-        examples: [
-            { input: "1.1.1.1", output: "1[.]1[.]1[.]1" },
-            { input: "255.100.50.0", output: "255[.]100[.]50[.]0" }
-        ],
-        testCases: [{ input: "1.1.1.1", expectedOutput: "1[.]1[.]1[.]1", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst addr = fs.readFileSync(0, 'utf-8').trim();\n// Write code` }
-    },
-    {
-        title: "Search Insert Position",
-        description: "Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.\n\nYou must write an algorithm with O(log n) runtime complexity.",
-        difficulty: "Easy",
-        tags: ["Binary Search"],
-        inputFormat: "Line 1: nums\nLine 2: target",
-        outputFormat: "Index integer",
-        constraints: "1 <= nums.length <= 10^4",
-        examples: [
-            { input: "1,3,5,6\n5", output: "2" },
-            { input: "1,3,5,6\n2", output: "1" }
-        ],
-        testCases: [{ input: "1,3,5,6\n5", expectedOutput: "2", isPublic: true }, { input: "1,3,5,6\n2", expectedOutput: "1", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst l = fs.readFileSync(0, 'utf-8').trim().split('\\n');\nconst nums = l[0].split(',').map(Number);\nconst t = Number(l[1]);\n// Write code` }
-    },
-    {
-        title: "Majority Element",
-        description: "Given an array `nums` of size `n`, return the majority element.\n\nThe majority element is the element that appears more than `⌊n / 2⌋` times. You may assume that the majority element always exists in the array.",
-        difficulty: "Easy",
-        tags: ["Array"],
-        inputFormat: "Comma separated nums",
-        outputFormat: "Majority element",
-        constraints: "n == nums.length",
-        examples: [
-            { input: "3,2,3", output: "3" },
-            { input: "2,2,1,1,1,2,2", output: "2" }
-        ],
-        testCases: [{ input: "3,2,3", expectedOutput: "3", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst n = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n// Write code` }
-    },
-    {
-        title: "Reverse Linked List Array",
-        description: "Given a an array representing a linked list, return the reversed list (as an array output).",
-        difficulty: "Easy",
-        tags: ["Linked List"],
-        inputFormat: "Comma separated numbers",
-        outputFormat: "Comma separated numbers",
-        constraints: "0 <= nodes <= 5000",
-        examples: [
-            { input: "1,2,3,4,5", output: "5,4,3,2,1" },
-            { input: "1,2", output: "2,1" }
-        ],
-        testCases: [{ input: "1,2,3,4,5", expectedOutput: "5,4,3,2,1", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst inp = fs.readFileSync(0, 'utf-8').trim().split(',');\n// Write code reversing` }
-    },
-    {
-        title: "First Unique Character in a String",
-        description: "Given a string `s`, find the first non-repeating character in it and return its index. If it does not exist, return -1.",
-        difficulty: "Easy",
-        tags: ["String"],
-        inputFormat: "String s",
-        outputFormat: "Index",
-        constraints: "1 <= s.length <= 10^5",
-        examples: [
-            { input: "leetcode", output: "0" },
-            { input: "loveleetcode", output: "2" },
-            { input: "aabb", output: "-1" }
-        ],
-        testCases: [{ input: "leetcode", expectedOutput: "0", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst s = fs.readFileSync(0, 'utf-8').trim();\n// Write code` }
-    },
-    {
-        title: "Longest Common Prefix",
-        description: "Write a function to find the longest common prefix string amongst an array of strings.\n\nIf there is no common prefix, return an empty string \"\".",
-        difficulty: "Easy",
-        tags: ["String"],
-        inputFormat: "Comma separated strings",
-        outputFormat: "Prefix string",
-        constraints: "1 <= strs.length <= 200",
-        examples: [
-            { input: "flower,flow,flight", output: "fl" },
-            { input: "dog,racecar,car", output: "" }
-        ],
-        testCases: [{ input: "flower,flow,flight", expectedOutput: "fl", isPublic: true }],
-        starterCode: { javascript: `const fs = require('fs');\nconst strs = fs.readFileSync(0, 'utf-8').trim().split(',');\n// Write code` }
-    },
-    {
-        title: "Power of Three",
-        description: "Given an integer `n`, return `true` if it is a power of three. Otherwise, return `false`.\n\nAn integer `n` is a power of three, if there exists an integer `x` such that `n == 3^x`.",
-        difficulty: "Easy",
-        tags: ["Math", "Recursion"],
-        inputFormat: "Integer n",
-        outputFormat: "true or false",
-        constraints: "-2^31 <= n <= 2^31 - 1",
-        examples: [
-            { input: "27", output: "true", explanation: "27 = 3^3" },
-            { input: "0", output: "false" },
-            { input: "45", output: "false" }
-        ],
-        testCases: [
-            { input: "27", expectedOutput: "true", isPublic: true },
-            { input: "45", expectedOutput: "false", isPublic: true }
-        ],
-        starterCode: { javascript: `const fs = require('fs');\nconst n = Number(fs.readFileSync(0, 'utf-8').trim());\n// Write code` }
+        starterCode: { javascript: `const fs = require('fs');\nconst nums = fs.readFileSync(0, 'utf-8').trim().split(',').map(Number);\n\nfunction singleNumber(nums) {\n    // Write code\n}\n\nconsole.log(singleNumber(nums));` }
     }
 ];
 
@@ -467,7 +318,7 @@ mongoose.connect(MONGO_URI)
         try {
             await CodingQuestion.deleteMany({});
             await CodingQuestion.insertMany(questions);
-            console.log("Seeded 25 FULLY detailed questions!");
+            console.log("Seeded 15 FULLY detailed questions, 8 of which have beautiful visual placehold diagrams!");
         } catch (err) {
             console.error(err);
         } finally {

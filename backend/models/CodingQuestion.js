@@ -9,6 +9,10 @@ const codingQuestionSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    default: "",
+  },
   difficulty: {
     type: String,
     enum: ['Easy', 'Medium', 'Hard'],

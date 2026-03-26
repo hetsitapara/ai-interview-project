@@ -8,6 +8,7 @@ export default function InterviewExperience() {
   const [loading, setLoading] = useState(true);
   const [experiences, setExperiences] = useState([]);
   const [featured, setFeatured] = useState(null);
+  const [expandedDesc, setExpandedDesc] = useState({});
 
   const mockExperiences = [
     { _id: '1', company: 'Google', role: 'SDE II', level: 'Hard', date: '2024-01-15', location: 'Bangalore', desc: '5 rounds total: 2 technical coding, 1 system design, 1 behavioral, 1 hiring committee. Heavy focus on graphs and dynamic programming. System design was for a URL shortener at scale.', topics: ['Graphs', 'DP', 'System Design', 'Behavioral'], rating: 4.8, emoji: '🌐' },
@@ -120,7 +121,7 @@ export default function InterviewExperience() {
                   <span style={{ color: '#64748b', fontSize: '13px', marginLeft: '6px', fontWeight: '600' }}>{exp.rating}</span>
                 </div>
 
-                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.7', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', marginBottom: '20px' }}>
+                <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.7', overflow: expandedDesc[exp._id] ? 'visible' : 'hidden', display: expandedDesc[exp._id] ? 'block' : '-webkit-box', WebkitLineClamp: expandedDesc[exp._id] ? 'unset' : 3, WebkitBoxOrient: 'vertical', marginBottom: '20px' }}>
                   {exp.desc}
                 </p>
 
@@ -132,11 +133,11 @@ export default function InterviewExperience() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                   <span style={{ color: '#374151', fontSize: '12px' }}>{new Date(exp.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-                  <button style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#818cf8', fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'gap 0.2s ease' }}
+                  <button onClick={() => setExpandedDesc(prev => ({...prev, [exp._id]: !prev[exp._id]}))} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#818cf8', fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'gap 0.2s ease' }}
                     onMouseEnter={e => e.currentTarget.style.gap = '10px'}
                     onMouseLeave={e => e.currentTarget.style.gap = '6px'}
                   >
-                    Read Full Story <ChevronRight size={14} />
+                    {expandedDesc[exp._id] ? 'Show Less' : 'Read Full Story'} <ChevronRight size={14} style={{ transform: expandedDesc[exp._id] ? 'rotate(-90deg)' : 'none', transition: 'transform 0.2s' }} />
                   </button>
                 </div>
               </div>

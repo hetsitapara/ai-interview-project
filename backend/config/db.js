@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ai-interview';
+    const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/sdp-project';
     const maxRetries = 5;
     let retries = 0;
 

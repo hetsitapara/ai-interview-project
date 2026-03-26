@@ -23,6 +23,8 @@ export default function Interview() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState([]); // Array of { questionId, userAnswer, timeTaken }
     const [currentAnswer, setCurrentAnswer] = useState("");
+    const [resumeUploaded, setResumeUploaded] = useState(false);
+    const [dragActive, setDragActive] = useState(false);
     const [resumeAnalysis, setResumeAnalysis] = useState(null); // New state for resume analysis data
     const [loadingMessage, setLoadingMessage] = useState('');
     const [isListening, setIsListening] = useState(false);
@@ -566,8 +568,6 @@ export default function Interview() {
 
     const renderSetup = () => {
         const selectedCats = config.category !== 'Random' ? config.category.split(',').map(c => c.trim()).filter(Boolean) : [];
-        const [resumeUploaded, setResumeUploaded] = useState(false);
-        const [dragActive, setDragActive] = useState(false);
 
         const handleDrop = (e) => {
             e.preventDefault(); setDragActive(false);

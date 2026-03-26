@@ -1,13 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  Users, 
-  FileEdit, 
-  Newspaper, 
-  CheckSquare, 
-  Scale, 
-  Terminal,
-  LayoutDashboard,
-  ShieldCheck
+import {
+  Users, FileEdit, Newspaper, CheckSquare, Scale, Terminal,
+  ShieldCheck, LogOut, BarChart2, Zap
 } from "lucide-react";
 import "../styles/admin.css";
 
@@ -16,42 +10,74 @@ export default function AdminSidebar() {
   const isActive = (path) => location.pathname === path;
 
   const menuItems = [
-    { path: "/admin/manage-users", label: "Users Registry", icon: Users },
-    { path: "/admin/manage-questions", label: "Questionnaire", icon: FileEdit },
-    { path: "/admin/manage-blogs", label: "Knowledge Hub", icon: Newspaper },
-    { path: "/admin/manage-mcq", label: "Objective MCQ", icon: CheckSquare },
-    { path: "/admin/manage-yesno", label: "Binary Assessment", icon: Scale },
-    { path: "/admin/manage-coding", label: "Coding Engine", icon: Terminal },
+    { path: "/admin/manage-users",     label: "Users",       sub: "Registry & Roles",    icon: Users,      col: "#a78bfa" },
+    { path: "/admin/manage-questions", label: "Questions",   sub: "Questionnaire Bank",  icon: FileEdit,   col: "#60a5fa" },
+    { path: "/admin/manage-blogs",     label: "Blogs",       sub: "Knowledge Hub",       icon: Newspaper,  col: "#f472b6" },
+    { path: "/admin/manage-mcq",       label: "MCQ",         sub: "Objective Tests",     icon: CheckSquare,col: "#4ade80" },
+    { path: "/admin/manage-yesno",     label: "Yes / No",    sub: "Binary Assessment",   icon: Scale,      col: "#fbbf24" },
+    { path: "/admin/manage-coding",    label: "Coding",      sub: "Challenge Engine",    icon: Terminal,   col: "#f87171" },
   ];
 
   return (
-    <div className="admin-sidebar">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '40px', padding: '0 8px' }}>
-        <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, var(--admin-accent), #4f46e5)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px -4px rgba(99, 102, 241, 0.5)' }}>
-          <ShieldCheck color="#fff" size={24} />
+    <aside className="admin-sidebar">
+      {/* ── Logo ── */}
+      <div className="admin-logo-wrap">
+        <div className="admin-logo-icon">
+          <ShieldCheck size={22} color="#fff" />
+          <span className="admin-logo-pulse" />
         </div>
         <div>
-          <h2 style={{ fontSize: '20px', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>Nexus <span style={{ color: 'var(--admin-accent)', fontSize: '14px', fontWeight: '400', display: 'block', marginTop: '-4px' }}>Control Center</span></h2>
+          <div className="admin-logo-name">PrepAI</div>
+          <div className="admin-logo-role">
+            <Zap size={10} style={{ marginRight: 4 }} /> Admin Console
+          </div>
         </div>
       </div>
 
-      <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '2px', padding: '0 12px 16px' }}>Core Management</div>
-      
-      <ul>
-        {menuItems.map((item) => (
-          <li key={item.path} className={isActive(item.path) ? "active" : ""}>
-            <Link to={item.path}>
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      
-      <div style={{ marginTop: 'auto', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ fontSize: '13px', color: '#fff', fontWeight: '600', marginBottom: '4px' }}>Admin Protocol v4.0</div>
-        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>Encryption: AES-256 Enabled</div>
+      {/* ── Status bar ── */}
+      <div className="admin-status-bar">
+        <span className="admin-status-dot" />
+        <span>All Systems Operational</span>
       </div>
-    </div>
+
+      {/* ── Nav label ── */}
+      <div className="admin-nav-label">Navigation</div>
+
+      {/* ── Menu ── */}
+      <nav className="admin-nav">
+        {menuItems.map((item) => {
+          const active = isActive(item.path);
+          return (
+            <Link key={item.path} to={item.path} className={`admin-nav-item ${active ? "active" : ""}`}
+              style={{ "--item-col": item.col }}>
+              {active && <span className="admin-item-glow" style={{ background: item.col }} />}
+              <span className="admin-item-icon" style={{ background: active ? `${item.col}22` : "rgba(255,255,255,0.04)", border: `1px solid ${active ? item.col + "40" : "rgba(255,255,255,0.06)"}` }}>
+                <item.icon size={16} color={active ? item.col : "#94a3b8"} />
+              </span>
+              <span className="admin-item-text">
+                <span className="admin-item-label" style={{ color: active ? "#fff" : "#94a3b8" }}>{item.label}</span>
+                <span className="admin-item-sub">{item.sub}</span>
+              </span>
+              {active && <span className="admin-item-bar" style={{ background: item.col }} />}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* ── Spacer ── */}
+      <div style={{ flex: 1 }} />
+
+      {/* ── Footer card ── */}
+      <div className="admin-sidebar-foot">
+        <div className="admin-foot-avatar">A</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="admin-foot-name">Admin</div>
+          <div className="admin-foot-badge">Super Admin</div>
+        </div>
+        <button className="admin-foot-logout" title="Logout">
+          <LogOut size={15} color="#f87171" />
+        </button>
+      </div>
+    </aside>
   );
 }

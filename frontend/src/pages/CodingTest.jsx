@@ -478,7 +478,18 @@ export default function CodingTest() {
                   </div>
 
                   {/* Description */}
-                  <p style={{ fontSize: "15px", lineHeight: "1.8", color: "#94a3b8", marginBottom: "28px" }}>{selectedQuestion.description}</p>
+                  <div style={{ marginBottom: "28px" }}>
+                    <p style={{ fontSize: "15px", lineHeight: "1.8", color: "#94a3b8", whiteSpace: "pre-wrap" }}>{selectedQuestion.description}</p>
+                    {selectedQuestion.imageUrl && (
+                      <div style={{ marginTop: "24px", borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.2)", padding: "16px", display: "flex", justifyContent: "center" }}>
+                        <img 
+                          src={selectedQuestion.imageUrl} 
+                          alt="Problem Illustration" 
+                          style={{ maxWidth: "100%", maxHeight: "400px", objectFit: "contain", borderRadius: "8px" }} 
+                        />
+                      </div>
+                    )}
+                  </div>
 
                   {/* I/O Format */}
                   <div style={{ display: "grid", gap: "12px", marginBottom: "28px" }}>

@@ -9,6 +9,7 @@ export default function Blogs() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [viewingBlog, setViewingBlog] = useState(null);
   const [loadingCreate, setLoadingCreate] = useState(false);
+  const [expandedBlogs, setExpandedBlogs] = useState({});
 
   const categories = ['General', 'DSA', 'System Design', 'HR', 'Career Tips', 'Behavioral', 'Frontend', 'Backend', 'DevOps', 'Machine Learning', 'Database'];
 
@@ -146,7 +147,8 @@ export default function Blogs() {
             {blogs.map((blog, index) => {
               const col = categoryColors[blog.tag] || '#8b5cf6';
               const isOwner = currentUser && (currentUser._id === blog.user || currentUser.role === 'admin');
-              const excerpt = blog.content.length > 180 ? blog.content.substring(0, 180) + '...' : blog.content;
+              const isExpanded = expandedBlogs[blog._id];
+              const excerpt = !isExpanded && blog.content.length > 180 ? blog.content.substring(0, 180) + '...' : blog.content;
               return (
                 <div key={blog._id} className="blog-article" style={{ display: 'inline-block', width: '100%', marginBottom: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '28px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', animation: `fadeUp ${0.4 + index * 0.05}s ease`, cursor: 'default' }}>
                   {/* Top Row */}
@@ -156,14 +158,16 @@ export default function Blogs() {
                   </div>
 
                   <h3 style={{ color: '#fff', fontSize: '19px', fontWeight: '800', lineHeight: '1.3', marginBottom: '12px', letterSpacing: '-0.3px' }}>{blog.title}</h3>
-                  <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.7', marginBottom: '20px' }}>{excerpt}</p>
+                  <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.7', marginBottom: '20px', whiteSpace: 'pre-wrap' }}>{excerpt}</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ fontSize: '13px', color: '#475569' }}>
                       By <strong style={{ color: '#94a3b8' }}>{blog.author}</strong> · {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </div>
-                    <button className="read-btn" onClick={() => setViewingBlog(blog)} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: col, fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease' }}>
-                      Read more →
-                    </button>
+                    {blog.content.length > 180 && (
+                      <button className="read-btn" onClick={() => setExpandedBlogs(prev => ({...prev, [blog._id]: !prev[blog._id]}))} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: col, fontSize: '13px', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                        {isExpanded ? 'Show less ←' : 'Read more →'}
+                      </button>
+                    )}
                   </div>
                 </div>
               );

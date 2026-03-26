@@ -9,9 +9,11 @@ export default function MainLayout() {
   }
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Outlet />
-    </>
+      <main className="flex-1 pt-[120px] w-full max-w-[1600px] mx-auto px-6">
+        <Outlet />
+      </main>
+    </div>
   );
 }
