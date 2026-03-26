@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const YesNoQuestion = require('./models/YesNoQuestion');
+const YesNoQuestion = require('../models/YesNoQuestion');
 
 dotenv.config({ path: './backend/.env' });
 

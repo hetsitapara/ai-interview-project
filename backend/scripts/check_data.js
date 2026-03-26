@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const CodingQuestion = require('./models/CodingQuestion');
+const CodingQuestion = require('../models/CodingQuestion');
 
 const MONGO_URI = 'mongodb://127.0.0.1:27017/sdp-project';
 

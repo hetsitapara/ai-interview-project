@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const Blog = require('./models/Blog');
-const InterviewExperience = require('./models/InterviewExperience');
-const User = require('./models/User');
+const Blog = require('../models/Blog');
+const InterviewExperience = require('../models/InterviewExperience');
+const User = require('../models/User');
 
 // Hardcoded URI as backup
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/sdp-project';
