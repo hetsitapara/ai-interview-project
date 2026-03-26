@@ -4,8 +4,8 @@ import "../styles/interview.css";
 import "../styles/report.css";
 import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal, FaBrain } from "react-icons/fa";
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import DeepAnalysis from '../components/DeepAnalysis';
+import { generatePremiumPDF } from '../utils/generatePremiumPDF';
 
 const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api';
 
@@ -434,70 +434,8 @@ export default function Interview() {
     };
 
     const downloadReport = () => {
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const margin = 20;
-        const maxLineWidth = pageWidth - margin * 2;
-        let y = 20;
-
-        // Header
-        doc.setFontSize(22);
-        doc.setTextColor(40, 40, 40);
-        doc.text("Interview Analysis Report", margin, y);
-        y += 10;
-
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text(`Category: ${config.category}  |  Date: ${new Date().toLocaleDateString()}`, margin, y);
-        y += 15;
-
-        // Score
-        doc.setFontSize(16);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Overall Score: ${report.overallScore.toFixed(1)} / 10`, margin, y);
-        y += 20;
-
-        doc.setLineWidth(0.5);
-        doc.line(margin, y - 10, pageWidth - margin, y - 10);
-
-        // Questions
-        doc.setFontSize(12);
-
-        report.questions.forEach((q, index) => {
-            // Check page break
-            if (y > 270) {
-                doc.addPage();
-                y = 20;
-            }
-
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0);
-            const qTitle = `Q${index + 1}: ${q.questionText} (${q.final_score}/10)`;
-            const qLines = doc.splitTextToSize(qTitle, maxLineWidth);
-            doc.text(qLines, margin, y);
-            y += qLines.length * 7;
-
-            // Check space for answers
-            if (y > 270) { doc.addPage(); y = 20; }
-
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(50);
-            const ansPrefix = "Your Answer: ";
-            // Strip basic HTML if present or newlines? Usually plain text.
-            const ansText = doc.splitTextToSize(ansPrefix + (q.userAnswer || "No answer"), maxLineWidth);
-            doc.text(ansText, margin, y);
-            y += ansText.length * 7;
-
-            if (y > 270) { doc.addPage(); y = 20; }
-
-            doc.setTextColor(100); // Greyer for ideal
-            const idealPrefix = "Ideal Answer: ";
-            const idealText = doc.splitTextToSize(idealPrefix + (q.idealAnswer || "N/A"), maxLineWidth);
-            doc.text(idealText, margin, y);
-            y += idealText.length * 7 + 10; // Extra spacing
-        });
-
-        doc.save(`Interview_Report_${config.category.replace(/,/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+        if (!report) return;
+        generatePremiumPDF(report);
     };
 
     const toggleMic = () => {

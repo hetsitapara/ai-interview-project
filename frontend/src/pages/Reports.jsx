@@ -3,8 +3,9 @@ import axios from "axios";
 import {
   FaArrowLeft, FaCalendarAlt, FaChartLine, FaCheckCircle,
   FaExclamationTriangle, FaLightbulb, FaBrain, FaRedo,
-  FaSpellCheck, FaChevronDown, FaChevronUp
+  FaSpellCheck, FaChevronDown, FaChevronUp, FaFilePdf
 } from "react-icons/fa";
+import { generatePremiumPDF } from "../utils/generatePremiumPDF";
 
 const API = 'http://127.0.0.1:5001/api';
 
@@ -385,15 +386,30 @@ function DetailView({ report, coaching, coachingLoading, detailLoading, fetchCoa
         {/* ── Report Header Bento ───── */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "24px", marginBottom: "40px", alignItems: "start", animation: "fadeUp 0.5s ease" }}>
           <div style={{ background: grade.bg, border: `1px solid ${grade.color}25`, borderRadius: "28px", padding: "36px 40px" }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", color: grade.color, textTransform: "uppercase", letterSpacing: "2px", marginBottom: "16px" }}>
-              {grade.label} Performance
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: grade.color, textTransform: "uppercase", letterSpacing: "2px", marginBottom: "8px" }}>
+                  {grade.label} Performance
+                </div>
+                <h1 style={{ fontSize: "36px", fontWeight: "900", color: "#fff", letterSpacing: "-1px", marginBottom: "8px" }}>{report.category} Report</h1>
+                <p style={{ color: "#475569", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px", marginBottom: "28px" }}>
+                  <FaCalendarAlt />{new Date(report.createdAt).toLocaleString("en-IN", { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+              <button 
+                onClick={() => generatePremiumPDF(report)}
+                style={{ 
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)', border: 'none', 
+                  color: '#fff', padding: '12px 24px', borderRadius: '50px', 
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                  fontSize: '13px', fontWeight: '800', transition: 'all 0.3s ease'
+                }}
+              >
+                <FaFilePdf /> Download PDF
+              </button>
             </div>
-            <h1 style={{ fontSize: "36px", fontWeight: "900", color: "#fff", letterSpacing: "-1px", marginBottom: "8px" }}>{report.category} Report</h1>
-            <p style={{ color: "#475569", fontSize: "15px", display: "flex", alignItems: "center", gap: "8px", marginBottom: "28px" }}>
-              <FaCalendarAlt />{new Date(report.createdAt).toLocaleString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-            </p>
             <button onClick={() => window.location.href = `/interview?retryId=${report._id}`}
-              style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 24px", borderRadius: "50px", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", border: "none", color: "#fff", fontWeight: "800", fontSize: "15px", cursor: "pointer", boxShadow: "0 6px 20px rgba(99,102,241,0.4)" }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "12px 24px", borderRadius: "50px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontWeight: "800", fontSize: "15px", cursor: "pointer" }}>
               <FaRedo />Retake This Session
             </button>
           </div>
