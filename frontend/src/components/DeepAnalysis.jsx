@@ -278,7 +278,7 @@ export default function DeepAnalysis({ report, onBack }) {
 
     const strengths    = questions.filter(q => Number(q.final_score) >= 7);
     const improvements = questions.filter(q => Number(q.final_score) < 7);
-    const allGrammar   = questions.flatMap((q, i) => (q.grammar_issues || []).map(g => `Q${i+1}: ${g}`));
+    const allGrammar   = questions.flatMap((q, i) => (Array.isArray(q.grammar_issues) ? q.grammar_issues : []).map(g => `Q${i+1}: ${g}`));
 
     const avgAccuracy = Math.round(questions.reduce((a, q) => a + (q.accuracy_score || 0), 0) / Math.max(questions.length, 1) * 100);
     const avgFluency  = Math.round(questions.reduce((a, q) => a + (q.fluency_score  || 0), 0) / Math.max(questions.length, 1) * 100);
@@ -655,8 +655,8 @@ export default function DeepAnalysis({ report, onBack }) {
                         {/* Summary insight cards */}
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
                             {[
-                                { icon: '🎯', title: 'Best Answer', val: `Q${questions.indexOf(questions.reduce((a,b) => Number(a.final_score) > Number(b.final_score) ? a : b)) + 1}`, col: '#4ade80', desc: `Score: ${Math.max(...questions.map(q=>Number(q.final_score))).toFixed(1)}/10` },
-                                { icon: '📉', title: 'Needs Work', val: `Q${questions.indexOf(questions.reduce((a,b) => Number(a.final_score) < Number(b.final_score) ? a : b)) + 1}`, col: '#f87171', desc: `Score: ${Math.min(...questions.map(q=>Number(q.final_score))).toFixed(1)}/10` },
+                                { icon: '🎯', title: 'Best Answer', val: questions.length ? `Q${questions.indexOf(questions.reduce((a,b) => Number(a.final_score) > Number(b.final_score) ? a : b, questions[0])) + 1}` : '-', col: '#4ade80', desc: `Score: ${questions.length ? Math.max(...questions.map(q=>Number(q.final_score))).toFixed(1) : 0}/10` },
+                                { icon: '📉', title: 'Needs Work', val: questions.length ? `Q${questions.indexOf(questions.reduce((a,b) => Number(a.final_score) < Number(b.final_score) ? a : b, questions[0])) + 1}` : '-', col: '#f87171', desc: `Score: ${questions.length ? Math.min(...questions.map(q=>Number(q.final_score))).toFixed(1) : 0}/10` },
                                 { icon: '📊', title: 'Avg Score', val: `${(questions.reduce((s,q)=>s+Number(q.final_score),0)/Math.max(questions.length,1)).toFixed(1)}`, col: '#818cf8', desc: 'Across all questions' },
                             ].map((card, i) => (
                                 <div key={i} className="da-insight-card" style={{
