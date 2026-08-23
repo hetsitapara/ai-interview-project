@@ -333,7 +333,7 @@ export default function DeepAnalysis({ report, onBack }) {
                     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
                     fontSize: 14, fontWeight: 700
                 }}>
-                    <FaArrowLeft /> Back to Summary
+                    <FaHome /> Return to Dashboard
                 </button>
 
                 {/* Logo */}
@@ -685,7 +685,7 @@ export default function DeepAnalysis({ report, onBack }) {
                 zIndex: 200, animation: 'daFadeUp .6s ease .4s both'
             }}>
                 {[
-                    { label: 'Back',    icon: '←',   onClick: onBack,                            style: { background: 'rgba(255,255,255,.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,.1)' } },
+                    { label: 'Home',    icon: '🏠',   onClick: onBack,                            style: { background: 'rgba(255,255,255,.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,.1)' } },
                     { label: 'Overview',icon: '📊',   onClick: () => setActiveTab('overview'),    style: activeTab==='overview'?{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff'}:{background:'rgba(255,255,255,.04)',color:'#94a3b8',border:'1px solid rgba(255,255,255,.08)'} },
                     { label: 'Questions',icon:'❓',   onClick: () => setActiveTab('questions'),   style: activeTab==='questions'?{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff'}:{background:'rgba(255,255,255,.04)',color:'#94a3b8',border:'1px solid rgba(255,255,255,.08)'} },
                     { label: 'Insights',icon: '💡',  onClick: () => setActiveTab('insights'),    style: activeTab==='insights'?{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff'}:{background:'rgba(255,255,255,.04)',color:'#94a3b8',border:'1px solid rgba(255,255,255,.08)'} },

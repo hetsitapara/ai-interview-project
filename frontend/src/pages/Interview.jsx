@@ -1543,8 +1543,9 @@ export default function Interview() {
         </div>
     );
 
-    if (step === "results") return renderResults();
-    if (step === "deep_analysis") return <DeepAnalysis report={report} onBack={() => setStep("results")} />;
+    if (step === "results" || step === "deep_analysis") {
+        return <DeepAnalysis report={report} onBack={() => window.location.href = '/dashboard'} />;
+    }
 
     return (
         <div className="interview-page">
