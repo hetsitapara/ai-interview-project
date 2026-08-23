@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../styles/interview.css";
 import "../styles/report.css";
+import "../styles/ai-loading.css";
 import { FaChartLine, FaCheckCircle, FaExclamationTriangle, FaLightbulb, FaClock, FaCommentDots, FaSpellCheck, FaHome, FaRedo, FaTerminal, FaBrain } from "react-icons/fa";
 import jsPDF from 'jspdf';
 import DeepAnalysis from '../components/DeepAnalysis';
@@ -27,6 +28,8 @@ export default function Interview() {
     const [dragActive, setDragActive] = useState(false);
     const [resumeAnalysis, setResumeAnalysis] = useState(null); // New state for resume analysis data
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [analysisProgress, setAnalysisProgress] = useState(0);
+    const [analysisStep, setAnalysisStep] = useState(0);
     const [isListening, setIsListening] = useState(false);
     const [timer, setTimer] = useState(0); // Seconds per question
     const [report, setReport] = useState(null);
@@ -392,9 +395,30 @@ export default function Interview() {
         }
     };
 
+    const ANALYSIS_STEPS = [
+        { label: 'Collecting Responses',    icon: '📋', detail: 'Packaging your answers securely...' },
+        { label: 'Connecting to AI Engine', icon: '🔗', detail: 'Establishing connection to Qwen AI...' },
+        { label: 'Evaluating Answers',      icon: '🧠', detail: 'Running deep NLP analysis on each answer...' },
+        { label: 'Scoring Performance',     icon: '📊', detail: 'Computing accuracy, fluency & keyword scores...' },
+        { label: 'Generating Feedback',     icon: '💡', detail: 'Crafting personalised improvement advice...' },
+        { label: 'Building Your Report',    icon: '📄', detail: 'Assembling the final interview report...' },
+    ];
+
     const submitInterview = async (finalAnswers) => {
         setLoadingMessage("Analyzing Interview...");
+        setAnalysisProgress(0);
+        setAnalysisStep(0);
         setStep("loading");
+
+        // Animate progress steps while we wait for the API
+        let stepIdx = 0;
+        const totalSteps = ANALYSIS_STEPS.length;
+        const stepInterval = setInterval(() => {
+            stepIdx = Math.min(stepIdx + 1, totalSteps - 1);
+            setAnalysisStep(stepIdx);
+            setAnalysisProgress(Math.round((stepIdx / (totalSteps - 1)) * 85)); // up to 85% until API responds
+        }, 1800);
+
         try {
             const token = localStorage.getItem('token');
             const res = await fetch('http://127.0.0.1:5001/api/interview/submit', {
@@ -412,8 +436,13 @@ export default function Interview() {
                 })
             });
 
+            clearInterval(stepInterval);
             if (!res.ok) throw new Error('Failed to submit interview');
 
+            setAnalysisStep(totalSteps - 1);
+            setAnalysisProgress(100);
+
+            await new Promise(r => setTimeout(r, 800)); // brief pause to show 100%
             const data = await res.json();
             setReport(data);
             setStep("results");
@@ -428,8 +457,9 @@ export default function Interview() {
             }
 
         } catch (err) {
+            clearInterval(stepInterval);
             alert(err.message);
-            setStep("interview"); // Go back on error?
+            setStep("interview");
         }
     };
 
@@ -1021,15 +1051,195 @@ export default function Interview() {
 
 
 
-    const renderLoading = () => (
-        <div className="interview-container">
-            <div className="glass-panel-premium loading-card" style={{ textAlign: 'center', padding: '60px' }}>
-                <h2>{loadingMessage}</h2>
-                <div className="spinner"></div>
-                <p>Please wait while we process your request.</p>
+    const renderLoading = () => {
+        // circumference for r=58 circle: 2*PI*58 ≈ 364.4
+        const CIRCUMFERENCE = 364.4;
+        const offset = CIRCUMFERENCE - (CIRCUMFERENCE * analysisProgress) / 100;
+
+        // Tip position on ring: angle = (progress/100)*360 degrees, starts at top (−90°)
+        const angle = (analysisProgress / 100) * 360 - 90;
+        const rad   = (angle * Math.PI) / 180;
+        const cx = 70, cy = 70, r = 58;
+        const tipX = cx + r * Math.cos(rad);
+        const tipY = cy + r * Math.sin(rad);
+
+        return (
+        <div className="ai-loading-overlay">
+            {/* Ambient orbs */}
+            <div className="ai-orb ai-orb-1" />
+            <div className="ai-orb ai-orb-2" />
+            <div className="ai-orb ai-orb-3" />
+
+            <div className="ai-loading-grid">
+
+                {/* ═══ LEFT PANEL ═══ */}
+                <div className="ai-loading-left">
+                    {/* Circuit SVG background */}
+                    <div className="ai-circuit-wrap">
+                        <svg className="ai-circuit-svg" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="cGrad" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%"   stopColor="#6366f1" stopOpacity="1"/>
+                                    <stop offset="100%" stopColor="#a855f7" stopOpacity="0.3"/>
+                                </radialGradient>
+                            </defs>
+                            {/* Main circuit lines */}
+                            <line className="circuit-line" x1="250" y1="250" x2="50"  y2="50"  stroke="#6366f1" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="450" y2="50"  stroke="#6366f1" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="50"  y2="450" stroke="#a855f7" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="450" y2="450" stroke="#a855f7" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="250" y2="30"  stroke="#8b5cf6" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="250" y2="470" stroke="#8b5cf6" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="30"  y2="250" stroke="#6366f1" strokeWidth="1.5"/>
+                            <line className="circuit-line" x1="250" y1="250" x2="470" y2="250" stroke="#6366f1" strokeWidth="1.5"/>
+                            {/* Secondary branches */}
+                            <line className="circuit-line" x1="150" y1="150" x2="150" y2="80"  stroke="#6366f1" strokeWidth="1"/>
+                            <line className="circuit-line" x1="350" y1="150" x2="420" y2="80"  stroke="#a855f7" strokeWidth="1"/>
+                            <line className="circuit-line" x1="150" y1="350" x2="80"  y2="420" stroke="#a855f7" strokeWidth="1"/>
+                            <line className="circuit-line" x1="350" y1="350" x2="420" y2="420" stroke="#6366f1" strokeWidth="1"/>
+                            <line className="circuit-line" x1="150" y1="150" x2="80"  y2="150" stroke="#6366f1" strokeWidth="1"/>
+                            <line className="circuit-line" x1="350" y1="150" x2="350" y2="80"  stroke="#a855f7" strokeWidth="1"/>
+                            {/* Nodes */}
+                            <circle className="circuit-node" cx="250" cy="250" r="14" fill="url(#cGrad)"/>
+                            <circle className="circuit-node" cx="50"  cy="50"  r="5"  fill="#6366f1"/>
+                            <circle className="circuit-node" cx="450" cy="50"  r="5"  fill="#a855f7"/>
+                            <circle className="circuit-node" cx="50"  cy="450" r="5"  fill="#a855f7"/>
+                            <circle className="circuit-node" cx="450" cy="450" r="5"  fill="#6366f1"/>
+                            <circle className="circuit-node" cx="250" cy="30"  r="5"  fill="#8b5cf6"/>
+                            <circle className="circuit-node" cx="250" cy="470" r="5"  fill="#8b5cf6"/>
+                            <circle className="circuit-node" cx="150" cy="150" r="6"  fill="#6366f1"/>
+                            <circle className="circuit-node" cx="350" cy="150" r="6"  fill="#a855f7"/>
+                            <circle className="circuit-node" cx="150" cy="350" r="6"  fill="#a855f7"/>
+                            <circle className="circuit-node" cx="350" cy="350" r="6"  fill="#6366f1"/>
+                            <circle className="circuit-node" cx="150" cy="80"  r="4"  fill="#6366f1"/>
+                            <circle className="circuit-node" cx="80"  cy="420" r="4"  fill="#a855f7"/>
+                            <circle className="circuit-node" cx="420" cy="420" r="4"  fill="#6366f1"/>
+                        </svg>
+                    </div>
+
+                    {/* Hero Text */}
+                    <div className="ai-loading-hero">
+                        <div className="ai-loading-badge">
+                            <span className="ai-loading-badge-dot" />
+                            AI Processing
+                        </div>
+
+                        <h1 className="ai-loading-h1">
+                            Analyzing<br/>Your Interview
+                        </h1>
+
+                        <p className="ai-loading-desc">
+                            Our Qwen AI engine is deeply evaluating your responses — scoring accuracy, fluency, keyword coverage &amp; communication clarity.
+                        </p>
+
+                        <div className="ai-loading-stats">
+                            <div className="ai-stat">
+                                <span className="ai-stat-value">{ANALYSIS_STEPS.length}</span>
+                                <span className="ai-stat-label">Analysis Steps</span>
+                            </div>
+                            <div className="ai-stat">
+                                <span className="ai-stat-value">{analysisProgress}%</span>
+                                <span className="ai-stat-label">Complete</span>
+                            </div>
+                            <div className="ai-stat">
+                                <span className="ai-stat-value">~45s</span>
+                                <span className="ai-stat-label">Est. Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ═══ RIGHT PANEL ═══ */}
+                <div className="ai-loading-right">
+
+                    {/* Circular progress ring */}
+                    <div className="ai-ring-wrap">
+                        <div className="ai-ring-svg-container">
+                            <svg className="ai-ring-svg" viewBox="0 0 140 140">
+                                <defs>
+                                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%"   stopColor="#6366f1"/>
+                                        <stop offset="50%"  stopColor="#a855f7"/>
+                                        <stop offset="100%" stopColor="#ec4899"/>
+                                    </linearGradient>
+                                </defs>
+                                {/* Track */}
+                                <circle className="ai-ring-track" cx="70" cy="70" r="58"/>
+                                {/* Fill */}
+                                <circle
+                                    className="ai-ring-fill"
+                                    cx="70" cy="70" r="58"
+                                    strokeDasharray={CIRCUMFERENCE}
+                                    strokeDashoffset={offset}
+                                />
+                                {/* Glowing tip dot */}
+                                {analysisProgress > 2 && (
+                                    <circle
+                                        cx={tipX} cy={tipY} r="5"
+                                        fill="#a855f7"
+                                        filter="url(#tipGlow)"
+                                    />
+                                )}
+                                <defs>
+                                    <filter id="tipGlow" x="-80%" y="-80%" width="260%" height="260%">
+                                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                                    </filter>
+                                </defs>
+                            </svg>
+                            {/* Center text */}
+                            <div className="ai-ring-center">
+                                <span className="ai-ring-pct">{analysisProgress}%</span>
+                                <span className="ai-ring-label">Complete</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Thin shimmer bar */}
+                    <div className="ai-bar-track">
+                        <div className="ai-bar-fill" style={{ width: `${analysisProgress}%` }} />
+                    </div>
+
+                    {/* Steps */}
+                    <div className="ai-steps-list">
+                        {ANALYSIS_STEPS.map((s, i) => {
+                            const isDone   = i < analysisStep;
+                            const isActive = i === analysisStep;
+                            return (
+                                <div
+                                    key={i}
+                                    className={`ai-step ${isDone ? 'is-done' : isActive ? 'is-active' : 'is-pending'}`}
+                                >
+                                    <div className="ai-step-num">
+                                        {isDone ? '✓' : i + 1}
+                                    </div>
+                                    <div className="ai-step-body">
+                                        <div className="ai-step-label">{s.label}</div>
+                                        {isActive && (
+                                            <div className="ai-step-detail">{s.detail}</div>
+                                        )}
+                                    </div>
+                                    <div className="ai-step-status">
+                                        {isDone   && <span style={{color:'#6ee7b7', fontSize:'14px'}}>✓</span>}
+                                        {isActive && <span style={{fontSize:'16px', animation:'dotBlink 1s infinite'}}>⚡</span>}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Tip */}
+                    <div className="ai-loading-tip-row">
+                        <span className="ai-loading-tip-icon">✨</span>
+                        <span className="ai-loading-tip-text">
+                            Deep analysis evaluates accuracy, fluency, keyword coverage &amp; communication clarity across all your responses.
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-    );
+        );
+    };
 
     const renderResults = () => {
         if (!report) return <div>No report data found.</div>;

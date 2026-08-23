@@ -15,7 +15,7 @@ router.post('/generate', protect, async (req, res) => {
 
     try {
         const ollama = new Ollama({ host: process.env.OLLAMA_HOST || 'http://127.0.0.1:11434' });
-        const model = process.env.OLLAMA_MODEL || 'llama3';
+        const model = process.env.OLLAMA_MODEL || 'qwen2.5:1.5b-instruct-q4_0';
 
         const prompt = `You are an expert career coach and technical mentor. Create a detailed, step-by-step learning roadmap for someone wanting to become a "${role}" at a "${level}" level.
 

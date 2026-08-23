@@ -1,0 +1,478 @@
+/* ============================================================
+   ADVANCED AI ANALYSIS LOADING SCREEN — v2 Premium
+   Matches app palette: --primary:#8b5cf6, --secondary:#6366f1
+   Font: Outfit, Background: #050510 → #101020
+   ============================================================ */
+
+/* ── Full-screen fixed overlay ── */
+.ai-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 85%, rgba(139,92,246,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(236,72,153,0.06) 0%, transparent 60%),
+    linear-gradient(160deg, #070718 0%, #0b0d22 45%, #070718 100%);
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* ── Ambient floating orbs ── */
+.ai-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.ai-orb-1 {
+  width: 700px; height: 700px;
+  top: -250px; left: -200px;
+  background: radial-gradient(circle, rgba(99,102,241,0.14) 0%, transparent 65%);
+  animation: orbDrift 12s ease-in-out infinite;
+}
+.ai-orb-2 {
+  width: 500px; height: 500px;
+  bottom: -150px; right: -120px;
+  background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 65%);
+  animation: orbDrift 15s ease-in-out infinite reverse;
+}
+.ai-orb-3 {
+  width: 300px; height: 300px;
+  top: 60%; left: 35%;
+  background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 65%);
+  animation: orbDrift 10s ease-in-out infinite 4s;
+}
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33%       { transform: translate(30px,-40px) scale(1.06); }
+  66%       { transform: translate(-20px,25px) scale(0.96); }
+}
+
+/* ── Main two-column grid ── */
+.ai-loading-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 0;
+  width: min(1160px, 95vw);
+  height: min(680px, 92vh);
+  border-radius: 28px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.1),
+    0 50px 120px rgba(0,0,0,0.65),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  animation: gridIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes gridIn {
+  from { opacity: 0; transform: scale(0.94) translateY(30px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   LEFT PANEL — Hero + Circuit SVG
+══════════════════════════════════════════ */
+.ai-loading-left {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 52px;
+  background: rgba(255,255,255,0.015);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+/* Circuit SVG container */
+.ai-circuit-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.18;
+  pointer-events: none;
+}
+.ai-circuit-svg {
+  width: 90%;
+  height: 90%;
+}
+
+/* Animated circuit lines */
+.circuit-line {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawLine 3s ease forwards;
+}
+.circuit-line:nth-child(1) { animation-delay: 0.1s; }
+.circuit-line:nth-child(2) { animation-delay: 0.3s; }
+.circuit-line:nth-child(3) { animation-delay: 0.5s; }
+.circuit-line:nth-child(4) { animation-delay: 0.7s; }
+.circuit-line:nth-child(5) { animation-delay: 0.9s; }
+.circuit-line:nth-child(6) { animation-delay: 1.1s; }
+.circuit-line:nth-child(7) { animation-delay: 1.3s; }
+.circuit-line:nth-child(8) { animation-delay: 1.5s; }
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Pulsing circuit nodes */
+.circuit-node {
+  animation: nodePulse 2s ease-in-out infinite;
+}
+.circuit-node:nth-child(odd) { animation-delay: 0.5s; }
+@keyframes nodePulse {
+  0%, 100% { opacity: 0.5; r: 5; }
+  50%       { opacity: 1;   r: 7; }
+}
+
+/* Left panel text */
+.ai-loading-hero {
+  position: relative;
+  z-index: 2;
+}
+
+.ai-loading-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a5b4fc;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.ai-loading-badge-dot {
+  width: 6px; height: 6px;
+  background: #6ee7b7;
+  border-radius: 50%;
+  animation: dotBlink 1.4s ease-in-out infinite;
+}
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+.ai-loading-h1 {
+  font-size: clamp(36px, 3.5vw, 52px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 70%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ai-loading-desc {
+  font-size: 16px;
+  color: rgba(148,163,184,0.8);
+  line-height: 1.6;
+  font-weight: 400;
+  max-width: 380px;
+  margin-bottom: 40px;
+}
+
+/* Stats row at bottom of left panel */
+.ai-loading-stats {
+  display: flex;
+  gap: 28px;
+}
+.ai-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ai-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ai-stat-label {
+  font-size: 12px;
+  color: rgba(148,163,184,0.6);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════════════
+   RIGHT PANEL — Steps + Progress ring
+══════════════════════════════════════════ */
+.ai-loading-right {
+  display: flex;
+  flex-direction: column;
+  padding: 40px 36px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(0,0,0,0.2);
+}
+.ai-loading-right::-webkit-scrollbar { width: 0; }
+
+/* ── Circular progress ring ── */
+.ai-ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.ai-ring-svg-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+}
+.ai-ring-svg {
+  width: 140px;
+  height: 140px;
+  transform: rotate(-90deg);
+}
+.ai-ring-track {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 8;
+}
+.ai-ring-fill {
+  fill: none;
+  stroke: url(#ringGrad);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+/* Glowing dot at ring tip */
+.ai-ring-tip {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 12px 4px rgba(168,85,247,0.7);
+  top: 50%; left: 50%;
+  transform-origin: 0 0;
+  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.ai-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ai-ring-pct {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ai-ring-label {
+  font-size: 10px;
+  color: rgba(148,163,184,0.6);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Thin bar below ring ── */
+.ai-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  margin-bottom: 28px;
+  overflow: hidden;
+  position: relative;
+}
+.ai-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+/* shimmer sweep */
+.ai-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  animation: shimmerSweep 1.6s ease-in-out infinite;
+}
+@keyframes shimmerSweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ── Steps list ── */
+.ai-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.ai-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: all 0.45s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Done */
+.ai-step.is-done {
+  background: rgba(110,231,183,0.05);
+  border-color: rgba(110,231,183,0.1);
+}
+.ai-step.is-done .ai-step-num { background: rgba(110,231,183,0.15); border-color: rgba(110,231,183,0.3); color: #6ee7b7; }
+.ai-step.is-done .ai-step-label { color: rgba(255,255,255,0.5); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+
+/* Active */
+.ai-step.is-active {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.3);
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.15), 0 8px 32px rgba(99,102,241,0.1);
+}
+.ai-step.is-active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(99,102,241,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.ai-step.is-active .ai-step-num {
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.5);
+  color: #a5b4fc;
+  box-shadow: 0 0 16px rgba(99,102,241,0.4);
+}
+
+/* Pending */
+.ai-step.is-pending {
+  opacity: 0.3;
+}
+
+/* Step number bubble */
+.ai-step-num {
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 14px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.5);
+  position: relative;
+  transition: all 0.45s ease;
+}
+/* Spinning ring on active step */
+.ai-step.is-active .ai-step-num::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 13px;
+  border: 2px solid transparent;
+  border-top-color: #8b5cf6;
+  border-right-color: #6366f1;
+  animation: spinRing 1s linear infinite;
+}
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+/* Step text */
+.ai-step-body {
+  flex: 1;
+  min-width: 0;
+}
+.ai-step-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-step-detail {
+  font-size: 11.5px;
+  color: rgba(148,163,184,0.65);
+  margin-top: 2px;
+  animation: stepDetailIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes stepDetailIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Step icon/check on the right */
+.ai-step-status {
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+/* ── Tip row at very bottom ── */
+.ai-loading-tip-row {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.ai-loading-tip-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.ai-loading-tip-text {
+  font-size: 11.5px;
+  color: rgba(148,163,184,0.45);
+  line-height: 1.5;
+}
+
+/* ── Responsive collapse to single column ── */
+@media (max-width: 768px) {
+  .ai-loading-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 92vh;
+  }
+  .ai-loading-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 40px 28px;
+  }
+  .ai-loading-right {
+    padding: 28px 24px;
+  }
+}

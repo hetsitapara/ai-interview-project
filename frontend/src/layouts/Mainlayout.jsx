@@ -9,9 +9,20 @@ export default function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      minHeight: '100vh', 
+      background: 'var(--page-gradient)',
+      overflowX: 'hidden'
+    }}>
       <Navbar />
-      <main className="flex-1 pt-[120px] w-full max-w-[1600px] mx-auto px-6">
+      <main style={{ 
+        flex: 1, 
+        display: 'flex', 
+        flexDirection: 'column',
+        paddingTop: '100px' 
+      }}>
         <Outlet />
       </main>
     </div>

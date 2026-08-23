@@ -270,7 +270,7 @@ router.get('/submissions/:questionId', protect, async (req, res) => {
     }
 });
 
-// @desc    AI Code Analysis using Ollama/llama3
+// @desc    AI Code Analysis using Ollama/qwen2.5:1.5b-instruct-q4_0
 // @route   POST /api/coding/analyze
 // @access  Private
 router.post('/analyze', protect, async (req, res) => {
@@ -281,7 +281,7 @@ router.post('/analyze', protect, async (req, res) => {
     try {
         const { Ollama } = require('ollama');
         const ollama = new Ollama({ host: process.env.OLLAMA_HOST || 'http://127.0.0.1:11434' });
-        const model = process.env.OLLAMA_MODEL || 'llama3';
+        const model = process.env.OLLAMA_MODEL || 'qwen2.5:1.5b-instruct-q4_0';
 
         const prompt = `You are a senior software engineer performing a technical code review. Analyze the following ${language} code${questionTitle ? ` for the problem: "${questionTitle}"` : ''}.
 

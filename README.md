@@ -47,7 +47,7 @@ Ensure you have the following installed:
 - **Python**: v3.9 or higher (for the ML resume parsing service)
 - **Ollama**: [Download here](https://ollama.com) and pull models:
   ```bash
-  ollama pull llama3
+  ollama pull qwen2.5:1.5b-instruct-q4_0
   ```
 
 ### 2. Backend Installation

@@ -1,7 +1,7 @@
 const { Ollama } = require("ollama");
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:1.5b-instruct-q4_0";
 
 const ollama = new Ollama({ host: OLLAMA_HOST });
 
@@ -10,13 +10,13 @@ const ollama = new Ollama({ host: OLLAMA_HOST });
  */
 function withTimeout(promise, ms = 60000) {
   const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(`llama3 timeout after ${ms / 1000}s`)), ms)
+    setTimeout(() => reject(new Error(`qwen2.5:1.5b-instruct-q4_0 timeout after ${ms / 1000}s`)), ms)
   );
   return Promise.race([promise, timeout]);
 }
 
 /**
- * Core llama3 call helper
+ * Core qwen2.5:1.5b-instruct-q4_0 call helper
  */
 async function askLlama(prompt, maxTokens = 512) {
   const response = await withTimeout(

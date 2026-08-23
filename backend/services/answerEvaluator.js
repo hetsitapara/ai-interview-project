@@ -17,7 +17,7 @@ Rules:
 Return ONLY valid JSON (no extra text):
 {"score": 8.0, "improved_answer": "...", "advice": "...", "rationale": "...", "accuracy": 85, "keywords_score": 80}`;
 
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:1.5b-instruct-q4_0";
 
 /**
  * Timeout wrapper: rejects if Ollama takes too long.
